@@ -56,7 +56,7 @@ export function HeaderActions() {
 
     return (
         <>
-            <Tooltip content="検索（Ctrl + K）">
+            <Tooltip content="検索（Ctrl + K）" placement="bottom">
                 <IconButton icon={Search} label="検索" onClick={() => setPaletteOpen(true)} />
             </Tooltip>
             <Popover title="お知らせ" placement="bottom-end" trigger={<IconButton icon={Bell} label="お知らせ" />}>

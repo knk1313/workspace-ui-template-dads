@@ -82,8 +82,20 @@ export type DataTableProps<T> = {
     /** 0 件のときの表示。 */
     emptyState?: ReactNode;
     loading?: boolean;
+    /**
+     * Card などの余白（左右 24px）の内側に置いたとき、表だけを左右いっぱいに広げる（px-6 の余白を打ち消す）。
+     * 一括操作とページ送りは余白の内側に残す。幅の狭い画面で表の列を少しでも広く使うため。
+     */
+    flush?: boolean;
     className?: string;
 };
+
+// 行のセルは上寄せなので、1 行目の文字の中心に合わせて部品の位置を調整する。
+//   default: 上余白 20px + 行高 27.2px（16px × 1.7）→ 文字の中心は 33.6px
+//   dense:   上余白 12px + 行高 20.8px（16px × 1.3）→ 文字の中心は 22.4px
+// チェックボックス（24px）は上余白を、操作ボタン（44px）は負のマージンで中心を揃える。
+const CHECKBOX_CELL: Record<TableSize, string> = { default: "pt-5.5", dense: "pt-2.5" };
+const ACTION_CELL: Record<TableSize, string> = { default: "-my-2", dense: "-my-3" };
 
 const SORT_ICON: Record<SortDirection | "none", typeof ArrowUp> = { asc: ArrowUp, desc: ArrowDown, none: ArrowUpDown };
 const ARIA_SORT: Record<SortDirection, "ascending" | "descending"> = { asc: "ascending", desc: "descending" };
@@ -136,6 +148,7 @@ export function DataTable<T>({
     rowActionsHeader = "操作",
     emptyState,
     loading = false,
+    flush = false,
     className,
 }: DataTableProps<T>) {
     const [sort, setSort] = useControllable<SortState>(sortProp, defaultSort, onSortChange);
@@ -211,7 +224,7 @@ export function DataTable<T>({
     return (
         <div className={cn("flex flex-col gap-4", className)} aria-busy={loading || undefined}>
             {selectable && selectedIds.length > 0 && (
-                <div role="region" aria-label="選択中の項目の操作" className="flex flex-wrap items-center gap-x-4 gap-y-2 rounded-8 bg-primary-surface px-4 py-2 text-16 text-text">
+                <div role="region" aria-label="選択中の項目の操作" className={cn("flex flex-wrap items-center gap-x-4 gap-y-2 rounded-8 bg-primary-surface px-4 py-2 text-16 text-text", flush && "mx-6")}>
                     <p className="m-0 font-bold nums">{selectedIds.length} 件選択中</p>
                     <Button variant="text" size="sm" onClick={() => setSelectedIds([])}>
                         選択を解除
@@ -227,13 +240,13 @@ export function DataTable<T>({
                 selectable={selectable}
                 stickyHeader={stickyHeader}
                 caption={caption}
-                wrapperClassName={wrapperClassName}
+                wrapperClassName={cn(flush && "-mx-6", wrapperClassName)}
                 className="min-w-table-min"
             >
                 <TableHead>
                     <TableRow>
                         {selectable && (
-                            <TableHeaderCell className="w-10 px-2 py-3">
+                            <TableHeaderCell className="w-10 px-2!">
                                 <Checkbox
                                     size="sm"
                                     aria-label="すべての行を選択"
@@ -257,13 +270,13 @@ export function DataTable<T>({
                                             type="button"
                                             onClick={() => handleSort(column.key)}
                                             className={cn(
-                                                "inline-flex max-w-full items-start gap-1 rounded-4 border-0 bg-transparent p-0 py-2 text-left font-bold text-inherit underline decoration-1 underline-offset-3 hover:underline-thick focus-visible:focus-ring-fill",
+                                                "inline-flex max-w-full items-start gap-0.5 rounded-4 border-0 bg-transparent p-0 py-2 text-left font-bold text-inherit underline decoration-1 underline-offset-3 hover:underline-thick focus-visible:focus-ring-fill",
                                                 size === "dense" && "py-2.75",
                                                 column.align === "right" && "flex-row-reverse text-right",
                                             )}
                                         >
-                                            <span>{column.header}</span>
-                                            <Icon icon={SORT_ICON[active ?? "none"]} size="lg" className={cn("mt-0.5", active ? "text-text-strong" : "text-text-muted")} />
+                                            <span className="whitespace-nowrap">{column.header}</span>
+                                            <Icon icon={SORT_ICON[active ?? "none"]} size="md" className={cn("mt-1", active ? "text-text-strong" : "text-text-muted")} />
                                             <span className="sr-only">{active === "asc" ? "（昇順）" : active === "desc" ? "（降順）" : "（並べ替え）"}</span>
                                         </button>
                                     ) : (
@@ -272,7 +285,7 @@ export function DataTable<T>({
                                 </TableHeaderCell>
                             );
                         })}
-                        {rowActions && <TableHeaderCell className="w-px whitespace-nowrap">{rowActionsHeader}</TableHeaderCell>}
+                        {rowActions && <TableHeaderCell className="w-px whitespace-nowrap px-2!">{rowActionsHeader}</TableHeaderCell>}
                     </TableRow>
                 </TableHead>
                 <TableBody>
@@ -309,7 +322,7 @@ export function DataTable<T>({
                             return (
                                 <TableRow key={rowId} selected={selected}>
                                     {selectable && (
-                                        <TableCell className="w-10 px-2 py-3">
+                                        <TableCell className={cn("w-10 px-2!", CHECKBOX_CELL[size])}>
                                             <Checkbox size="sm" aria-label={`${resolveLabel(row)} を選択`} checked={selected} onChange={() => toggleRow(rowId)} />
                                         </TableCell>
                                     )}
@@ -325,7 +338,11 @@ export function DataTable<T>({
                                             </TableCell>
                                         );
                                     })}
-                                    {rowActions && <TableCell className="whitespace-nowrap">{rowActions(row)}</TableCell>}
+                                    {rowActions && (
+                                        <TableCell className="whitespace-nowrap px-2!">
+                                            <div className={cn("flex items-center justify-end", ACTION_CELL[size])}>{rowActions(row)}</div>
+                                        </TableCell>
+                                    )}
                                 </TableRow>
                             );
                         })
@@ -334,7 +351,7 @@ export function DataTable<T>({
             </Table>
 
             {pageSize && (
-                <div className="flex flex-wrap items-center justify-between gap-4">
+                <div className={cn("flex flex-wrap items-center justify-between gap-4", flush && "px-6")}>
                     <p className="m-0 text-16 text-text-muted nums">
                         全 {total} 件中 {rangeStart}〜{rangeEnd} 件
                     </p>

@@ -13,7 +13,8 @@ export function AppLayout() {
     const { pathname } = useLocation();
 
     useEffect(() => {
-        document.getElementById("main")?.scrollTo?.({ top: 0 });
+        // jsdom には scrollTo がないため、存在するときだけ呼ぶ
+        if (typeof window.scrollTo === "function" && !navigator.userAgent.includes("jsdom")) window.scrollTo({ top: 0 });
     }, [pathname]);
 
     const Shell = layout === "topnav" ? TopNavLayout : AppShell;

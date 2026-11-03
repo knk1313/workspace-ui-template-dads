@@ -214,7 +214,7 @@ export function Combobox({
             {/* 閉じているときも DOM に残す（aria-controls の参照先を保つ）。hidden 属性で非表示にする。 */}
             <div
                 hidden={!open}
-                className="absolute left-0 top-full z-10 mt-1 w-full min-w-fit rounded-8 border border-border bg-surface py-4 shadow-1 max-h-popup-max overflow-y-auto"
+                className="absolute left-0 top-full z-30 mt-1 w-full min-w-fit rounded-8 border border-border bg-surface py-4 shadow-1 max-h-popup-max overflow-y-auto"
             >
                 <ul id={listId} role="listbox" aria-label={ariaLabel} className="m-0 list-none p-0">
                     {filtered.map((o, i) => {

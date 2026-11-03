@@ -66,19 +66,23 @@ export function AppShell({
     const Main = embedded ? "div" : "main";
 
     return (
-        <div className={cn("relative flex flex-col bg-canvas text-text", embedded ? "h-full" : "h-dvh", className)}>
+        <div className={cn("relative flex flex-col bg-canvas text-text", embedded ? "h-full" : "min-h-dvh", className)}>
             {!embedded && <SkipLink />}
-            <ShellHeader>
+            <ShellHeader className={embedded ? undefined : "sticky top-0 z-20"}>
                 {!isDesktop && <HamburgerButton open={drawerOpen} controls={MOBILE_NAV_ID} onClick={() => setDrawerOpen((v) => !v)} />}
                 <Brand name={appName} logo={logo} />
                 {headerActions && <div className="ml-auto flex shrink-0 items-center gap-1">{headerActions}</div>}
             </ShellHeader>
             <div className="flex min-h-0 flex-1">
                 {isDesktop && (
+                    // 本文はページ全体でスクロールし、サイドバーはヘッダーの下に固定する
+                    // （本文だけを内側でスクロールさせると、画面外の要素にフォーカスしたときに画面全体がずれるため）。
+                    // 背景と罫線は外側の列に持たせ、長いページでもサイドバーの白い面が途中で切れないようにする。
+                    <div className={cn("shrink-0 border-r border-border bg-surface transition-[width]", collapsed ? "w-sidebar-collapsed" : "w-sidebar")}>
                     <aside
                         className={cn(
-                            "flex shrink-0 flex-col overflow-y-auto border-r border-border bg-surface transition-[width]",
-                            collapsed ? "w-sidebar-collapsed" : "w-sidebar",
+                            "flex flex-col overflow-y-auto",
+                            embedded ? "h-full" : "sticky top-header h-below-header",
                         )}
                     >
                         <SideNav sections={navigation} collapsed={collapsed} label={navLabel} className="flex-1" />
@@ -91,8 +95,9 @@ export function AppShell({
                             />
                         </div>
                     </aside>
+                    </div>
                 )}
-                <Main id={embedded ? undefined : "main"} tabIndex={embedded ? undefined : -1} className="min-w-0 flex-1 overflow-y-auto">
+                <Main id={embedded ? undefined : "main"} tabIndex={embedded ? undefined : -1} className={cn("min-w-0 flex-1", embedded && "overflow-y-auto")}>
                     <Container size={containerSize} flush className="px-4 py-6 md:px-8">
                         {children ?? <Outlet />}
                     </Container>

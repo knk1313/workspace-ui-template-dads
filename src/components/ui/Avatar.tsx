@@ -31,8 +31,11 @@ const SHAPES: Record<AvatarShape, string> = {
 export function getInitials(name: string): string {
     const tokens = name.trim().split(/[\s\u3000]+/).filter(Boolean);
     if (tokens.length === 0) return "";
-    if (tokens.length >= 2) return Array.from(tokens[0])[0] + Array.from(tokens[1])[0];
     const chars = Array.from(tokens[0]);
+    // 漢字・かななど全角文字の氏名は姓の 1 文字目だけにする（「佐藤 花子」→「佐」。「佐花」は読みにくい）。
+    const isWideName = (chars[0]?.codePointAt(0) ?? 0) > 0x2e7f;
+    if (isWideName) return chars[0];
+    if (tokens.length >= 2) return (chars[0] + Array.from(tokens[1])[0]).toUpperCase();
     // 漢字・かななど全角文字は 1 文字で十分読める。ラテン文字は 2 文字取る。
     const isWide = (chars[0]?.codePointAt(0) ?? 0) > 0x2e7f;
     return (isWide ? chars.slice(0, 1) : chars.slice(0, 2)).join("").toUpperCase();

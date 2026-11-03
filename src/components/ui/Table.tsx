@@ -73,7 +73,7 @@ export function Table({
     return (
         <TableContext.Provider value={{ size, borderColor, striped, hoverHighlight, stickyHeader }}>
             {/* 領域内で横スクロールする。モバイル幅では右端にシャドーを出して続きがあることを示す。 */}
-            <div className={cn("w-full overflow-x-auto max-md:scroll-shadow-x", wrapperClassName)}>
+            <div className={cn("overflow-x-auto max-md:scroll-shadow-x", wrapperClassName)}>
                 <table
                     className={cn(
                         // sticky ヘッダーで罫線が消えないよう border-separate にし、罫線は各セルの下線で描く
@@ -162,7 +162,10 @@ export function TableHeaderCell({ className, scope = "col", align = "left", vari
         <th
             scope={scope}
             className={cn(
-                "align-top font-bold",
+                // 列見出しは 1 行の見出し行なので縦中央（並べ替えボタン・全選択チェックボックスと文字の中心を揃える）。
+                // 行見出しはデータセルと同じく上寄せ（DADS: セルは縦方向に上寄せ）。
+                scope === "col" ? "align-middle" : "align-top",
+                "font-bold",
                 CELL_PADDING[size],
                 variant === "plain"
                     ? cn("border-b text-text", borderColor)

@@ -68,11 +68,11 @@ describe("AppShell（デスクトップ）", () => {
         const { user } = renderShell();
         const toggle = screen.getByRole("button", { name: "サイドバーを折りたたむ" });
         expect(toggle).toHaveAttribute("aria-expanded", "true");
-        expect(toggle.closest("aside")).toHaveClass("w-sidebar");
+        expect(toggle.closest("aside")?.parentElement).toHaveClass("w-sidebar");
         await user.click(toggle);
         const expand = screen.getByRole("button", { name: "サイドバーを広げる" });
         expect(expand).toHaveAttribute("aria-expanded", "false");
-        expect(expand.closest("aside")).toHaveClass("w-sidebar-collapsed");
+        expect(expand.closest("aside")?.parentElement).toHaveClass("w-sidebar-collapsed");
         expect(screen.getByRole("link", { name: "設定" })).toHaveAttribute("title", "設定");
     });
 

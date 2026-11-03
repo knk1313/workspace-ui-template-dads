@@ -5,8 +5,8 @@ import { Avatar, AvatarGroup, getInitials } from "./Avatar";
 
 describe("Avatar", () => {
     it("名前からイニシャルを作る", () => {
-        expect(getInitials("山田 太郎")).toBe("山太");
-        expect(getInitials("山田　太郎")).toBe("山太");
+        expect(getInitials("山田 太郎")).toBe("山");
+        expect(getInitials("山田　太郎")).toBe("山");
         expect(getInitials("Taro Yamada")).toBe("TY");
         expect(getInitials("山田")).toBe("山");
         expect(getInitials("taro")).toBe("TA");
@@ -16,8 +16,8 @@ describe("Avatar", () => {
     it("画像がなければイニシャルを表示し、role=img + aria-label で名前を伝える", () => {
         render(<Avatar name="山田 太郎" />);
         const avatar = screen.getByRole("img", { name: "山田 太郎" });
-        expect(avatar).toHaveTextContent("山太");
-        expect(avatar.querySelector("[aria-hidden='true']")).toHaveTextContent("山太");
+        expect(avatar).toHaveTextContent("山");
+        expect(avatar.querySelector("[aria-hidden='true']")).toHaveTextContent("山");
         expect(avatar).toHaveClass("size-10", "rounded-full");
     });
 
@@ -27,10 +27,10 @@ describe("Avatar", () => {
         const img = avatar.querySelector("img")!;
         expect(img).toHaveAttribute("src", "/avatar.png");
         expect(img).toHaveAttribute("alt", "");
-        expect(avatar).not.toHaveTextContent("山太");
+        expect(avatar).not.toHaveTextContent("山");
         fireEvent.error(img);
         expect(avatar.querySelector("img")).not.toBeInTheDocument();
-        expect(avatar).toHaveTextContent("山太");
+        expect(avatar).toHaveTextContent("山");
     });
 
     it("size / shape に応じたクラス", () => {

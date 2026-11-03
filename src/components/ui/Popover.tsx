@@ -107,7 +107,7 @@ export function Popover({ trigger, title, children, placement = "bottom-start", 
                     tabIndex={-1}
                     onKeyDown={onKeyDown}
                     className={cn(
-                        "absolute top-full z-20 mt-1 w-max max-w-xs rounded-8 border border-border bg-surface p-4 text-16 leading-170 tracking-2 text-text shadow-1 md:max-w-sm",
+                        "absolute top-full z-30 mt-1 w-max max-w-xs rounded-8 border border-border bg-surface p-4 text-16 leading-170 tracking-2 text-text shadow-1 md:max-w-sm",
                         placement === "bottom-end" ? "right-0" : "left-0",
                     )}
                 >

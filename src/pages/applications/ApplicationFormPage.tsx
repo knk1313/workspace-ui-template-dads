@@ -202,9 +202,9 @@ function ApplicationForm({ mode, application }: { mode: "create" | "edit"; appli
                     {errors.length > 0 && <ErrorSummary errors={errors} />}
                     <StepHeading>{isEdit ? "申請内容の編集" : "申請内容の入力"}</StepHeading>
                     <ApplicationFormFields values={values} errors={errors} onChange={onChange} minDate={today} />
-                    {/* モバイルはボタンが縦に 3 つ積まれ画面の 1/4 近くを覆うため、固定表示は md 以上に限る */}
+                    {/* 画面下部への固定表示はフォームの上に浮いて見え、入力欄を隠すため使わない。フォームの末尾に罫線で区切って置く。 */}
                     <ActionPanel
-                        sticky={isWide}
+                        className="border-t border-border pt-6"
                         label="フォームの操作"
                         primary={<Button type="submit">確認へ進む</Button>}
                         secondary={
@@ -231,7 +231,7 @@ function ApplicationForm({ mode, application }: { mode: "create" | "edit"; appli
                     </div>
                     <ApplicationFormConfirm values={values} />
                     <ActionPanel
-                        sticky={isWide}
+                        className="border-t border-border pt-6"
                         label="確認の操作"
                         primary={<Button onClick={submit}>{isEdit ? "更新する" : "申請する"}</Button>}
                         secondary={

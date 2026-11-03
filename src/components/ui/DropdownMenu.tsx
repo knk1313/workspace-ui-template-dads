@@ -219,7 +219,7 @@ export function DropdownMenu({ label, items, style = "text", size = "md", icon, 
                     aria-label={label}
                     onKeyDown={onMenuKeyDown}
                     className={cn(
-                        "absolute z-20 max-h-popup-max min-w-full w-max overflow-y-auto rounded-8 border border-border bg-surface py-4 text-16 leading-130 tracking-0 text-text shadow-1",
+                        "absolute z-30 max-h-popup-max min-w-full w-max overflow-y-auto rounded-8 border border-border bg-surface py-4 text-16 leading-130 tracking-0 text-text shadow-1",
                         align === "end" ? "right-0" : "left-0",
                         dropUp ? "bottom-full mb-1" : "top-full mt-1",
                     )}

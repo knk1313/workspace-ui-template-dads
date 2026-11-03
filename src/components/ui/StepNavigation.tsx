@@ -29,7 +29,8 @@ type StepState = "done" | "current" | "upcoming";
 
 const CIRCLE: Record<StepState, string> = {
     done: "border-primary bg-primary text-text-on-primary",
-    current: "border-primary bg-surface text-primary outline-2 outline-offset-2 outline-primary",
+    // 二重の円の隙間は白で塗り、つなぐ線が隙間から見えないようにする（outline ではなく ring + ring-offset）。
+    current: "border-primary bg-surface text-primary ring-2 ring-primary ring-offset-2 ring-offset-surface",
     upcoming: "border-border bg-surface text-text",
 };
 
@@ -70,7 +71,8 @@ export function StepNavigation({ steps, current, orientation = "horizontal", lab
                             <span
                                 aria-hidden="true"
                                 className={cn(
-                                    "relative m-1 grid size-11 shrink-0 place-content-center rounded-full border-2 text-20 leading-150 font-bold tracking-2",
+                                    // z-10: つなぐ線（::after）より前面に描き、線が丸の中に入り込まないようにする。
+                                    "relative z-10 m-1 grid size-11 shrink-0 place-content-center rounded-full border-2 text-20 leading-150 font-bold tracking-2",
                                     horizontal && "mx-auto",
                                     CIRCLE[state],
                                 )}

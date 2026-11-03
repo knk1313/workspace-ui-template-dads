@@ -84,24 +84,21 @@ export default function ApplicationListPage() {
 
     const columns: DataTableColumn<Application>[] = [
         {
+            // PC 幅で表が左右に収まるよう、受付番号と件名を 1 列にまとめる（ダッシュボードの「最近の申請」と同じ形）。
+            // 並べ替えは受付番号で行う。
             key: "number",
-            header: "受付番号",
+            header: "受付番号・件名",
             accessor: (row) => row.number,
             render: (row) => (
-                <Link to={`/applications/${row.id}`} state={detailState} className="whitespace-nowrap">
-                    {row.number}
-                </Link>
+                <span className="flex min-w-32 flex-col">
+                    <Link to={`/applications/${row.id}`} state={detailState} className="self-start whitespace-nowrap">
+                        {row.number}
+                    </Link>
+                    <span className="font-normal">{row.title}</span>
+                </span>
             ),
             sortable: true,
             rowHeader: true,
-        },
-        {
-            key: "title",
-            header: "件名",
-            accessor: (row) => row.title,
-            // 他の列を折り返さない分、件名が 1 文字幅まで縮まないよう最小幅を持たせる
-            render: (row) => <span className="block min-w-48">{row.title}</span>,
-            sortable: true,
         },
         { key: "applicant", header: "申請者", accessor: (row) => row.applicant, sortable: true, width: "whitespace-nowrap" },
         { key: "category", header: "種別", accessor: (row) => CATEGORY_LABELS[row.category], sortable: true, width: "whitespace-nowrap" },
@@ -128,10 +125,10 @@ export default function ApplicationListPage() {
             key: "updatedAt",
             header: "更新日時",
             accessor: (row) => row.updatedAt,
+            // 日付と時刻の間で折り返せるようにし、列幅を日付 1 つ分に抑える
             render: (row) => <time dateTime={row.updatedAt}>{formatDateTime(row.updatedAt)}</time>,
             sortable: true,
             align: "right",
-            width: "whitespace-nowrap",
         },
     ];
 
@@ -153,14 +150,13 @@ export default function ApplicationListPage() {
             <Card>
                 <CardBody>
                     <DataTable
+                        flush
                         columns={columns}
                         rows={rows}
                         getRowId={(row) => row.id}
                         getRowLabel={(row) => `${row.number} ${row.title}`}
                         loading={loading}
-                        stickyHeader
-                        // 固定ヘッダーを効かせるため、md 以上では表の領域に高さの上限を設けて中でスクロールさせる
-                        wrapperClassName="md:max-h-screen"
+                        // 表の中だけを縦スクロールさせるとページのスクロールと二重になり、最終行が切れて見えるため固定ヘッダーは使わない（20 件ずつのページ送りで十分短い）。
                         sort={query.sort}
                         onSortChange={setSort}
                         page={query.page}

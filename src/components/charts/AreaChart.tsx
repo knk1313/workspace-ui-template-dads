@@ -51,7 +51,7 @@ export function AreaChart({ data, xKey, series, stacked = true, percent = false,
             aria-label={label}
             accessibilityLayer={false}
             stackOffset={percent ? "expand" : "none"}
-            margin={{ top: 8, right: 16, bottom: xAxisLabel ? 24 : 4, left: 4 }}
+            margin={{ top: axisLabelY ? 28 : 8, right: 16, bottom: xAxisLabel ? 24 : 4, left: 4 }}
         >
             <ChartPatterns idPrefix={idPrefix} count={visible.length} palette={palette} />
             <CartesianGrid vertical={false} stroke={CHART_COLORS.grid} />
@@ -69,7 +69,7 @@ export function AreaChart({ data, xKey, series, stacked = true, percent = false,
                 tick={{ fill: CHART_COLORS.axis }}
                 tickLine={false}
                 tickFormatter={(v: number) => (percent ? formatPercent(v, 0) : formatNumber(v))}
-                label={axisLabelY ? { value: axisLabelY, angle: -90, position: "insideLeft", fill: CHART_COLORS.axis, style: { textAnchor: "middle" } } : undefined}
+                label={axisLabelY ? { value: axisLabelY, position: "top", offset: 12, fill: CHART_COLORS.axis } : undefined}
             />
             <Tooltip
                 content={(props) => (

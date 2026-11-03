@@ -13,6 +13,8 @@ import { CHART_COLORS, buildTrendSummary, formatNumber, limitSeries, seriesStyle
 export type ReferenceLineSpec = {
     y: number;
     label: string;
+    /** ラベルの位置。系列の線と重ならない側を選ぶ（既定は左上）。 */
+    labelPosition?: "insideTopLeft" | "insideTopRight" | "insideBottomLeft" | "insideBottomRight";
 };
 
 export type LineChartProps = ChartFrameBaseProps & {
@@ -54,7 +56,7 @@ export function LineChart({ data, xKey, series, yAxisLabel, xAxisLabel, referenc
             role="img"
             aria-label={label}
             accessibilityLayer={false}
-            margin={{ top: 8, right: 16, bottom: xAxisLabel ? 24 : 4, left: 4 }}
+            margin={{ top: axisLabelY ? 28 : 8, right: 16, bottom: xAxisLabel ? 24 : 4, left: 4 }}
         >
             <CartesianGrid vertical={false} stroke={CHART_COLORS.grid} />
             <XAxis
@@ -71,7 +73,7 @@ export function LineChart({ data, xKey, series, yAxisLabel, xAxisLabel, referenc
                 tick={{ fill: CHART_COLORS.axis }}
                 tickLine={false}
                 tickFormatter={(v: number) => formatNumber(v)}
-                label={axisLabelY ? { value: axisLabelY, angle: -90, position: "insideLeft", fill: CHART_COLORS.axis, style: { textAnchor: "middle" } } : undefined}
+                label={axisLabelY ? { value: axisLabelY, position: "top", offset: 12, fill: CHART_COLORS.axis } : undefined}
             />
             <Tooltip content={(props) => <ChartTooltip {...props} unit={unit} />} cursor={{ stroke: CHART_COLORS.neutral }} />
             {referenceLine && (
@@ -79,7 +81,7 @@ export function LineChart({ data, xKey, series, yAxisLabel, xAxisLabel, referenc
                     y={referenceLine.y}
                     stroke={CHART_COLORS.reference}
                     strokeDasharray="4 4"
-                    label={{ value: referenceLine.label, position: "insideTopRight", fill: CHART_COLORS.text }}
+                    label={{ value: referenceLine.label, position: referenceLine.labelPosition ?? "insideTopLeft", fill: CHART_COLORS.text }}
                 />
             )}
             {visible.map((s, i) => {

@@ -3,7 +3,6 @@ import { SlidersHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Card, CardBody } from "@/components/ui/Card";
 import { ChipTag } from "@/components/ui/ChipTag";
-import { Combobox } from "@/components/ui/Combobox";
 import { Drawer } from "@/components/ui/Drawer";
 import { FormField } from "@/components/ui/FormField";
 import { SearchBox } from "@/components/ui/SearchBox";
@@ -21,8 +20,8 @@ const MD_QUERY = "(min-width: 48rem)";
 
 const CATEGORY_OPTIONS = Object.entries(CATEGORY_LABELS).map(([value, label]) => ({ value, label }));
 const STATUS_OPTIONS = Object.entries(STATUS_LABELS).map(([value, label]) => ({ value, label }));
-// 空文字の「すべて」を先頭に置き、選択中の表示でも未指定であることが分かるようにする。
-const ASSIGNEE_OPTIONS = [{ value: "", label: "すべて" }, ...ASSIGNEES.map((name) => ({ value: name, label: name }))];
+// 選択肢が少ない（5 件以下）ため、3 つの絞り込みはすべてセレクトボックスにそろえる（DADS: 少数の選択肢はセレクト）。
+const ASSIGNEE_OPTIONS = ASSIGNEES.map((name) => ({ value: name, label: name }));
 
 type Props = {
     query: ApplicationQuery;
@@ -41,7 +40,7 @@ function FilterFields({ query, onFilterChange, idPrefix }: Pick<Props, "query" |
                 <Select block placeholder="すべて" options={STATUS_OPTIONS} value={query.status} onChange={(e) => onFilterChange("status", e.target.value)} />
             </FormField>
             <FormField label="担当者" id={`${idPrefix}-assignee`}>
-                <Combobox options={ASSIGNEE_OPTIONS} value={query.assignee} onChange={(value) => onFilterChange("assignee", value)} />
+                <Select block placeholder="すべて" options={ASSIGNEE_OPTIONS} value={query.assignee} onChange={(e) => onFilterChange("assignee", e.target.value)} />
             </FormField>
         </>
     );

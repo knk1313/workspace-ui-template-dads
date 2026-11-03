@@ -168,6 +168,11 @@
   text-decoration-thickness: 3px;
 }
 
+/* ヘッダーの下に固定するサイドバーの高さ（画面の高さ - ヘッダー） */
+@utility h-below-header {
+  height: calc(100dvh - var(--spacing-header));
+}
+
 /* 等幅数字（表の数値列、KPI） */
 @utility nums {
   font-variant-numeric: tabular-nums;

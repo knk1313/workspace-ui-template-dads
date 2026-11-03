@@ -26,9 +26,23 @@ export function Tooltip({ content, children, delay = 150, placement = "top", cla
     const id = useId();
     const [visible, setVisible] = useState(false);
     const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const wrapperRef = useRef<HTMLSpanElement>(null);
+    // 画面の端で見切れないよう、表示する直前に向きと横位置を決める。
+    const [side, setSide] = useState<"top" | "bottom">(placement);
+    const [align, setAlign] = useState<"center" | "start" | "end">("center");
 
     function show() {
         if (timer.current) clearTimeout(timer.current);
+        const rect = wrapperRef.current?.getBoundingClientRect();
+        if (rect && rect.width > 0) {
+            // 上下: 指定の向きに 48px（1 行 + 余白）の余裕がなければ反対側に出す。
+            const spaceAbove = rect.top;
+            const spaceBelow = window.innerHeight - rect.bottom;
+            setSide(placement === "top" ? (spaceAbove < 48 && spaceBelow > spaceAbove ? "bottom" : "top") : spaceBelow < 48 && spaceAbove > spaceBelow ? "top" : "bottom");
+            // 左右: 中心から 160px（max-w-xs の半分）以内に画面の端があれば端にそろえる。
+            const center = rect.left + rect.width / 2;
+            setAlign(window.innerWidth - center < 160 ? "end" : center < 160 ? "start" : "center");
+        }
         timer.current = setTimeout(() => setVisible(true), delay);
     }
 
@@ -57,7 +71,7 @@ export function Tooltip({ content, children, delay = 150, placement = "top", cla
     });
 
     return (
-        <span className={cn("relative inline-flex", className)} onMouseEnter={show} onMouseLeave={hide} onFocus={show} onBlur={hide}>
+        <span ref={wrapperRef} className={cn("relative inline-flex", className)} onMouseEnter={show} onMouseLeave={hide} onFocus={show} onBlur={hide}>
             {child}
             {/* 非表示のときも DOM に残し（sr-only）、aria-describedby で常に参照できるようにする。 */}
             <span
@@ -66,8 +80,9 @@ export function Tooltip({ content, children, delay = 150, placement = "top", cla
                 className={cn(
                     visible
                         ? cn(
-                              "pointer-events-none absolute left-1/2 z-30 w-max max-w-xs -translate-x-1/2 rounded-4 bg-text-strong px-2 py-1 text-14 leading-130 tracking-0 text-text-inverse",
-                              placement === "top" ? "bottom-full mb-1" : "top-full mt-1",
+                              "pointer-events-none absolute z-30 w-max max-w-xs rounded-4 bg-text-strong px-2 py-1 text-14 leading-130 tracking-0 text-text-inverse",
+                              side === "top" ? "bottom-full mb-1" : "top-full mt-1",
+                              align === "center" ? "left-1/2 -translate-x-1/2" : align === "end" ? "right-0" : "left-0",
                           )
                         : "sr-only",
                 )}

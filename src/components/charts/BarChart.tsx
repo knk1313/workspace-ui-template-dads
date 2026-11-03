@@ -90,7 +90,7 @@ export function BarChart({
             aria-label={label}
             accessibilityLayer={false}
             barCategoryGap="20%"
-            margin={{ top: showValues && !horizontal ? 20 : 8, right: showValues && horizontal ? 48 : 16, bottom: xAxisLabel && !horizontal ? 24 : 4, left: 4 }}
+            margin={{ top: valueAxisLabel && !horizontal ? 28 : showValues && !horizontal ? 20 : 8, right: showValues && horizontal ? 48 : 16, bottom: xAxisLabel && !horizontal ? 24 : 4, left: 4 }}
         >
             <ChartPatterns idPrefix={idPrefix} count={visible.length} palette={palette} />
             <CartesianGrid vertical={horizontal} horizontal={!horizontal} stroke={CHART_COLORS.grid} />
@@ -124,7 +124,7 @@ export function BarChart({
                         tick={tickProps}
                         tickLine={false}
                         tickFormatter={(v: number) => formatNumber(v)}
-                        label={valueAxisLabel ? { value: valueAxisLabel, angle: -90, position: "insideLeft", fill: CHART_COLORS.axis, style: { textAnchor: "middle" } } : undefined}
+                        label={valueAxisLabel ? { value: valueAxisLabel, position: "top", offset: 12, fill: CHART_COLORS.axis } : undefined}
                     />
                 </>
             )}

@@ -24,7 +24,8 @@ async function search(user: ReturnType<typeof renderApp>["user"], text: string) 
 }
 
 function rowHeaders(): string[] {
-    return screen.getAllByRole("rowheader").map((cell) => cell.textContent ?? "");
+    // 行見出しには受付番号（リンク）と件名が入る。受付番号だけを取り出す。
+    return screen.getAllByRole("rowheader").map((cell) => cell.querySelector("a")?.textContent ?? "");
 }
 
 function bodyRowCount(): number {
@@ -104,7 +105,7 @@ describe("ApplicationListPage", () => {
         await user.selectOptions(within(dialog).getByLabelText("新しい担当者"), "田中 健太");
         await user.click(within(dialog).getByRole("button", { name: "変更する" }));
         expect(screen.getByText("1 件の担当者を 田中 健太 に変更しました")).toBeInTheDocument();
-        const row = screen.getByRole("rowheader", { name: first }).closest("tr")!;
+        const row = screen.getByRole("link", { name: first }).closest("tr")!;
         expect(within(row).getByText("田中 健太")).toBeInTheDocument();
     });
 
