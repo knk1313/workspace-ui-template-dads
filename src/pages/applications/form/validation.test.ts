@@ -105,8 +105,8 @@ describe("normalizeAmount", () => {
 
 describe("isValidEmail / isValidPhone", () => {
     it("メールアドレス", () => {
-        expect(isValidEmail("a@b.jp")).toBe(true);
-        expect(isValidEmail("a b@c.jp")).toBe(false);
+        expect(isValidEmail("a@example.jp")).toBe(true);
+        expect(isValidEmail("a b@example.jp")).toBe(false);
     });
 
     it("電話番号", () => {

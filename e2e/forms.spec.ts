@@ -14,12 +14,12 @@ test.describe("ログイン", () => {
 
     test("認証に失敗するとバナーが出て、成功するとホームへ移動する", async ({ page }) => {
         await page.goto("/login");
-        await page.getByLabel("メールアドレス").fill("fail@example.go.jp");
+        await page.getByLabel("メールアドレス").fill("fail@example.jp");
         await page.getByLabel("パスワード", { exact: true }).fill("password");
         await page.getByRole("button", { name: "ログイン" }).click();
         await expect(page.getByRole("heading", { name: "メールアドレスかパスワードが違います" })).toBeVisible();
 
-        await page.getByLabel("メールアドレス").fill("sato@example.go.jp");
+        await page.getByLabel("メールアドレス").fill("sato@example.jp");
         await page.getByRole("button", { name: "ログイン" }).click();
         await expect(page).toHaveURL(/\/$/);
         await expect(page.getByRole("heading", { level: 1 })).toBeVisible();

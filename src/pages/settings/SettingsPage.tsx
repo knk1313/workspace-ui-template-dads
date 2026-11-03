@@ -150,7 +150,7 @@ function ProfileForm({ initial }: { initial: Profile }) {
         const next: ProfileErrors = { image: errors.image };
         if (!name.trim()) next.name = "表示名を入力してください";
         if (!email.trim()) next.email = "メールアドレスを入力してください";
-        else if (!EMAIL_PATTERN.test(email.trim())) next.email = "メールアドレスを「name@example.go.jp」の形式で入力してください";
+        else if (!EMAIL_PATTERN.test(email.trim())) next.email = "メールアドレスを「name@example.jp」の形式で入力してください";
         setErrors(next);
         // 最初の誤りにフォーカスを移し、何を直せばよいかをその場で読めるようにする。
         if (next.name) return nameRef.current?.focus();

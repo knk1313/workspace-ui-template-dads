@@ -1,5 +1,10 @@
 {
-  "name": "workspace-ui-template",
+  "name": "workspace-ui-template-dads",
+  "description": "デジタル庁デザインシステム（DADS）に準拠した、管理画面向けのフロントエンドテンプレート",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/knk1313/workspace-ui-template-dads.git"
+  },
   "version": "0.2.0",
   "license": "MIT",
   "private": true,

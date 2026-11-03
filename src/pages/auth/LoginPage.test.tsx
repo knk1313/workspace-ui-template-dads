@@ -23,7 +23,7 @@ describe("LoginPage", () => {
 
     it("認証に失敗するとバナーを出してフォーカスを移す", async () => {
         const { user } = renderApp("/login");
-        await user.type(screen.getByRole("textbox", { name: "メールアドレス" }), "fail@example.go.jp");
+        await user.type(screen.getByRole("textbox", { name: "メールアドレス" }), "fail@example.jp");
         await user.type(screen.getByLabelText("パスワード"), "password");
         await user.click(screen.getByRole("button", { name: "ログイン" }));
         const title = await screen.findByRole("heading", { name: "メールアドレスかパスワードが違います" });
@@ -33,7 +33,7 @@ describe("LoginPage", () => {
 
     it("成功するとホームへ移り、トーストを出す", async () => {
         const { user } = renderApp("/login");
-        await user.type(screen.getByRole("textbox", { name: "メールアドレス" }), "sato.hanako@example.go.jp");
+        await user.type(screen.getByRole("textbox", { name: "メールアドレス" }), "sato.hanako@example.jp");
         await user.type(screen.getByLabelText("パスワード"), "password");
         await user.click(screen.getByRole("button", { name: "ログイン" }));
         expect(await screen.findByText("ログインしました", {}, { timeout: 2000 })).toBeInTheDocument();

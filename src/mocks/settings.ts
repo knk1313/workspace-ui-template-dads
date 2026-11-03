@@ -4,7 +4,7 @@
 export const CURRENT_USER = {
     id: "u-001",
     name: "佐藤 花子",
-    email: "sato.hanako@example.go.jp",
+    email: "sato.hanako@example.jp",
     department: "デジタル推進課",
     role: "管理者",
 };
@@ -32,11 +32,11 @@ export const NOTIFICATION_SETTINGS = {
 export const SAMPLE_DATETIME = "2026-10-24T09:30:00Z";
 
 /** ログイン画面の検証用。このメールアドレスでログインすると認証失敗として扱う。 */
-export const LOGIN_FAILURE_EMAIL = "fail@example.go.jp";
+export const LOGIN_FAILURE_EMAIL = "fail@example.jp";
 
 /** 500 エラー画面に出す問い合わせ先（架空）。 */
 export const SUPPORT_CONTACT = {
     name: "申請管理システムのヘルプデスク",
-    phone: "0120-000-000",
+    phone: "000-0000-0000",
     hours: "平日9時〜17時",
 };

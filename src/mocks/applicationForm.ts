@@ -22,13 +22,14 @@ function addDaysIso(base: Date, days: number): string {
 
 /**
  * 申請の連絡先と希望日。id から決定的に作る（テストや画面の表示を毎回同じにするため）。
+ * 電話番号は、実在の番号に当たらないよう「000-0000-」で始める（日本には架空用の番号がないため）。
  * 希望日は「今日から 14 日後」にする（固定の日付だと日がたつと過去になり、編集画面の初期値が検証で落ちるため）。
  */
 export function findApplicationContact(application: Application, now: Date = new Date()): ApplicationContact {
     const n = Number(application.id.replace(/\D/g, "")) || 0;
     return {
         email: `applicant${pad(n, 3)}@example.jp`,
-        phone: n % 3 === 0 ? "" : `03-5555-${pad(1000 + n, 4)}`,
+        phone: n % 3 === 0 ? "" : `000-0000-${pad(1000 + n, 4)}`,
         desiredDate: addDaysIso(now, 14),
     };
 }
