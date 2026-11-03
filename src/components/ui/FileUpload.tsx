@@ -126,7 +126,7 @@ export function FileUpload({ files, onChange, accept, multiple = false, dropArea
             ) : (
                 <ul aria-label="選択したファイル" className="m-0 flex list-none flex-col gap-1 p-0">
                     {files.map((file, i) => (
-                        <li key={`${file.name}-${file.size}-${file.lastModified}`} className="flex items-baseline gap-2">
+                        <li key={`${file.name}-${file.size}-${file.lastModified}`} className="flex items-center gap-2">
                             <Button variant="outline" size="xs" aria-label={`${file.name} を削除`} onClick={() => remove(i)} className="min-w-12 shrink-0">
                                 削除
                             </Button>

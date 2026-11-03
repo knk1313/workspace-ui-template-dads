@@ -53,6 +53,7 @@ export function Checkbox({ children, size, indeterminate = false, invalid, class
                         else if (ref) ref.current = el;
                     }}
                     type="checkbox"
+                    id={field && !field.group ? field.id : undefined}
                     disabled={disabled}
                     aria-invalid={isInvalid || undefined}
                     aria-describedby={props["aria-describedby"] ?? field?.describedBy}

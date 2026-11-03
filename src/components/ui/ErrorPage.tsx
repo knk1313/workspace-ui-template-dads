@@ -24,7 +24,7 @@ export function ErrorPage({ status, title, description, actions, className }: Er
                 {title}
             </h1>
             {description && <p className="m-0 max-w-prose text-text-muted">{description}</p>}
-            <div className="mt-4 flex flex-col gap-2 md:flex-row md:gap-4">{actions ?? <ButtonLink to="/">ホームへ戻る</ButtonLink>}</div>
+            <div className="mt-4 flex w-full max-w-sm flex-col items-stretch gap-2 *:w-full md:w-auto md:max-w-none md:flex-row md:items-center md:gap-4 md:*:w-auto">{actions ?? <ButtonLink to="/">ホームへ戻る</ButtonLink>}</div>
         </section>
     );
 }

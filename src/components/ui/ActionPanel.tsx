@@ -15,8 +15,8 @@ export type ActionPanelProps = {
     secondary?: ReactNode;
     /** キャンセル（text ボタン）。 */
     cancel?: ReactNode;
-    /** 画面下部に固定する。 */
-    sticky?: boolean;
+    /** 画面下部に固定する。"md" は md 以上だけ固定（モバイルでは縦積みのボタンが画面を覆いすぎるため）。 */
+    sticky?: boolean | "md";
     /** 領域の名前（role="group" の aria-label）。 */
     label?: string;
     className?: string;
@@ -33,7 +33,8 @@ export function ActionPanel({ primary, secondary, cancel, sticky = false, label 
             aria-label={label}
             className={cn(
                 "flex flex-col gap-2 md:flex-row md:items-center md:justify-end md:gap-4",
-                sticky && "sticky bottom-0 z-10 border-t border-border bg-surface py-4",
+                sticky === true && "sticky bottom-0 z-10 border-t border-border bg-surface py-4",
+                sticky === "md" && "md:sticky md:bottom-0 md:z-10 md:border-t md:border-border md:bg-surface md:py-4",
                 className,
             )}
         >

@@ -163,19 +163,19 @@ export function ChartFrame({
                 <dl className="flex flex-wrap gap-x-4 gap-y-0.5 text-14 text-text-muted">
                     {source && (
                         <div className="flex gap-1">
-                            <dt>出典:</dt>
+                            <dt className="shrink-0 whitespace-nowrap">出典:</dt>
                             <dd>{source}</dd>
                         </div>
                     )}
                     {note && (
                         <div className="flex gap-1">
-                            <dt>注記:</dt>
+                            <dt className="shrink-0 whitespace-nowrap">注記:</dt>
                             <dd>{note}</dd>
                         </div>
                     )}
                     {updatedAt && (
                         <div className="flex gap-1">
-                            <dt>更新日:</dt>
+                            <dt className="shrink-0 whitespace-nowrap">更新日:</dt>
                             <dd>{updatedAt}</dd>
                         </div>
                     )}

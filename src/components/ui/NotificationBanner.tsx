@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { ReactNode, Ref } from "react";
 import { CircleAlert, CircleCheck, Info, TriangleAlert, X, type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { Icon } from "./Icon";
@@ -35,6 +35,8 @@ export type NotificationBannerProps = {
     /** 動的に表示する通知として role="status" を付ける（ページ読み込み時の静的表示では付けない）。 */
     live?: boolean;
     id?: string;
+    /** タイトル見出しの ref。送信エラーの後などに見出しへフォーカスを移すときに使う（見出しは tabIndex=-1）。 */
+    headingRef?: Ref<HTMLHeadingElement>;
     className?: string;
 };
 
@@ -68,6 +70,7 @@ export function NotificationBanner({
     actions,
     live = false,
     id,
+    headingRef,
     className,
 }: NotificationBannerProps) {
     const TypeIcon = ICONS[type];
@@ -92,7 +95,7 @@ export function NotificationBanner({
                 <span className="flex w-6 shrink-0 justify-center md:w-9">
                     <TypeIcon aria-hidden="true" focusable="false" className={cn("size-7 shrink-0 pt-0.75 md:-my-1 md:size-11 md:pt-0", color.icon)} />
                 </span>
-                <Heading className="m-0 min-w-0 flex-1 pt-0.75 text-17 font-bold leading-170 text-text-strong md:pt-0.5 md:text-20 md:leading-150">
+                <Heading ref={headingRef} tabIndex={-1} id={id ? `${id}-title` : undefined} className="m-0 min-w-0 focus-visible:focus-ring-fill flex-1 pt-0.75 text-17 font-bold leading-170 text-text-strong md:pt-0.5 md:text-20 md:leading-150">
                     {title}
                 </Heading>
                 {onClose && (

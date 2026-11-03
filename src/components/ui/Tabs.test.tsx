@@ -27,7 +27,8 @@ describe("Tabs", () => {
         expect(panel).toHaveAttribute("tabindex", "0");
         expect(panel).toHaveTextContent("概要の内容");
         expect(tabs[0]).toHaveClass("border-b-4", "border-primary", "font-bold", "text-primary");
-        expect(tabs[1]).toHaveClass("border-b", "border-border");
+        expect(tabs[1]).toHaveClass("border-b-4", "border-transparent");
+        expect(screen.getByRole("tablist")).toHaveClass("border-b", "border-border");
     });
 
     it("クリックで切り替え、onChange を呼ぶ", async () => {

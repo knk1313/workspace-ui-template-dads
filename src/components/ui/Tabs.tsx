@@ -146,7 +146,7 @@ export function TabList({ children, className, ...props }: TabListProps) {
             role="tablist"
             aria-label={label}
             onKeyDown={onKeyDown}
-            className={cn("flex items-stretch overflow-x-auto", className)}
+            className={cn("flex items-stretch overflow-x-auto border-b border-border", className)}
             {...props}
         >
             {children}
@@ -176,7 +176,7 @@ export function Tab({ value, children, icon, className, ...props }: TabProps) {
             className={cn(
                 "flex min-h-11 shrink-0 items-center gap-1 px-4 py-3 text-16 leading-120 tracking-0 text-text transition-colors",
                 "focus-visible:focus-ring focus-visible:rounded-4",
-                selected ? "border-b-4 border-primary font-bold text-primary" : "border-b border-border hover:bg-surface-muted hover:underline hover:underline-offset-3",
+                selected ? "border-b-4 border-primary font-bold text-primary" : "border-b-4 border-transparent hover:bg-surface-muted hover:underline hover:underline-offset-3",
                 className,
             )}
             {...props}
