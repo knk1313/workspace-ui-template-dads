@@ -7,6 +7,8 @@ import { Card, CardBody, CardFooter, CardHeader } from "@/components/ui/Card";
 import { StatusChip, type ChipStatus } from "@/components/ui/ChipLabel";
 import { DataTable, type DataTableColumn } from "@/components/ui/DataTable";
 import { Link } from "@/components/ui/Link";
+import { LoadError } from "@/components/ui/LoadError";
+import { Skeleton } from "@/components/ui/Skeleton";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Select } from "@/components/ui/Select";
 import { StatCard } from "@/components/ui/StatCard";
@@ -14,8 +16,9 @@ import { TableCellLine } from "@/components/ui/Table";
 import { useToast } from "@/components/ui/Toast";
 import { useDisplaySettings } from "@/context/DisplaySettings";
 import { useMediaQuery } from "@/layouts/useMediaQuery";
-import { RECENT_ACTIVITY, type ActivityItem } from "@/mocks/activity";
-import { APPLICATIONS, STATUS_LABELS, type Application, type ApplicationStatus } from "@/mocks/applications";
+import { listApplications, listRecentActivity } from "@/api/applications";
+import { useQuery } from "@/api/query";
+import { STATUS_LABELS, type ActivityItem, type Application, type ApplicationStatus } from "@/api/types";
 import { DATA_SOURCE, KPIS, MONTHLY_RECEIVED, RECEIVED_BY_CATEGORY, RECEIVED_BY_CHANNEL } from "@/mocks/dashboard";
 
 // ダッシュボード（ダッシュボードデザインの実践ガイドブック / docs/chart-guide.md の画面構成）。
@@ -62,6 +65,8 @@ const SM_QUERY = "(min-width: 40rem)";
 
 const yen = new Intl.NumberFormat("ja-JP");
 
+const fetchActivity = () => listRecentActivity(6);
+
 export default function DashboardPage() {
     const { toast } = useToast();
     const { formatDateTime } = useDisplaySettings();
@@ -71,7 +76,13 @@ export default function DashboardPage() {
     const current = PERIODS.find((p) => p.value === period) ?? PERIODS[0];
 
     // 右下の一覧は「いま何が動いているか」を見るためのものなので、更新日の新しい順に絞って出す。
-    const recent = useMemo(() => [...APPLICATIONS].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt)).slice(0, RECENT_COUNT), []);
+    // 「最近の申請」と「アクティビティ」は承認や削除で変わるので API から読む（集計値とグラフは見本の固定値）
+    const applications = useQuery("applications", listApplications);
+    const recentActivity = useQuery("activity", fetchActivity);
+    const recent = useMemo(
+        () => [...(applications.data ?? [])].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt)).slice(0, RECENT_COUNT),
+        [applications.data],
+    );
 
     // 件名以外は折り返すと読みにくい（番号・日時が 2 行に割れる）ので折り返さない。幅が足りないときは表の中だけ横スクロールする。
     const columns: DataTableColumn<Application>[] = [
@@ -116,7 +127,7 @@ export default function DashboardPage() {
         },
     ];
 
-    const activity: FeedItem[] = RECENT_ACTIVITY.map((a) => ({
+    const activity: FeedItem[] = (recentActivity.data ?? []).map((a) => ({
         id: a.id,
         actor: a.actor,
         action: a.action,
@@ -230,7 +241,19 @@ export default function DashboardPage() {
                 <Card as="section" className="2xl:col-span-2">
                     <CardHeader title="最近の申請" description={`更新日の新しい順に ${RECENT_COUNT} 件`} />
                     <CardBody>
-                        <DataTable size="dense" columns={columns} rows={recent} getRowId={(row) => row.id} caption={<span className="sr-only">最近の申請</span>} />
+                        {applications.error && !applications.data ? (
+                            <LoadError subject="最近の申請" error={applications.error} onRetry={applications.reload} />
+                        ) : (
+                            <DataTable
+                                size="dense"
+                                columns={columns}
+                                rows={recent}
+                                loading={applications.isLoading}
+                                skeletonRows={RECENT_COUNT}
+                                getRowId={(row) => row.id}
+                                caption={<span className="sr-only">最近の申請</span>}
+                            />
+                        )}
                     </CardBody>
                     <CardFooter className="flex items-center justify-end">
                         <ButtonLink to="/applications" variant="text" size="sm" tailIcon={ChevronRight}>
@@ -241,7 +264,23 @@ export default function DashboardPage() {
                 <Card as="section">
                     <CardHeader title="最近のアクティビティ" />
                     <CardBody>
-                        <ActivityFeed items={activity} />
+                        {recentActivity.error && !recentActivity.data ? (
+                            <LoadError subject="アクティビティ" error={recentActivity.error} onRetry={recentActivity.reload} />
+                        ) : recentActivity.isLoading ? (
+                            <div aria-busy="true" className="flex flex-col gap-6">
+                                <p role="status" className="sr-only">
+                                    アクティビティを読み込んでいます
+                                </p>
+                                {Array.from({ length: 4 }, (_, i) => (
+                                    <div key={i} className="flex gap-3">
+                                        <Skeleton variant="circle" className="size-8 shrink-0" />
+                                        <Skeleton lines={2} className="flex-1" />
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <ActivityFeed items={activity} />
+                        )}
                     </CardBody>
                 </Card>
             </div>

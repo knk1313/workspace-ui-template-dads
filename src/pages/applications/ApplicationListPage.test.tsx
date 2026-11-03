@@ -1,11 +1,12 @@
 import { screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
+import { setMockOptions } from "@/api/mock";
 import { mockViewport } from "@/layouts/testUtils";
 import { APPLICATIONS } from "@/mocks/applications";
 import { expectNoA11yViolations } from "@/test/axe";
 import { renderApp } from "@/test/renderApp";
 
-// 「読み込み中」の表示例（600ms）が終わり、1 ページ目の行が出るまで待つ。
+// 読み込みが終わり、1 ページ目の行が出るまで待つ。
 async function renderList(path = "/applications") {
     const result = renderApp(path);
     await waitForLoaded();
@@ -80,20 +81,23 @@ describe("ApplicationListPage", () => {
         expect(rowHeaders()).not.toEqual(firstPage);
     });
 
-    it("全選択して一括削除すると、確認のあとに行が消える", async () => {
+    it("全選択して一括削除すると、確認なしで行が消え、トーストの「元に戻す」で取り消せる", async () => {
         const { user } = await renderList();
         await user.click(screen.getByRole("checkbox", { name: "すべての行を選択" }));
         const bulk = screen.getByRole("region", { name: "選択中の項目の操作" });
         expect(within(bulk).getByText("20 件選択中")).toBeInTheDocument();
 
         await user.click(within(bulk).getByRole("button", { name: "削除" }));
-        const dialog = screen.getByRole("dialog", { name: "20 件の申請を削除しますか" });
-        await user.click(within(dialog).getByRole("button", { name: "削除する" }));
-
         expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+        expect(await screen.findByText("20 件の申請を削除しました")).toBeInTheDocument();
         expect(screen.getByText(`全 ${APPLICATIONS.length - 20} 件中 1〜20 件`)).toBeInTheDocument();
-        expect(screen.getByText("20 件の申請を削除しました")).toBeInTheDocument();
         expect(screen.queryByRole("region", { name: "選択中の項目の操作" })).not.toBeInTheDocument();
+        // 消えた行にあったフォーカスは見出しへ移る
+        expect(screen.getByRole("heading", { level: 1, name: "申請一覧" })).toHaveFocus();
+
+        await user.click(screen.getByRole("button", { name: "元に戻す" }));
+        expect(await screen.findByText("20 件の申請の削除を取り消しました")).toBeInTheDocument();
+        expect(await screen.findByText(`全 ${APPLICATIONS.length} 件中 1〜20 件`)).toBeInTheDocument();
     });
 
     it("一括で担当者を変更できる", async () => {
@@ -163,5 +167,31 @@ describe("ApplicationListPage", () => {
         } finally {
             restore();
         }
+    });
+
+    it("読み込めなかったときは表を出さずにエラーを表示し、「再読み込み」でやり直せる", async () => {
+        setMockOptions({ fail: true, slow: false });
+        const { user, container } = renderApp("/applications");
+        expect(await screen.findByRole("heading", { name: "申請の一覧を読み込めませんでした" })).toBeInTheDocument();
+        // 空の表（「申請はまだありません」）と誤解されないよう、表は出さない
+        expect(screen.queryByRole("table")).not.toBeInTheDocument();
+        await expectNoA11yViolations(container);
+
+        setMockOptions({ fail: false, slow: false });
+        await user.click(screen.getByRole("button", { name: "再読み込み" }));
+        await waitForLoaded();
+        expect(screen.queryByRole("heading", { name: "申請の一覧を読み込めませんでした" })).not.toBeInTheDocument();
+    });
+
+    it("削除は画面を移っても保たれる（ダミー API に反映される）", async () => {
+        const { user, router } = await renderList();
+        const first = rowHeaders()[0];
+        await user.click(screen.getByRole("button", { name: `${first} の操作` }));
+        await user.click(screen.getByRole("menuitem", { name: "削除" }));
+        expect(await screen.findByText(`${first} を削除しました`)).toBeInTheDocument();
+        await router.navigate("/");
+        await router.navigate("/applications");
+        await waitForLoaded();
+        expect(rowHeaders()).not.toContain(first);
     });
 });

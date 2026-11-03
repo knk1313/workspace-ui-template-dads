@@ -72,6 +72,8 @@ export type DataTableProps<T> = {
 
     /** 1 ページの行数。省略時はページ送りしない。 */
     pageSize?: number;
+    /** 読み込み中に出すスケルトンの行数。既定はページの行数（pageSize がなければ現在の行数、3〜10 行）。 */
+    skeletonRows?: number;
     page?: number;
     defaultPage?: number;
     onPageChange?: (page: number) => void;
@@ -177,6 +179,7 @@ export function DataTable<T>({
     onSelectionChange,
     bulkActions,
     pageSize,
+    skeletonRows: skeletonRowsProp,
     page: pageProp,
     defaultPage = 1,
     onPageChange,
@@ -256,7 +259,7 @@ export function DataTable<T>({
     };
 
     const columnCount = columns.length + (selectable ? 1 : 0) + (rowActions ? 1 : 0);
-    const skeletonRows = pageSize ?? Math.min(Math.max(visibleRows.length, 3), 10);
+    const skeletonRows = skeletonRowsProp ?? pageSize ?? Math.min(Math.max(visibleRows.length, 3), 10);
 
     return (
         <div className={cn("flex flex-col gap-4", className)} aria-busy={loading || undefined}>

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import { useSearchParams } from "react-router";
 import type { SortState } from "@/components/ui/DataTable";
-import { CATEGORY_LABELS, STATUS_LABELS, type Application, type ApplicationCategory, type ApplicationStatus } from "@/mocks/applications";
+import { CATEGORY_LABELS, STATUS_LABELS, type Application, type ApplicationCategory, type ApplicationStatus } from "@/api/types";
 
 // 一覧の検索条件（キーワード・種別・状態・担当者・並べ替え・ページ）を URL の検索パラメータに保存する。
 // URL に置くことで、詳細画面から「戻る」で帰ったときや、URL を共有したときに同じ一覧を再現できる。

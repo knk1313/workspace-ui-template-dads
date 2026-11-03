@@ -5,7 +5,7 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { Icon } from "@/components/ui/Icon";
 import { StackedList, StackedListItem } from "@/components/ui/StackedList";
 import { useToast } from "@/components/ui/Toast";
-import type { Application } from "@/mocks/applications";
+import type { Application } from "@/api/types";
 import { formatFileSize } from "../list/format";
 
 // 添付ファイルタブ。ファイル名・サイズとダウンロードボタンを並べる。

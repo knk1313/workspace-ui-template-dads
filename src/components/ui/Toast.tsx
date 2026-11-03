@@ -1,14 +1,17 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
 import { CircleAlert, CircleCheck, Info, X, type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/cn";
+import { Button } from "./Button";
 import { Icon } from "./Icon";
 
 // トースト通知。DADS に該当コンポーネントがないため、ノティフィケーションバナーの縮小版として設計する（docs/decisions.md D-10）。
 //   - 画面右上（モバイルは下部中央）に固定表示、role="status"（aria-live="polite"）のリージョン
 //   - 意味色の枠 2px、角丸 8px、elevation-3、アイコン、閉じるボタン（固定表示には必ず閉じるボタンを付ける）
 //   - 8 秒で自動消去。ホバー・フォーカス中は止める。フォーカスがあるときは Esc で閉じる。同時表示は 3 件まで
+//   - 操作（「元に戻す」など）を付けたトーストは自動で消さない（押す前に消えると、キーボードや読み上げの利用者が操作できないため。WCAG 2.2.1）
 //   const { toast } = useToast();
 //   toast({ type: "success", title: "保存しました" });
+//   toast({ type: "success", title: "削除しました", action: { label: "元に戻す", onClick: restore } });
 
 export type ToastType = "success" | "error" | "info";
 
@@ -16,11 +19,15 @@ export type ToastOptions = {
     title: string;
     description?: string;
     type?: ToastType;
-    /** 自動で消すまでのミリ秒。0 なら自動で消さない。既定は 8000。 */
+    /** 自動で消すまでのミリ秒。0 なら自動で消さない。既定は 8000（action があるときは 0）。 */
     duration?: number;
+    /** トーストに置く操作。押すとトーストを閉じてから onClick を呼ぶ。 */
+    action?: ToastAction;
 };
 
-type ToastItem = Required<Omit<ToastOptions, "description">> & { id: number; description?: string };
+export type ToastAction = { label: string; onClick: () => void };
+
+type ToastItem = Required<Omit<ToastOptions, "description" | "action">> & { id: number; description?: string; action?: ToastAction };
 
 type ToastContextValue = {
     toast: (options: ToastOptions) => number;
@@ -55,10 +62,10 @@ export function ToastProvider({ children }: ToastProviderProps) {
         setItems((prev) => prev.filter((t) => t.id !== id));
     }, []);
 
-    const toast = useCallback(({ title, description, type = "info", duration = TOAST_DEFAULT_DURATION }: ToastOptions) => {
+    const toast = useCallback(({ title, description, type = "info", action, duration = action ? 0 : TOAST_DEFAULT_DURATION }: ToastOptions) => {
         const id = nextId.current++;
         // 上限を超えたら古いものから消す（画面を覆い尽くさないため）。
-        setItems((prev) => [...prev, { id, title, description, type, duration }].slice(-TOAST_MAX));
+        setItems((prev) => [...prev, { id, title, description, type, duration, action }].slice(-TOAST_MAX));
         return id;
     }, []);
 
@@ -123,6 +130,19 @@ function ToastView({ item, dismiss }: { item: ToastItem; dismiss: (id: number) =
             <div className="min-w-0 flex-1">
                 <p className="m-0 font-bold text-text-strong">{item.title}</p>
                 {item.description && <p className="m-0 text-text-muted">{item.description}</p>}
+                {item.action && (
+                    <Button
+                        variant="text"
+                        size="sm"
+                        className="-ml-2 mt-1"
+                        onClick={() => {
+                            onDismiss();
+                            item.action?.onClick();
+                        }}
+                    >
+                        {item.action.label}
+                    </Button>
+                )}
             </div>
             <button
                 type="button"

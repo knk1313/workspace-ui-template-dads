@@ -1,25 +1,28 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router";
 import { Check, Pencil, Trash2, Undo2 } from "lucide-react";
+import { approveApplication, deleteApplications, getApplication, invalidateApplications, restoreApplications, returnApplication as returnApi } from "@/api/applications";
+import { useMutation, useQuery } from "@/api/query";
+import type { ApplicationStatus } from "@/api/types";
 import { Button, ButtonLink } from "@/components/ui/Button";
 import { useConfirm } from "@/components/ui/ConfirmDialog";
 import { DropdownMenu, type DropdownMenuEntry } from "@/components/ui/DropdownMenu";
 import { ErrorPage } from "@/components/ui/ErrorPage";
+import { LoadError } from "@/components/ui/LoadError";
 import { NotificationBanner } from "@/components/ui/NotificationBanner";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Tabs } from "@/components/ui/Tabs";
 import { useToast } from "@/components/ui/Toast";
 import { useDisplaySettings } from "@/context/DisplaySettings";
-import { RECENT_ACTIVITY, type ActivityItem } from "@/mocks/activity";
-import { APPLICATIONS, CURRENT_USER, type Application, type ApplicationStatus } from "@/mocks/applications";
 import { AttachmentsTab } from "./detail/AttachmentsTab";
+import { DetailSkeleton } from "./detail/DetailSkeleton";
 import { HistoryTab } from "./detail/HistoryTab";
 import { OverviewTab } from "./detail/OverviewTab";
 import { ReturnDialog } from "./detail/ReturnDialog";
 import { ApplicationStatusChip } from "./list/ApplicationStatusChip";
 
 // 申請の詳細。ページ見出し（件名・状態・操作）→ 状態の通知バナー → タブ（概要 / 添付ファイル / 履歴）。
-// 承認・差戻し・削除はこの画面の状態だけに反映する（架空のデータのため保存しない）。
+// データは src/api/ のダミー API から読み書きする。承認・差戻し・削除は一覧やダッシュボードにも反映される。
 
 /** 承認・差戻しができる状態（決定前）。 */
 const DECIDABLE: ApplicationStatus[] = ["submitted", "reviewing", "returned"];
@@ -40,15 +43,24 @@ export default function ApplicationDetailPage() {
     // 関連する申請へ移っても（同じ画面のまま id だけ変わる）最初に受け取った条件を保つ。
     const [listHref] = useState(() => `/applications${(location.state as ListLinkState)?.listSearch ?? ""}`);
 
-    const [applications, setApplications] = useState<Application[]>(() => [...APPLICATIONS]);
-    const [activity, setActivity] = useState<ActivityItem[]>(RECENT_ACTIVITY);
-    const [returnReasons, setReturnReasons] = useState<Record<string, string>>({});
+    const fetchDetail = useCallback(() => getApplication(id), [id]);
+    const detail = useQuery(`applications/${id}`, fetchDetail);
+    const returnMutation = useMutation(returnApi);
     // 直前の操作の結果。別の申請に移ったら出さないよう、対象の id と組にする。
     const [notice, setNotice] = useState<{ id: string; type: "approved" | "returned" } | null>(null);
     const [returnOpen, setReturnOpen] = useState(false);
 
-    const app = applications.find((a) => a.id === id);
+    if (detail.isLoading) return <DetailSkeleton />;
+    if (detail.error && detail.data === undefined) {
+        return (
+            <div className="flex flex-col gap-6">
+                <PageHeader title="申請の詳細" breadcrumbs={[{ label: "ホーム", href: "/" }, { label: "申請一覧", href: listHref }, { label: "詳細" }]} />
+                <LoadError subject="申請" error={detail.error} onRetry={detail.reload} />
+            </div>
+        );
+    }
 
+    const app = detail.data?.application;
     if (!app) {
         return (
             <ErrorPage
@@ -60,20 +72,11 @@ export default function ApplicationDetailPage() {
         );
     }
 
-    const related = applications.filter((a) => a.applicant === app.applicant && a.id !== app.id);
-    const appActivity = activity.filter((a) => a.applicationId === app.id);
+    const { related, activity: appActivity, returnReason } = detail.data!;
     const justApproved = notice?.id === app.id && notice.type === "approved";
     const justReturned = notice?.id === app.id && notice.type === "returned";
 
-    function updateStatus(status: ApplicationStatus, action: string, type: ActivityItem["type"]) {
-        const now = new Date().toISOString();
-        setApplications((prev) => prev.map((a) => (a.id === id ? { ...a, status, updatedAt: now } : a)));
-        setActivity((prev) => [
-            { id: `local-${prev.length + 1}`, actor: CURRENT_USER.name, action, target: `${app!.number} ${app!.title}`, applicationId: id, at: now, type },
-            ...prev,
-        ]);
-    }
-
+    // 承認は申請者への通知を伴い、取り消せないため確認を取る（削除は「元に戻す」で取り消せるので確認しない）
     async function approve() {
         const ok = await confirm({
             title: "この申請を承認しますか",
@@ -81,29 +84,51 @@ export default function ApplicationDetailPage() {
             confirmLabel: "承認する",
         });
         if (!ok) return;
-        updateStatus("approved", "承認しました", "approve");
-        setNotice({ id, type: "approved" });
-        toast({ type: "success", title: `${app!.number} を承認しました` });
+        try {
+            await approveApplication(id);
+            setNotice({ id, type: "approved" });
+            toast({ type: "success", title: `${app!.number} を承認しました` });
+        } catch (e) {
+            toast({ type: "error", title: `${app!.number} を承認できませんでした`, description: (e as Error).message });
+        } finally {
+            invalidateApplications();
+        }
     }
 
-    function returnApplication(reason: string) {
-        updateStatus("returned", "差戻しました", "return");
-        setReturnReasons((prev) => ({ ...prev, [id]: reason }));
-        setNotice({ id, type: "returned" });
-        setReturnOpen(false);
-        toast({ type: "success", title: `${app!.number} を差し戻しました` });
+    async function returnApplication(reason: string) {
+        try {
+            await returnMutation.run(id, reason);
+            setNotice({ id, type: "returned" });
+            setReturnOpen(false);
+            toast({ type: "success", title: `${app!.number} を差し戻しました` });
+            invalidateApplications();
+        } catch (e) {
+            // ダイアログは閉じずに残し、入力した理由を失わずにやり直せるようにする
+            toast({ type: "error", title: `${app!.number} を差し戻せませんでした`, description: (e as Error).message });
+        }
     }
 
     async function remove() {
-        const ok = await confirm({
-            title: `${app!.number} を削除しますか`,
-            message: `「${app!.title}」を削除します。この操作は取り消せません。`,
-            confirmLabel: "削除する",
-            tone: "error",
-        });
-        if (!ok) return;
-        toast({ type: "success", title: `${app!.number} を削除しました` });
-        navigate(listHref);
+        const number = app!.number;
+        try {
+            const deleted = await deleteApplications([id]);
+            invalidateApplications();
+            navigate(listHref);
+            toast({
+                type: "success",
+                title: `${number} を削除しました`,
+                action: {
+                    label: "元に戻す",
+                    onClick: () =>
+                        void restoreApplications(deleted)
+                            .then(() => toast({ type: "success", title: `${number} の削除を取り消しました` }))
+                            .catch((e: Error) => toast({ type: "error", title: `${number} を元に戻せませんでした`, description: e.message }))
+                            .finally(() => invalidateApplications()),
+                },
+            });
+        } catch (e) {
+            toast({ type: "error", title: `${number} を削除できませんでした`, description: (e as Error).message });
+        }
     }
 
     const menuItems: DropdownMenuEntry[] = [
@@ -141,6 +166,8 @@ export default function ApplicationDetailPage() {
                 }
             />
 
+            {detail.error && <LoadError subject="申請の最新の状態" error={detail.error} onRetry={detail.reload} stale />}
+
             {justApproved && (
                 <NotificationBanner
                     type="success"
@@ -155,10 +182,10 @@ export default function ApplicationDetailPage() {
                     type="warning"
                     title="この申請は差し戻されています"
                     description={
-                        returnReasons[app.id] ? (
+                        returnReason ? (
                             <>
                                 <span className="font-bold">差戻しの理由: </span>
-                                {returnReasons[app.id]}
+                                {returnReason}
                             </>
                         ) : (
                             "申請者による修正と再提出を待っています。再提出されると状態が「受付済み」に戻ります。"
@@ -183,7 +210,7 @@ export default function ApplicationDetailPage() {
                 ]}
             />
 
-            {returnOpen && <ReturnDialog number={app.number} onClose={() => setReturnOpen(false)} onSubmit={returnApplication} />}
+            {returnOpen && <ReturnDialog number={app.number} pending={returnMutation.pending} onClose={() => setReturnOpen(false)} onSubmit={returnApplication} />}
         </div>
     );
 }

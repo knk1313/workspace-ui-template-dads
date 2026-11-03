@@ -1,47 +1,7 @@
 // 画面表示用の架空データ（申請管理）。実在の組織・人物・数値とは関係ありません。
 // 実データに差し替えるときは、このディレクトリを API 呼び出し等に置き換える。
 
-export type ApplicationStatus = "draft" | "submitted" | "reviewing" | "approved" | "returned" | "rejected";
-export type ApplicationCategory = "subsidy" | "permit" | "certificate" | "report" | "other";
-
-export const STATUS_LABELS: Record<ApplicationStatus, string> = {
-    draft: "下書き",
-    submitted: "受付済み",
-    reviewing: "審査中",
-    approved: "承認",
-    returned: "差戻し",
-    rejected: "不承認",
-};
-
-export const CATEGORY_LABELS: Record<ApplicationCategory, string> = {
-    subsidy: "補助金",
-    permit: "許認可",
-    certificate: "証明書",
-    report: "届出",
-    other: "その他",
-};
-
-export type Application = {
-    id: string;
-    /** 受付番号（例: R08-000123）。 */
-    number: string;
-    title: string;
-    applicant: string;
-    organization: string;
-    category: ApplicationCategory;
-    status: ApplicationStatus;
-    /** 申請額（円）。届出など金額のないものは 0。 */
-    amount: number;
-    /** 担当者。 */
-    assignee: string;
-    /** ISO 8601 */
-    submittedAt: string;
-    /** ISO 8601 */
-    updatedAt: string;
-    /** 添付ファイル。 */
-    attachments: { name: string; size: number }[];
-    memo?: string;
-};
+import type { Application, ApplicationCategory, ApplicationStatus } from "@/api/types";
 
 export const CURRENT_USER = {
     id: "u-001",

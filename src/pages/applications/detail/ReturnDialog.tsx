@@ -14,14 +14,17 @@ type Props = {
     number: string;
     onClose: () => void;
     onSubmit: (reason: string) => void;
+    /** 送信中。ボタンに処理中を出し、二重に送らないようにする。 */
+    pending?: boolean;
 };
 
-export function ReturnDialog({ number, onClose, onSubmit }: Props) {
+export function ReturnDialog({ number, onClose, onSubmit, pending = false }: Props) {
     const [reason, setReason] = useState("");
     const [error, setError] = useState<string | null>(null);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
 
     function submit() {
+        if (pending) return;
         const text = reason.trim();
         if (!text) {
             setError("差戻しの理由を入力してください");
@@ -46,7 +49,9 @@ export function ReturnDialog({ number, onClose, onSubmit }: Props) {
                     <Button variant="outline" onClick={onClose}>
                         キャンセル
                     </Button>
-                    <Button onClick={submit}>差し戻す</Button>
+                    <Button loading={pending} onClick={submit}>
+                        差し戻す
+                    </Button>
                 </>
             }
         >

@@ -14,9 +14,11 @@ type Props = {
     count: number;
     onClose: () => void;
     onSubmit: (assignee: string) => void;
+    /** 変更を送信中。ボタンに処理中を出し、二重に送らないようにする。 */
+    pending?: boolean;
 };
 
-export function AssignDialog({ count, onClose, onSubmit }: Props) {
+export function AssignDialog({ count, onClose, onSubmit, pending = false }: Props) {
     const [assignee, setAssignee] = useState<string>(ASSIGNEES[0]);
     return (
         <ModalDialog
@@ -28,7 +30,9 @@ export function AssignDialog({ count, onClose, onSubmit }: Props) {
                     <Button variant="outline" onClick={onClose}>
                         キャンセル
                     </Button>
-                    <Button onClick={() => onSubmit(assignee)}>変更する</Button>
+                    <Button loading={pending} onClick={() => !pending && onSubmit(assignee)}>
+                        変更する
+                    </Button>
                 </>
             }
         >

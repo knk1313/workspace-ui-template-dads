@@ -8,7 +8,8 @@ import { FormField } from "@/components/ui/FormField";
 import { SearchBox } from "@/components/ui/SearchBox";
 import { Select } from "@/components/ui/Select";
 import { useMediaQuery } from "@/layouts/useMediaQuery";
-import { ASSIGNEES, CATEGORY_LABELS, STATUS_LABELS } from "@/mocks/applications";
+import { ASSIGNEES } from "@/mocks/applications";
+import { CATEGORY_LABELS, STATUS_LABELS } from "@/api/types";
 import type { ApplicationQuery, FilterKey } from "./useApplicationQuery";
 
 // 一覧の絞り込み。キーワード検索は常に表示し、種別・状態・担当者は
@@ -25,7 +26,10 @@ const ASSIGNEE_OPTIONS = ASSIGNEES.map((name) => ({ value: name, label: name }))
 
 type Props = {
     query: ApplicationQuery;
-    resultCount: number;
+    /** 条件に合う件数。読み込めていないときは undefined。 */
+    resultCount: number | undefined;
+    /** 一覧を読み込んでいる（件数の代わりに「読み込んでいます」を出す）。 */
+    loading?: boolean;
     onFilterChange: (key: FilterKey, value: string) => void;
     onClear: () => void;
 };
@@ -46,7 +50,7 @@ function FilterFields({ query, onFilterChange, idPrefix }: Pick<Props, "query" |
     );
 }
 
-export function ApplicationFilters({ query, resultCount, onFilterChange, onClear }: Props) {
+export function ApplicationFilters({ query, resultCount, loading = false, onFilterChange, onClear }: Props) {
     const isDesktop = useMediaQuery(MD_QUERY);
     const [drawerOpen, setDrawerOpen] = useState(false);
 
@@ -115,7 +119,7 @@ export function ApplicationFilters({ query, resultCount, onFilterChange, onClear
                                     <Button variant="outline" onClick={onClear}>
                                         条件をクリア
                                     </Button>
-                                    <Button onClick={() => setDrawerOpen(false)}>{resultCount} 件を表示</Button>
+                                    <Button onClick={() => setDrawerOpen(false)}>{resultCount === undefined ? "結果を表示" : `${resultCount} 件を表示`}</Button>
                                 </div>
                             }
                         >
@@ -141,7 +145,13 @@ export function ApplicationFilters({ query, resultCount, onFilterChange, onClear
                 )}
                 {/* 条件を変えるたびに件数を読み上げる */}
                 <p role="status" className="m-0 text-16 text-text nums">
-                    全 <span className="font-bold">{resultCount}</span> 件
+                    {resultCount === undefined ? (
+                        loading && "読み込んでいます"
+                    ) : (
+                        <>
+                            全 <span className="font-bold">{resultCount}</span> 件
+                        </>
+                    )}
                 </p>
             </div>
         </div>

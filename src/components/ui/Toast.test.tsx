@@ -98,6 +98,19 @@ describe("Toast", () => {
         expect(screen.getByText("A")).toBeInTheDocument();
     });
 
+    it("操作（元に戻す）を付けると自動で消えず、押すとトーストを閉じてから onClick を呼ぶ", async () => {
+        const onUndo = vi.fn();
+        const { user } = setup([{ title: "削除しました", action: { label: "元に戻す", onClick: onUndo } }]);
+        await user.click(screen.getByRole("button", { name: "通知1" }));
+        act(() => {
+            vi.advanceTimersByTime(60000);
+        });
+        expect(screen.getByText("削除しました")).toBeInTheDocument();
+        await user.click(screen.getByRole("button", { name: "元に戻す" }));
+        expect(onUndo).toHaveBeenCalledTimes(1);
+        expect(screen.queryByText("削除しました")).not.toBeInTheDocument();
+    });
+
     it("閉じるボタンで消え、フォーカス中は Esc でも消える", async () => {
         const { user } = setup([{ title: "A" }, { title: "B" }]);
         await user.click(screen.getByRole("button", { name: "通知1" }));

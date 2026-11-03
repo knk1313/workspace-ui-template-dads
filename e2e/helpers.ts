@@ -31,3 +31,8 @@ export async function navigateVia(page: Page, label: string): Promise<void> {
         await page.getByRole("navigation", { name: "メインナビゲーション" }).getByRole("link", { name: label }).click();
     }
 }
+
+/** 画面の読み込み（「〜を読み込んでいます」「読み込み中」の表示）が終わるまで待つ。 */
+export async function waitForLoaded(page: Page): Promise<void> {
+    await expect(page.getByText(/^(.+を)?読み込んでいます$|^読み込み中$/)).toHaveCount(0);
+}

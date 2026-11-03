@@ -9,16 +9,22 @@ import { Popover } from "@/components/ui/Popover";
 import { StackedList, StackedListItem } from "@/components/ui/StackedList";
 import { Tooltip } from "@/components/ui/Tooltip";
 import { useToast } from "@/components/ui/Toast";
-import { APPLICATIONS, CURRENT_USER } from "@/mocks/applications";
-import { RECENT_ACTIVITY } from "@/mocks/activity";
+import { listApplications, listRecentActivity } from "@/api/applications";
+import { useQuery } from "@/api/query";
+import { CURRENT_USER } from "@/mocks/applications";
 
 // ヘッダー右側の操作。AppShell と TopNavLayout の両方で使う。
 //   検索 = コマンドパレット（Ctrl / Cmd + K）、お知らせ = ポップオーバー、アカウント = ドロップダウンメニュー
+const fetchNotifications = () => listRecentActivity(3);
+
 export function HeaderActions() {
     const navigate = useNavigate();
     const { toast } = useToast();
     const [paletteOpen, setPaletteOpen] = useState(false);
     useCommandPaletteShortcut(() => setPaletteOpen(true));
+
+    const applications = useQuery("applications", listApplications);
+    const notifications = useQuery("activity/notifications", fetchNotifications);
 
     const commands = useMemo<CommandItem[]>(() => {
         const pages: CommandItem[] = appConfig.navigation.flatMap((section) =>
@@ -30,7 +36,7 @@ export function HeaderActions() {
                 onSelect: () => navigate(item.href),
             })),
         );
-        const apps: CommandItem[] = APPLICATIONS.slice(0, 20).map((a) => ({
+        const apps: CommandItem[] = (applications.data ?? []).slice(0, 20).map((a) => ({
             id: `app-${a.id}`,
             label: `${a.number} ${a.title}`,
             group: "申請",
@@ -39,7 +45,7 @@ export function HeaderActions() {
             onSelect: () => navigate(`/applications/${a.id}`),
         }));
         return [...pages, ...apps];
-    }, [navigate]);
+    }, [navigate, applications.data]);
 
     const accountItems = [
         { label: "設定", icon: Settings, onSelect: () => navigate("/settings") },
@@ -61,8 +67,10 @@ export function HeaderActions() {
             </Tooltip>
             <Popover title="お知らせ" placement="bottom-end" trigger={<IconButton icon={Bell} label="お知らせ" />}>
                 <div className="w-72 max-w-full sm:w-80">
+                    {notifications.error && !notifications.data && <p className="m-0 p-4 text-std-16N-170 text-text">お知らせを読み込めませんでした。時間をおいて開き直してください。</p>}
+                    {notifications.isLoading && <p className="m-0 p-4 text-std-16N-170 text-text-muted">読み込んでいます</p>}
                     <StackedList>
-                        {RECENT_ACTIVITY.slice(0, 3).map((a) => (
+                        {(notifications.data ?? []).map((a) => (
                             <StackedListItem
                                 key={a.id}
                                 title={`${a.actor}が${a.action}`}

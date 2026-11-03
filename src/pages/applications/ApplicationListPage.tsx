@@ -1,18 +1,20 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useNavigate } from "react-router";
 import { Plus, SearchX, Trash2, UserRoundPen } from "lucide-react";
 import { Button, ButtonLink } from "@/components/ui/Button";
 import { Card, CardBody } from "@/components/ui/Card";
-import { useConfirm } from "@/components/ui/ConfirmDialog";
 import { DataTable, type DataTableColumn } from "@/components/ui/DataTable";
 import { DropdownMenu } from "@/components/ui/DropdownMenu";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Link } from "@/components/ui/Link";
+import { LoadError } from "@/components/ui/LoadError";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { TableCellLine } from "@/components/ui/Table";
 import { useToast } from "@/components/ui/Toast";
 import { useDisplaySettings } from "@/context/DisplaySettings";
-import { APPLICATIONS, CATEGORY_LABELS, STATUS_LABELS, type Application } from "@/mocks/applications";
+import { assignApplications, deleteApplications as deleteApi, invalidateApplications, listApplications, restoreApplications } from "@/api/applications";
+import { setQueryData, useMutation, useQuery } from "@/api/query";
+import { CATEGORY_LABELS, STATUS_LABELS, type Application } from "@/api/types";
 import { ApplicationFilters } from "./list/ApplicationFilters";
 import { ApplicationStatusChip } from "./list/ApplicationStatusChip";
 import { AssignDialog } from "./list/AssignDialog";
@@ -20,30 +22,25 @@ import { formatAmount } from "./list/format";
 import { filterApplications, hasFilters, useApplicationQuery } from "./list/useApplicationQuery";
 
 // 申請一覧。検索・絞り込み（URL に保存）→ データテーブル（並べ替え・行選択・ページ送り）→ 一括操作 / 行ごとの操作。
-// データは画面内の状態として持ち、削除や担当者の変更はこの画面の中だけに反映する（再読み込みで元に戻る）。
+// データは src/api/ のダミー API から読み書きする（画面を移っても保たれ、再読み込みで元に戻る）。
+// 削除は確認ダイアログを出さずにすぐ行い、トーストの「元に戻す」で取り消せるようにする（DADS: 確認ダイアログだけを安全対策にしない）。
 
 const PAGE_SIZE = 20;
-/** 「読み込み中」の表示例を見せる時間。実際の API に置き換えるときは取得中フラグに差し替える。 */
-const DEMO_LOADING_MS = 600;
+const QUERY_KEY = "applications";
 
 const STATUS_ORDER = Object.keys(STATUS_LABELS);
 
 export default function ApplicationListPage() {
     const navigate = useNavigate();
-    const { confirm } = useConfirm();
     const { toast } = useToast();
     const { formatDateTime } = useDisplaySettings();
     const { query, search, setFilter, clearFilters, setSort, setPage } = useApplicationQuery();
 
-    const [applications, setApplications] = useState<Application[]>(() => [...APPLICATIONS]);
+    const list = useQuery(QUERY_KEY, listApplications);
+    const applications = useMemo(() => list.data ?? [], [list.data]);
     const [selectedIds, setSelectedIds] = useState<string[]>([]);
     const [assignOpen, setAssignOpen] = useState(false);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        const timer = setTimeout(() => setLoading(false), DEMO_LOADING_MS);
-        return () => clearTimeout(timer);
-    }, []);
+    const assign = useMutation(assignApplications);
 
     const rows = useMemo(() => filterApplications(applications, query), [applications, query]);
     const filtered = hasFilters(query);
@@ -62,25 +59,45 @@ export default function ApplicationListPage() {
     };
 
     async function deleteApplications(targets: Application[]) {
-        const single = targets.length === 1;
-        const ok = await confirm({
-            title: single ? `${targets[0].number} を削除しますか` : `${targets.length} 件の申請を削除しますか`,
-            message: single ? `「${targets[0].title}」を削除します。この操作は取り消せません。` : "選択した申請をすべて削除します。この操作は取り消せません。",
-            confirmLabel: "削除する",
-            tone: "error",
-        });
-        if (!ok) return;
         const ids = new Set(targets.map((t) => t.id));
-        setApplications((prev) => prev.filter((a) => !ids.has(a.id)));
+        // 「R08-001060 を削除しました」「3 件の申請を削除しました」（英数字と仮名の間は空ける）
+        const label = targets.length === 1 ? `${targets[0].number} ` : `${targets.length} 件の申請`;
+        // 通信の結果を待たずに一覧から消し（楽観的な更新）、失敗したら読み込み直して元に戻す
+        setQueryData<Application[]>(QUERY_KEY, (prev) => (prev ?? []).filter((a) => !ids.has(a.id)));
         setSelectedIds((prev) => prev.filter((id) => !ids.has(id)));
-        toast({ type: "success", title: single ? `${targets[0].number} を削除しました` : `${targets.length} 件の申請を削除しました` });
+        // 消えた行の操作ボタンにあったフォーカスが行き場を失わないよう、ページの見出しへ移す
+        document.querySelector<HTMLElement>("main h1")?.focus();
+        try {
+            const deleted = await deleteApi([...ids]);
+            toast({ type: "success", title: `${label}を削除しました`, action: { label: "元に戻す", onClick: () => void undoDelete(deleted, label) } });
+        } catch (e) {
+            toast({ type: "error", title: `${label}を削除できませんでした`, description: (e as Error).message });
+        } finally {
+            invalidateApplications();
+        }
     }
 
-    function assignSelected(assignee: string) {
-        const ids = new Set(selectedIds);
-        setApplications((prev) => prev.map((a) => (ids.has(a.id) ? { ...a, assignee } : a)));
-        setAssignOpen(false);
-        toast({ type: "success", title: `${ids.size} 件の担当者を ${assignee} に変更しました` });
+    async function undoDelete(deleted: Application[], label: string) {
+        try {
+            await restoreApplications(deleted);
+            toast({ type: "success", title: `${label}の削除を取り消しました` });
+        } catch (e) {
+            toast({ type: "error", title: `${label}を元に戻せませんでした`, description: (e as Error).message });
+        } finally {
+            invalidateApplications();
+        }
+    }
+
+    async function assignSelected(assignee: string) {
+        try {
+            await assign.run(selectedIds, assignee);
+            toast({ type: "success", title: `${selectedIds.length} 件の担当者を ${assignee} に変更しました` });
+            setAssignOpen(false);
+            invalidateApplications();
+        } catch (e) {
+            // ダイアログは閉じずに残し、そのままやり直せるようにする
+            toast({ type: "error", title: "担当者を変更できませんでした", description: (e as Error).message });
+        }
     }
 
     const columns: DataTableColumn<Application>[] = [
@@ -152,56 +169,66 @@ export default function ApplicationListPage() {
                 }
             />
 
-            <ApplicationFilters query={query} resultCount={rows.length} onFilterChange={changeFilter} onClear={clearAll} />
+            <ApplicationFilters
+                query={query}
+                resultCount={list.data ? rows.length : undefined}
+                loading={list.isLoading}
+                onFilterChange={changeFilter}
+                onClear={clearAll}
+            />
 
-            {/* 表は地（canvas）に直接置かず、白い面（カード）に載せる（docs/decisions.md D-07） */}
-            <Card>
-                <CardBody>
-                    <DataTable
-                        flush
-                        columns={columns}
-                        rows={rows}
-                        getRowId={(row) => row.id}
-                        getRowLabel={(row) => `${row.number} ${row.title}`}
-                        loading={loading}
-                        // 表の中だけを縦スクロールさせるとページのスクロールと二重になり、最終行が切れて見えるため固定ヘッダーは使わない（20 件ずつのページ送りで十分短い）。
-                        sort={query.sort}
-                        onSortChange={setSort}
-                        page={query.page}
-                        onPageChange={setPage}
-                        pageSize={PAGE_SIZE}
-                        selectable
-                        selectedIds={selectedIds}
-                        onSelectionChange={setSelectedIds}
-                        bulkActions={
-                            <>
-                                <Button variant="outline" size="sm" leadIcon={UserRoundPen} onClick={() => setAssignOpen(true)}>
-                                    担当者を変更
-                                </Button>
-                                <Button
-                                    variant="outline"
+            {list.error && <LoadError subject="申請の一覧" error={list.error} onRetry={list.reload} stale={!!list.data} />}
+
+            {/* 表は地（canvas）に直接置かず、白い面（カード）に載せる（docs/decisions.md D-07）。
+                一度も読み込めていないときは、空の表（「申請はまだありません」）と誤解されないよう表を出さない。 */}
+            {!(list.error && !list.data) && (
+                <Card>
+                    <CardBody>
+                        <DataTable
+                            flush
+                            columns={columns}
+                            rows={rows}
+                            getRowId={(row) => row.id}
+                            getRowLabel={(row) => `${row.number} ${row.title}`}
+                            loading={list.isLoading}
+                            // 表の中だけを縦スクロールさせるとページのスクロールと二重になり、最終行が切れて見えるため固定ヘッダーは使わない（20 件ずつのページ送りで十分短い）。
+                            sort={query.sort}
+                            onSortChange={setSort}
+                            page={query.page}
+                            onPageChange={setPage}
+                            pageSize={PAGE_SIZE}
+                            selectable
+                            selectedIds={selectedIds}
+                            onSelectionChange={setSelectedIds}
+                            bulkActions={
+                                <>
+                                    <Button variant="outline" size="sm" leadIcon={UserRoundPen} onClick={() => setAssignOpen(true)}>
+                                        担当者を変更
+                                    </Button>
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        tone="error"
+                                        leadIcon={Trash2}
+                                        onClick={() => deleteApplications(applications.filter((a) => selectedIds.includes(a.id)))}
+                                    >
+                                        削除
+                                    </Button>
+                                </>
+                            }
+                            rowActions={(row) => (
+                                <DropdownMenu
+                                    label={`${row.number} の操作`}
+                                    iconOnly
                                     size="sm"
-                                    tone="error"
-                                    leadIcon={Trash2}
-                                    onClick={() => deleteApplications(applications.filter((a) => selectedIds.includes(a.id)))}
-                                >
-                                    削除
-                                </Button>
-                            </>
-                        }
-                        rowActions={(row) => (
-                            <DropdownMenu
-                                label={`${row.number} の操作`}
-                                iconOnly
-                                size="sm"
-                                align="end"
-                                items={[
-                                    { label: "詳細を見る", onSelect: () => navigate(`/applications/${row.id}`, { state: detailState }) },
-                                    { label: "編集", onSelect: () => navigate(`/applications/${row.id}/edit`) },
-                                    "separator",
-                                    { label: "削除", danger: true, icon: Trash2, onSelect: () => deleteApplications([row]) },
-                                ]}
-                            />
+                                    align="end"
+                                    items={[
+                                        { label: "詳細を見る", onSelect: () => navigate(`/applications/${row.id}`, { state: detailState }) },
+                                        { label: "編集", onSelect: () => navigate(`/applications/${row.id}/edit`) },
+                                        "separator",
+                                        { label: "削除", danger: true, icon: Trash2, onSelect: () => deleteApplications([row]) },
+                                    ]}
+                                />
                         )}
                         emptyState={
                             filtered ? (
@@ -230,8 +257,9 @@ export default function ApplicationListPage() {
                     />
                 </CardBody>
             </Card>
+            )}
 
-            {assignOpen && <AssignDialog count={selectedIds.length} onClose={() => setAssignOpen(false)} onSubmit={assignSelected} />}
+            {assignOpen && <AssignDialog count={selectedIds.length} pending={assign.pending} onClose={() => setAssignOpen(false)} onSubmit={assignSelected} />}
         </div>
     );
 }

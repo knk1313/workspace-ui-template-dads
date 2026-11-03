@@ -7,9 +7,16 @@ import { renderApp } from "@/test/renderApp";
 const reviewing = APPLICATIONS.find((a) => a.status === "reviewing" && a.attachments.length > 1)!;
 const returned = APPLICATIONS.find((a) => a.status === "returned")!;
 
+/** 詳細画面を開き、読み込みが終わる（ページ見出しが出る）まで待つ。 */
+async function renderDetail(path: string) {
+    const result = renderApp(path);
+    await screen.findByRole("heading", { level: 1 });
+    return result;
+}
+
 describe("ApplicationDetailPage", () => {
-    it("件名・パンくず・状態・申請内容を表示する", () => {
-        renderApp(`/applications/${reviewing.id}`);
+    it("件名・パンくず・状態・申請内容を表示する", async () => {
+        await renderDetail(`/applications/${reviewing.id}`);
         expect(screen.getByRole("heading", { level: 1, name: reviewing.title })).toBeInTheDocument();
         const breadcrumb = screen.getByRole("navigation", { name: "パンくずリスト" });
         expect(within(breadcrumb).getByRole("link", { name: "申請一覧" })).toHaveAttribute("href", "/applications");
@@ -24,7 +31,7 @@ describe("ApplicationDetailPage", () => {
     });
 
     it("矢印キーでタブを切り替えられる", async () => {
-        const { user } = renderApp(`/applications/${reviewing.id}`);
+        const { user } = await renderDetail(`/applications/${reviewing.id}`);
         await user.click(screen.getByRole("tab", { name: "概要" }));
         await user.keyboard("{ArrowRight}");
         const attachmentsTab = screen.getByRole("tab", { name: /^添付ファイル/ });
@@ -39,7 +46,7 @@ describe("ApplicationDetailPage", () => {
     });
 
     it("承認すると確認のあとに状態が変わり、成功のバナーを表示する", async () => {
-        const { user } = renderApp(`/applications/${reviewing.id}`);
+        const { user } = await renderDetail(`/applications/${reviewing.id}`);
         await user.click(screen.getByRole("button", { name: "承認する" }));
         const dialog = screen.getByRole("dialog", { name: "この申請を承認しますか" });
         await user.click(within(dialog).getByRole("button", { name: "承認する" }));
@@ -52,7 +59,7 @@ describe("ApplicationDetailPage", () => {
     });
 
     it("差戻しダイアログ: 開くと見出しにフォーカスし、未入力で送るとエラー、Esc で閉じてトリガーへ戻る", async () => {
-        const { user } = renderApp(`/applications/${reviewing.id}`);
+        const { user } = await renderDetail(`/applications/${reviewing.id}`);
         const trigger = screen.getByRole("button", { name: "その他の操作" });
         await user.click(trigger);
         await user.click(screen.getByRole("menuitem", { name: "差戻し" }));
@@ -72,7 +79,7 @@ describe("ApplicationDetailPage", () => {
     });
 
     it("理由を入力して差し戻すと、差戻しのバナーに理由を表示する", async () => {
-        const { user } = renderApp(`/applications/${reviewing.id}`);
+        const { user } = await renderDetail(`/applications/${reviewing.id}`);
         await user.click(screen.getByRole("button", { name: "その他の操作" }));
         await user.click(screen.getByRole("menuitem", { name: "差戻し" }));
         const dialog = screen.getByRole("dialog", { name: "申請を差し戻す" });
@@ -83,13 +90,13 @@ describe("ApplicationDetailPage", () => {
         expect(screen.getByText("添付書類の押印が不足しています。")).toBeInTheDocument();
     });
 
-    it("差戻し中の申請は警告のバナーを表示する", () => {
-        renderApp(`/applications/${returned.id}`);
+    it("差戻し中の申請は警告のバナーを表示する", async () => {
+        await renderDetail(`/applications/${returned.id}`);
         expect(screen.getByRole("heading", { name: "この申請は差し戻されています" })).toBeInTheDocument();
     });
 
     it("存在しない id では 404 を表示する", async () => {
-        const { user } = renderApp("/applications/app-999");
+        const { user } = await renderDetail("/applications/app-999");
         expect(screen.getByText("404")).toBeInTheDocument();
         expect(screen.getByRole("heading", { level: 1, name: "申請が見つかりません" })).toBeInTheDocument();
         await user.click(screen.getByRole("link", { name: "申請一覧へ戻る" }));
@@ -97,7 +104,7 @@ describe("ApplicationDetailPage", () => {
     });
 
     it("アクセシビリティ違反がない", async () => {
-        const { container, user } = renderApp(`/applications/${returned.id}`);
+        const { container, user } = await renderDetail(`/applications/${returned.id}`);
         await expectNoA11yViolations(container);
         await user.click(screen.getByRole("tab", { name: "履歴" }));
         await expectNoA11yViolations(container);

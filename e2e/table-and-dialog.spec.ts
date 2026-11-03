@@ -65,15 +65,21 @@ test.describe("申請一覧の表", () => {
         await expect(trigger).toBeFocused();
     });
 
-    test("一括削除は確認ダイアログを経て実行される", async ({ page }) => {
+    test("一括削除は確認なしですぐ行われ、トーストの「元に戻す」で取り消せる", async ({ page }) => {
         const before = await numbers(page);
         await page.locator("table tbody tr").first().getByRole("checkbox").check();
         await page.getByRole("region", { name: "選択中の項目の操作" }).getByRole("button", { name: "削除" }).click();
-        const confirm = page.getByRole("dialog");
-        await expect(confirm).toBeVisible();
-        await confirm.getByRole("button", { name: /削除/ }).click();
+        await expect(page.getByRole("dialog")).toHaveCount(0);
+        await expect(page.getByText(`${before[0]} を削除しました`)).toBeVisible();
         await expect(page.getByText("全 63 件", { exact: true })).toBeVisible();
         expect(await numbers(page)).not.toContain(before[0]);
+        // 消えた行にあったフォーカスは見出しへ移る
+        await expect(page.getByRole("heading", { level: 1 })).toBeFocused();
+
+        await page.getByRole("button", { name: "元に戻す" }).click();
+        await expect(page.getByText(`${before[0]} の削除を取り消しました`)).toBeVisible();
+        await expect(page.getByText("全 64 件", { exact: true })).toBeVisible();
+        expect(await numbers(page)).toContain(before[0]);
     });
 });
 

@@ -1,5 +1,5 @@
 import { StatusChip, type ChipStatus } from "@/components/ui/ChipLabel";
-import { STATUS_LABELS, type ApplicationStatus } from "@/mocks/applications";
+import { STATUS_LABELS, type ApplicationStatus } from "@/api/types";
 
 // 申請の状態とチップの意味色の対応。一覧と詳細で色が揺れないよう、ここだけで決める。
 // 受付済み・審査中はどちらも「処理中」の情報色にし、文字で区別する（色だけで意味を伝えない）。

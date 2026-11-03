@@ -1,5 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-import { isMobile } from "../helpers";
+import { isMobile, waitForLoaded } from "../helpers";
 
 // 主要な画面と、開いた状態の見た目を基準画像と比べる。
 // 基準画像は e2e/visual/__screenshots__/ にあり、Linux コンテナの中で撮る（playwright.visual.config.ts）。
@@ -11,7 +11,7 @@ async function open(page: Page, path: string) {
     await page.clock.setFixedTime(FIXED_NOW);
     await page.goto(path);
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
-    await expect(page.getByText("読み込み中")).toHaveCount(0);
+    await waitForLoaded(page);
     await page.evaluate(() => document.fonts.ready);
 }
 
@@ -42,12 +42,29 @@ test("フォームのエラー表示", async ({ page }) => {
     await expect(page).toHaveScreenshot("application-form-errors.png", { fullPage: true });
 });
 
-test("一括操作と確認ダイアログ", async ({ page }) => {
+test("一括操作と担当者の変更ダイアログ", async ({ page }) => {
+    await open(page, "/applications");
+    await page.locator("table tbody tr").first().getByRole("checkbox").check();
+    await page.getByRole("region", { name: "選択中の項目の操作" }).getByRole("button", { name: "担当者を変更" }).click();
+    await expect(page.getByRole("dialog")).toBeVisible();
+    await expect(page).toHaveScreenshot("applications-assign.png");
+});
+
+test("削除のあとの「元に戻す」トースト", async ({ page }) => {
     await open(page, "/applications");
     await page.locator("table tbody tr").first().getByRole("checkbox").check();
     await page.getByRole("region", { name: "選択中の項目の操作" }).getByRole("button", { name: "削除" }).click();
-    await expect(page.getByRole("dialog")).toBeVisible();
-    await expect(page).toHaveScreenshot("applications-confirm.png");
+    await expect(page.getByRole("button", { name: "元に戻す" })).toBeVisible();
+    await expect(page).toHaveScreenshot("applications-undo-toast.png");
+});
+
+test("読み込めなかったときのエラー表示", async ({ page }) => {
+    await page.addInitScript(() => sessionStorage.setItem("mock-api-options", JSON.stringify({ fail: true, slow: false })));
+    await page.clock.setFixedTime(FIXED_NOW);
+    await page.goto("/applications");
+    await expect(page.getByRole("heading", { name: "申請の一覧を読み込めませんでした" })).toBeVisible();
+    await page.evaluate(() => document.fonts.ready);
+    await expect(page).toHaveScreenshot("applications-load-error.png", { fullPage: true });
 });
 
 test("ヘッダーのメニュー", async ({ page }) => {

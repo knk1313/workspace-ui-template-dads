@@ -1,4 +1,4 @@
-import type { ApplicationCategory } from "@/mocks/applications";
+import type { ApplicationCategory } from "@/api/types";
 
 // 申請フォームの入力値と検証（純粋関数）。画面から切り離して単体テストできるようにする。
 // DADS のバリデーション方針: 送信時にまとめて検証し、入力中やフォーカスアウトではエラーを出さない。

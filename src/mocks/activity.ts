@@ -1,15 +1,6 @@
 // アクティビティ（操作履歴）の架空データ。
 
-export type ActivityItem = {
-    id: string;
-    actor: string;
-    action: string;
-    target?: string;
-    /** 関連する申請 ID。 */
-    applicationId?: string;
-    at: string;
-    type: "create" | "update" | "approve" | "return" | "comment" | "assign";
-};
+import type { ActivityItem, HistoryItem } from "@/api/types";
 
 export const RECENT_ACTIVITY: ActivityItem[] = [
     { id: "act-1", actor: "鈴木 一郎", action: "承認しました", target: "R08-001012 中小企業デジタル化支援補助金", applicationId: "app-005", at: "2026-10-31T08:40:00Z", type: "approve" },
@@ -19,15 +10,6 @@ export const RECENT_ACTIVITY: ActivityItem[] = [
     { id: "act-5", actor: "佐藤 花子", action: "新しい申請を受け付けました", target: "R08-001189 事業所開設届", applicationId: "app-064", at: "2026-10-30T09:50:00Z", type: "create" },
     { id: "act-6", actor: "鈴木 一郎", action: "審査を開始しました", target: "R08-001045 給水装置工事届", applicationId: "app-016", at: "2026-10-30T09:10:00Z", type: "update" },
 ];
-
-/** 申請ごとの履歴（詳細画面のタイムライン）。 */
-export type HistoryItem = {
-    id: string;
-    title: string;
-    description?: string;
-    at: string;
-    status: "done" | "current" | "upcoming";
-};
 
 export function historyFor(status: string): HistoryItem[] {
     const base: HistoryItem[] = [
