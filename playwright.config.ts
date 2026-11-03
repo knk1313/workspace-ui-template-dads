@@ -23,7 +23,8 @@ export default defineConfig({
         { name: "mobile", use: { ...devices["Pixel 7"] } },
     ],
     webServer: {
-        command: "npm run build && npm run preview -- --port 4173 --strictPort",
+        // 型の検査は check ジョブ（npm run typecheck）で行うため、ここでは Vite のビルドだけをする
+        command: "npx vite build && npx vite preview --port 4173 --strictPort",
         url: "http://localhost:4173",
         reuseExistingServer: !process.env.CI,
         timeout: 120000,

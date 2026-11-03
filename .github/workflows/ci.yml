@@ -20,9 +20,27 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
       - run: npm ci
-      # 型チェック + lint（デザイントークン検査を含む）+ 単体テスト（axe・コントラスト検査を含む）
-      - run: npm run check
+      # 型チェック + lint（デザイントークン検査を含む）+ 本番ビルド
+      - run: npm run typecheck
+      - run: npm run lint
       - run: npm run build
+
+  unit:
+    runs-on: ubuntu-latest
+    # 単体テスト（axe・コントラスト検査を含む）。CI のランナーでは 1 分近くかかるため、2 つに分けて並行に実行する
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2]
+    name: unit (${{ matrix.shard }}/2)
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npx vitest run --shard=${{ matrix.shard }}/2
 
   e2e:
     runs-on: ubuntu-latest
@@ -88,7 +106,10 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run remove-samples -- --force
-      - run: npm run check
+      # 消したあとに変わるのは、画面・ルーティング・シェルだけ。型と lint は全体を、単体テストはその部分を確かめる
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npx vitest run src/pages src/layouts
       - uses: actions/cache@v4
         id: playwright-cache
         with:
