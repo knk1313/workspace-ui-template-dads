@@ -25,6 +25,7 @@
   - 見本の画面をまとめて消すスクリプト（`npm run remove-samples`）を追加しました。CIで、消したあとも検査が通ることを毎回確かめます。
   - Dependabotの設定を追加しました。
   - mainの画面を、GitHub Pagesでデモとして公開するようにしました。サイトの直下ではない場所でも配信できるよう、ビルドで`BASE_PATH`を受け付けます。
+  - IssueとプルリクエストのテンプレートとCONTRIBUTING.mdを追加しました。
 
 ### 変更
 
@@ -37,6 +38,8 @@
 - **型の置き場所**：申請の型と表示名を`src/mocks/`から`src/api/applicationTypes.ts`に移しました。
 - **見本のデータ**：メールアドレスの例を`example.jp`に、電話番号を`000-0000-`で始まる番号にしました。
 - **パッケージ名**：`package.json`の名前を`workspace-ui-template-dads`にしました。
+- **CIの速さ**：単体テストとE2Eを分けて並行に実行し、Playwrightのブラウザーとnpmのキャッシュを持つようにしました。CIの全体の時間は、約150秒から約110秒になりました。
+- **依存パッケージ**：ESLintを10に上げました。開発用の依存のminimatchは、脆弱性の直った11に上げています（`package.json`の`overrides`）。
 
 ### 直したこと
 
