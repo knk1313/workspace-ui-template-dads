@@ -46,7 +46,7 @@ jobs:
       # 主要な画面と開いた状態のスクリーンショットを基準画像と比べる
       - run: npx playwright test -c playwright.visual.config.ts
       - if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: visual-diff
           path: test-results/
