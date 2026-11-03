@@ -27,6 +27,15 @@ for (const p of PAGES) {
     });
 }
 
+test("長いページはマウスホイールで縦にスクロールできる", async ({ page }) => {
+    await page.goto("/");
+    await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+    const viewport = page.viewportSize()!;
+    await page.mouse.move(viewport.width / 2, viewport.height / 2);
+    await page.mouse.wheel(0, 600);
+    await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(0);
+});
+
 test("ナビゲーションで各画面へ移動でき、現在地が示される", async ({ page }) => {
     await page.goto("/");
     await navigateVia(page, "申請一覧");
