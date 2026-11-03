@@ -10,6 +10,13 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+    ignore:
+      # 型は、推奨の実行環境（.nvmrc の Node.js 24）に合わせるため、メジャーは上げない
+      - dependency-name: "@types/node"
+        update-types: ["version-update:semver-major"]
+      # typescript-eslint が TypeScript 7 に対応するまで、メジャーは上げない（対応したらこの行を消す）
+      - dependency-name: typescript
+        update-types: ["version-update:semver-major"]
     groups:
       playwright:
         patterns: ["@playwright/test", "@axe-core/playwright"]

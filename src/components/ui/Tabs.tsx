@@ -117,7 +117,7 @@ export function TabList({ children, className, ...props }: TabListProps) {
         const tabs = Array.from(ref.current?.querySelectorAll<HTMLButtonElement>('[role="tab"]') ?? []);
         const index = tabs.findIndex((t) => t === document.activeElement);
         if (tabs.length === 0 || index < 0) return;
-        let next: number | null = null;
+        let next: number;
         switch (e.key) {
             case "ArrowRight":
                 next = (index + 1) % tabs.length;
