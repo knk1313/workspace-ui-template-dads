@@ -58,7 +58,7 @@ jobs:
           cache: npm
       - run: npm ci
       # ブラウザー本体はキャッシュし、OS の依存パッケージだけを毎回入れる
-      - uses: actions/cache@v4
+      - uses: actions/cache@v6
         id: playwright-cache
         with:
           path: ~/.cache/ms-playwright
@@ -81,7 +81,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       # コンテナの中では setup-node のキャッシュが使えないため、npm のキャッシュを自分で持つ
-      - uses: actions/cache@v4
+      - uses: actions/cache@v6
         with:
           path: /root/.npm
           key: npm-visual-${{ hashFiles('package-lock.json') }}
@@ -110,7 +110,7 @@ jobs:
       - run: npm run typecheck
       - run: npm run lint
       - run: npx vitest run src/pages src/layouts
-      - uses: actions/cache@v4
+      - uses: actions/cache@v6
         id: playwright-cache
         with:
           path: ~/.cache/ms-playwright

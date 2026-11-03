@@ -32,7 +32,7 @@ jobs:
           BASE_PATH: /workspace-ui-template-dads/
       # GitHub Pages は存在しないパスに 404.html を返す。画面の URL を直接開いても動くよう、index.html と同じ中身にする
       - run: cp dist/index.html dist/404.html
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v5
         with:
           path: dist
 
@@ -44,4 +44,4 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
