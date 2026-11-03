@@ -1,6 +1,7 @@
 import { BrowserRouter, Route, Routes } from "react-router";
 import AppLayout from "@/components/AppLayout";
 import NotFoundPage from "@/pages/NotFoundPage";
+import ComponentPage from "@/pages/components/ComponentPage";
 import { pageByPath } from "@/routes";
 
 const routes = Object.entries(pageByPath);
@@ -13,6 +14,7 @@ export default function App() {
                     {routes.map(([path, Page]) => (
                         <Route key={path} path={path} element={<Page />} />
                     ))}
+                    <Route path="/components/:slug" element={<ComponentPage />} />
                     <Route path="*" element={<NotFoundPage />} />
                 </Route>
             </Routes>

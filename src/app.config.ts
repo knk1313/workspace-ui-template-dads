@@ -1,7 +1,7 @@
 // アプリ全体の設定。テンプレートを自分のアプリにするときは、まずこのファイルを書き換える。
 // index.html の <title> と description も、ビルド時にここの値で置き換える（vite.config.ts）。
 // 画面の URL は navigation だけで定義する。各 URL の画面は src/routes.tsx で対応付ける。
-import { FileText, Layers, LayoutDashboard, Settings, type LucideIcon } from "lucide-react";
+import { Blocks, FileText, Layers, LayoutDashboard, Settings, type LucideIcon } from "lucide-react";
 
 export type NavItem = { readonly label: string; readonly href: string; readonly icon: LucideIcon };
 export type NavSection = { readonly title: string; readonly items: readonly NavItem[] };
@@ -13,7 +13,10 @@ const navigation = [
     },
     {
         title: "ワークスペース",
-        items: [{ label: "ドキュメント", href: "/documents", icon: FileText }],
+        items: [
+            { label: "ドキュメント", href: "/documents", icon: FileText },
+            { label: "コンポーネント", href: "/components", icon: Blocks },
+        ],
     },
     {
         title: "管理",
