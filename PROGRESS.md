@@ -80,13 +80,13 @@
 
 | 項目 | 分類 | 既存 | 新ファイル | 状態 |
 | --- | --- | --- | --- | --- |
-| 折れ線 | 新規 | - | charts/LineChart.tsx | 未着手 |
-| 棒（縦・横・積み上げ） | 改修 | DashboardPage の div 棒 | charts/BarChart.tsx | 未着手 |
-| 面 | 新規 | - | charts/AreaChart.tsx | 未着手 |
+| 折れ線 | 新規 | - | charts/LineChart.tsx | 完了 |
+| 棒（縦・横・積み上げ） | 改修 | DashboardPage の div 棒 | charts/BarChart.tsx | 完了 |
+| 面 | 新規 | - | charts/AreaChart.tsx | 完了 |
 | 散布図 | 不要 | - | ガイドブックが提供・推奨するグラフに含まれない（docs/decisions.md D-04） | - |
-| ドーナツ | 新規 | - | charts/DonutChart.tsx（総量が明らかな構成比のみ） | 未着手 |
-| 凡例・軸・単位・出典・注記・ツールチップ・データテーブル切替・代替テキスト | 新規 | - | charts/ChartFrame.tsx | 未着手 |
-| データ可視化パレット | 新規 | - | tokens/theme.css（`--color-chart-*`） | 未着手 |
+| ドーナツ | 新規 | - | charts/DonutChart.tsx（総量が明らかな構成比のみ） | 完了 |
+| 凡例・軸・単位・出典・注記・ツールチップ・データテーブル切替・代替テキスト | 新規 | - | charts/ChartFrame.tsx | 完了 |
+| データ可視化パレット | 新規 | - | tokens/theme.css（`--color-chart-*`） | 完了 |
 
 ### フィードバック・オーバーレイ
 
@@ -120,4 +120,5 @@
 
 ## 既知の問題
 
-- なし
+- 利用者指摘: 縦中央揃えが崩れている箇所など、細かな整列のズレがある。ページ例の完成後にブラウザ（desktop / mobile）で全画面・全デモを目視確認して修正する（未対応）。
+- グラフの見た目はブラウザでの確認が未了（jsdom のみ）。
