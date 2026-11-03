@@ -4,6 +4,8 @@
 
 An admin-dashboard frontend template that follows the [Digital Agency Design System (DADS)](https://design.digital.go.jp/dads/) of Japan. Built with Vite, React, TypeScript and Tailwind CSS v4.
 
+**Demo**: [https://knk1313.github.io/workspace-ui-template-dads/](https://knk1313.github.io/workspace-ui-template-dads/) (deployed automatically from main)
+
 All data and text on screen are fictional samples. No real API or backend is included; the screens run on a mock API in `src/api/`. This template is an independent implementation based on the public DADS specification and is not an official Digital Agency product.
 
 ![Dashboard](docs/screenshots/dashboard.png)

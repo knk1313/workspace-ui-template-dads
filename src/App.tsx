@@ -37,7 +37,10 @@ function Root() {
 /** ルーターに渡すルート（Provider を含む）。テストでは createMemoryRouter に渡す（src/test/renderApp.tsx）。 */
 export const appRoutes: RouteObject[] = [{ element: <Root />, children: routes }];
 
+/** ルーターの基準のパス。vite.config.ts の base（BASE_PATH）に合わせる。末尾の / は付けない。 */
+const BASENAME = import.meta.env.BASE_URL.replace(/\/$/, "") || "/";
+
 export default function App() {
-    const [router] = useState(() => createBrowserRouter(appRoutes));
+    const [router] = useState(() => createBrowserRouter(appRoutes, { basename: BASENAME }));
     return <RouterProvider router={router} />;
 }

@@ -15,6 +15,8 @@ function appConfigHtml(): Plugin {
 }
 
 export default defineConfig({
+    // 公開する場所のパス。既定はサイトの直下（/）。GitHub Pages のデモは /workspace-ui-template-dads/ で配信する（.github/workflows/pages.yml）。
+    base: process.env.BASE_PATH ?? "/",
     plugins: [react(), tailwindcss(), appConfigHtml()],
     resolve: {
         alias: { "@": fileURLToPath(new URL("./src", import.meta.url)) },

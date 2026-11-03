@@ -4,6 +4,8 @@
 
 [デジタル庁デザインシステム（DADS）](https://design.digital.go.jp/dads/)に準拠した、管理画面向けのフロントエンドのテンプレートです。Vite、React、TypeScript、Tailwind CSS v4で作っています。
 
+**デモ**：[https://knk1313.github.io/workspace-ui-template-dads/](https://knk1313.github.io/workspace-ui-template-dads/)（mainの画面を自動で公開しています）
+
 画面に出るデータと文章は、すべて架空の見本です。本物のAPIやバックエンドは含まず、`src/api/`のダミーのAPIで動きます。このテンプレートはデジタル庁の公式なものではありません。DADSの公開されている仕様を基に、独自に実装したものです。
 
 ![ダッシュボード](docs/screenshots/dashboard.png)
@@ -163,7 +165,7 @@ Dependabot（`.github/dependabot.yml`）が、npmのパッケージを毎週、G
 
 ## デプロイ
 
-`npm run build`で、`dist/`に静的なファイルを出力します。ブラウザーの履歴を使うルーター（`createBrowserRouter`）なので、ホスティングの側で、存在しないパスにも`index.html`を返す設定が要ります。
+`npm run build`で、`dist/`に静的なファイルを出力します。サイトの直下ではない場所で配信するときは、`BASE_PATH=/パス/ npm run build`のように、配信するパスを渡します（デモは`.github/workflows/pages.yml`でこの形で公開しています）。ブラウザーの履歴を使うルーター（`createBrowserRouter`）なので、ホスティングの側で、存在しないパスにも`index.html`を返す設定が要ります。
 
 ## 設計資料
 
