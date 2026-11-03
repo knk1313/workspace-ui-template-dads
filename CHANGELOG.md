@@ -25,6 +25,7 @@
 - **ダミーデータ**: `src/mocks/` にまとめ、ページから分離しました。
 - **E2E テスト**: Playwright で desktop と mobile の 2 幅を検査します（`npm run test:e2e`）。
 - **フォント**: Noto Sans JP（`@fontsource-variable/noto-sans-jp`）を追加しました。
+- **設計資料**: `docs/` に判断記録、トークン一覧、グラフの選び方を追加しました。
 
 ### 変更（互換性のない変更）
 

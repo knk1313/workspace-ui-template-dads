@@ -118,6 +118,14 @@ scripts/check-design-tokens.mjs
 
 `npm run build` で `dist/` に静的ファイルを出力します。`BrowserRouter` を使っているため、ホスティング側で SPA fallback（存在しないパスにも `index.html` を返す設定）が必要です。
 
+## 設計資料
+
+| 文書 | 内容 |
+| --- | --- |
+| [docs/decisions.md](docs/decisions.md) | 判断記録。DADS の資料に記載がない点や、DADS と変えた点の理由 |
+| [docs/tokens.md](docs/tokens.md) | デザイントークンの一覧（色・文字・寸法） |
+| [docs/chart-guide.md](docs/chart-guide.md) | グラフの選び方（ダッシュボードデザインの実践ガイドブックの要約） |
+
 ## 参考資料
 
 - [デジタル庁デザインシステム](https://www.digital.go.jp/policies/servicedesign/designsystem)（[β版サイト](https://design.digital.go.jp/dads/)）
