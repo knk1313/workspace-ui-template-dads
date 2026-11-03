@@ -16,6 +16,12 @@
     -webkit-text-size-adjust: 100%;
   }
 
+  /* 固定ヘッダーの高さ + 余白の分だけ、スクロールで要素を寄せる位置を下げる。
+     Shift+Tab などでフォーカスした要素や、ページ内リンクの移動先が固定ヘッダーの下に隠れないようにする（WCAG 2.4.11）。 */
+  html {
+    scroll-padding-top: calc(var(--spacing-header) + var(--spacing) * 4);
+  }
+
   body {
     min-height: 100dvh;
   }

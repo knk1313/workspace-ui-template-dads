@@ -61,7 +61,7 @@ export function TopNavLayout({
     return (
         <div className={cn("relative flex flex-col bg-canvas text-text", embedded ? "h-full" : "min-h-dvh", className)}>
             {!embedded && <SkipLink />}
-            <ShellHeader className="sticky top-0">
+            <ShellHeader className="sticky top-0 z-20">
                 {!isDesktop && <HamburgerButton open={drawerOpen} controls={MOBILE_NAV_ID} onClick={() => setDrawerOpen((v) => !v)} />}
                 <Brand name={appName} logo={logo} />
                 {isDesktop && <HeaderNav items={items} label={navLabel} className="ml-2 h-full" />}
