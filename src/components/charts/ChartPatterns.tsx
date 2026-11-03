@@ -80,14 +80,15 @@ export type SeriesSymbolProps = {
  * 凡例の記号。line は線種 + データ点の形、fill は四角（模様付き）。
  * 装飾なので aria-hidden（系列名はテキストで隣に出す）。
  */
-export function SeriesSymbol({ kind, color, shape = "circle", dash, pattern = "solid", patterns = true, className }: SeriesSymbolProps) {
+export function SeriesSymbol({ kind, color, shape, dash, pattern = "solid", patterns = true, className }: SeriesSymbolProps) {
     // 凡例は複数のグラフと同じページに並ぶので、pattern の id は記号ごとに useId で一意にする。
     const id = `legend-${toSafeId(useId())}`;
     if (kind === "line") {
         return (
             <svg className={className} width="28" height="16" viewBox="0 0 28 16" aria-hidden="true" focusable="false">
                 <path d="M1 8H27" stroke={color} strokeWidth={2} strokeDasharray={dash} fill="none" />
-                <path d={shapePath(shape, 4)} transform="translate(14 8)" fill={color} />
+                {/* データ点を描かない系列（showDots=false）や目標線は、線種だけで示す */}
+                {shape && <path d={shapePath(shape, 4)} transform="translate(14 8)" fill={color} />}
             </svg>
         );
     }

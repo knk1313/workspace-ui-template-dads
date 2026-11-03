@@ -165,7 +165,7 @@ export default function DashboardPage() {
                         as="h2"
                         title="受付件数の月次推移"
                         unit="件"
-                        description={`直近 12 か月と前年同月の比較。破線は月間目標（${yen.format(MONTHLY_TARGET)} 件）です。`}
+                        description={`直近 12 か月と前年同月の比較。灰色の破線は月間目標です。`}
                         data={MONTHLY_RECEIVED}
                         xKey="label"
                         xAxisLabel="月"
@@ -173,7 +173,7 @@ export default function DashboardPage() {
                             { key: "current", name: "直近 12 か月" },
                             { key: "previous", name: "前年同月" },
                         ]}
-                        referenceLine={{ y: MONTHLY_TARGET, label: `目標 ${yen.format(MONTHLY_TARGET)}件` }}
+                        referenceLine={{ y: MONTHLY_TARGET, label: `月間目標（${yen.format(MONTHLY_TARGET)} 件）` }}
                         source={CHART_SOURCE}
                         note="2025年11月〜2026年10月の各月末時点。下書きを除く。"
                         updatedAt={CHART_UPDATED_AT}

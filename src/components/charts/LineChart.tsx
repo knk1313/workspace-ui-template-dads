@@ -13,7 +13,10 @@ import { CHART_COLORS, buildTrendSummary, formatNumber, limitSeries, seriesStyle
 export type ReferenceLineSpec = {
     y: number;
     label: string;
-    /** ラベルの位置。系列の線と重ならない側を選ぶ（既定は左上）。 */
+    /**
+     * 線の上にラベルを描く位置。省略時はグラフの中に文字を置かず、凡例に「破線 + ラベル」として出す
+     * （グラフの中の文字は系列の線と重なりやすいため。ガイドブック: 凡例をグラフに隣接させる）。
+     */
     labelPosition?: "insideTopLeft" | "insideTopRight" | "insideBottomLeft" | "insideBottomRight";
 };
 
@@ -46,6 +49,9 @@ export function LineChart({ data, xKey, series, yAxisLabel, xAxisLabel, referenc
         const style = seriesStyle(i);
         return { name: s.name, kind: "line", color: style.color, shape: showDots ? style.shape : undefined, dash: style.dash };
     });
+    if (referenceLine && !referenceLine.labelPosition) {
+        legend.push({ name: referenceLine.label, kind: "line", color: CHART_COLORS.reference, dash: "4 4" });
+    }
     const axisLabelY = yAxisLabel ?? unit;
 
     const chart = (
@@ -81,7 +87,7 @@ export function LineChart({ data, xKey, series, yAxisLabel, xAxisLabel, referenc
                     y={referenceLine.y}
                     stroke={CHART_COLORS.reference}
                     strokeDasharray="4 4"
-                    label={{ value: referenceLine.label, position: referenceLine.labelPosition ?? "insideTopLeft", fill: CHART_COLORS.text }}
+                    label={referenceLine.labelPosition ? { value: referenceLine.label, position: referenceLine.labelPosition, fill: CHART_COLORS.text } : undefined}
                 />
             )}
             {visible.map((s, i) => {
