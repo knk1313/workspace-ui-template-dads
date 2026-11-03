@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 // デザイントークン以外の色・寸法の直書きを検査する。
-// 対象: src/ 配下の .ts / .tsx / .css（src/tokens/ は除外）。
+// 対象: src/ 配下の .ts / .tsx / .css（src/tokens/ と単体テスト *.test.ts(x) は除外。テストは「#123」のような
+// 文字列を検証データとして書くことがあり、画面のスタイルではないため）。
 // 検出するもの:
 //   - 色コード: #rgb / #rrggbb / #rrggbbaa、rgb( / rgba( / hsl( / hsla( / oklch(
 //   - 任意値クラス: [#...]、[rgb(...)]、[13px] / [1.5rem] / [85vw] など単位付きの数値
@@ -44,6 +45,7 @@ function walk(dir, out = []) {
         if (EXCLUDE_DIRS.some((d) => path === d || path.startsWith(d + "/"))) continue;
         const stat = statSync(path);
         if (stat.isDirectory()) walk(path, out);
+        else if (/\.test\.tsx?$/.test(path)) continue;
         else if ([...EXTENSIONS].some((ext) => path.endsWith(ext))) out.push(path);
     }
     return out;
