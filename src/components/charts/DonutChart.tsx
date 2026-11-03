@@ -41,6 +41,9 @@ export function groupSlices(data: readonly DonutDatum[], maxSlices: number, othe
     return [...head, { name: otherLabel, value: rest }];
 }
 
+/** 引き出し線の寸法（px）。扇から離す幅、放射状の長さ、水平の長さ、文字との間。 */
+const LABEL_LINE = { gap: 2, radial: 14, horizontal: 12, textGap: 4 };
+
 export function DonutChart({
     data,
     centerLabel = "合計",
@@ -66,14 +69,28 @@ export function DonutChart({
     });
     const rows: ChartDatum[] = slices.map((d) => ({ name: d.name, value: d.value, share: total > 0 ? d.value / total : 0 }));
 
+    // ラベルと引き出し線。扇の外側から放射状に出し、水平に折ってから、線の端の高さの中央に文字を置く
+    // （Recharts の既定の斜めの線は文字の角で終わり、文字から浮いて見えるため）。
     const renderLabel = (p: PieLabelRenderProps) => {
-        const x = typeof p.x === "number" ? p.x : 0;
-        const y = typeof p.y === "number" ? p.y : 0;
+        const num = (v: unknown) => (typeof v === "number" ? v : 0);
+        const cx = num(p.cx);
+        const cy = num(p.cy);
+        const outer = num(p.outerRadius);
+        const angle = (-num(p.midAngle) * Math.PI) / 180;
+        const cos = Math.cos(angle);
+        const sin = Math.sin(angle);
+        const side = cos >= 0 ? 1 : -1;
+        const start = { x: cx + (outer + LABEL_LINE.gap) * cos, y: cy + (outer + LABEL_LINE.gap) * sin };
+        const bend = { x: cx + (outer + LABEL_LINE.radial) * cos, y: cy + (outer + LABEL_LINE.radial) * sin };
+        const end = { x: bend.x + side * LABEL_LINE.horizontal, y: bend.y };
         const pct = typeof p.percent === "number" ? formatPercent(p.percent) : "";
         return (
-            <text x={x} y={y} textAnchor={p.textAnchor} dominantBaseline="central" fill={CHART_COLORS.text}>
-                {joinNameValue(String(p.name ?? ""), pct)}
-            </text>
+            <g>
+                <polyline points={`${start.x},${start.y} ${bend.x},${bend.y} ${end.x},${end.y}`} fill="none" stroke={CHART_COLORS.axis} strokeWidth={1.5} />
+                <text x={end.x + side * LABEL_LINE.textGap} y={end.y} textAnchor={side > 0 ? "start" : "end"} dominantBaseline="central" fill={CHART_COLORS.text}>
+                    {joinNameValue(String(p.name ?? ""), pct)}
+                </text>
+            </g>
         );
     };
 
@@ -92,7 +109,7 @@ export function DonutChart({
                 strokeWidth={2}
                 isAnimationActive={false}
                 label={showLabels ? renderLabel : false}
-                labelLine={showLabels ? { stroke: CHART_COLORS.axis } : false}
+                labelLine={false}
             >
                 {slices.map((d, i) => (
                     <Cell key={d.name} fill={seriesFill(idPrefix, i, patterns, palette)} data-series={d.name} />
