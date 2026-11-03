@@ -73,7 +73,8 @@ export function Table({
     return (
         <TableContext.Provider value={{ size, borderColor, striped, hoverHighlight, stickyHeader }}>
             {/* 領域内で横スクロールする。モバイル幅では右端にシャドーを出して続きがあることを示す。 */}
-            <div className={cn("overflow-x-auto max-md:scroll-shadow-x", wrapperClassName)}>
+            {/* relative: 中の絶対配置の要素（並べ替えボタンの読み上げ用テキストなど）をこの領域に閉じ込め、ページ全体を横に広げないため */}
+            <div className={cn("relative overflow-x-auto max-md:scroll-shadow-x", wrapperClassName)}>
                 <table
                     className={cn(
                         // sticky ヘッダーで罫線が消えないよう border-separate にし、罫線は各セルの下線で描く

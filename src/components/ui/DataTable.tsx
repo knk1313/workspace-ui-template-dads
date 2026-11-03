@@ -36,6 +36,11 @@ export type DataTableColumn<T> = {
     width?: string;
     /** この列を行見出し（th scope="row"）にする。名前など行を代表する列に付ける。 */
     rowHeader?: boolean;
+    /**
+     * 読み込み中に表示するスケルトンの形。実際の内容に近い形にすると、読み込み後に列幅や行の高さが変わりにくい。
+     *   text: 1 行の文字（既定）/ lines: 2 行（番号 + 件名など）/ chip: チップラベル / none: 何も出さない
+     */
+    skeleton?: "text" | "lines" | "chip" | "none";
 };
 
 export type DataTableProps<T> = {
@@ -96,6 +101,37 @@ export type DataTableProps<T> = {
 // チェックボックス（24px）は上余白を、操作ボタン（44px）は負のマージンで中心を揃える。
 const CHECKBOX_CELL: Record<TableSize, string> = { default: "pt-5.5", dense: "pt-2.5" };
 const ACTION_CELL: Record<TableSize, string> = { default: "-my-2", dense: "-my-3" };
+
+// --- 読み込み中のスケルトン ---
+// 文字の行（16px × 行高）の中に 16px の帯を縦中央で置き、読み込み後の文字と同じ位置・高さにする。
+// 帯の幅は行ごとに少しずつ変え、同じ形が並んで単調にならないようにする。幅は % で指定し、列幅を押し広げない。
+const BAR_WIDTHS = ["w-4/5", "w-3/5", "w-2/3"] as const;
+const SUB_WIDTHS = ["w-full", "w-4/5", "w-11/12"] as const;
+
+function SkeletonBlock({ className }: { className?: string }) {
+    return <span className={cn("block animate-pulse rounded-4 bg-solid-gray-100 motion-reduce:animate-none", className)} />;
+}
+
+function SkeletonLine({ width, align }: { width: string; align?: CellAlign }) {
+    return (
+        <span className={cn("flex h-lh items-center", align === "right" && "justify-end")}>
+            <SkeletonBlock className={cn("h-4", width)} />
+        </span>
+    );
+}
+
+function ColumnSkeleton({ kind, align, variant }: { kind: NonNullable<DataTableColumn<unknown>["skeleton"]>; align?: CellAlign; variant: number }) {
+    if (kind === "none") return null;
+    if (kind === "chip") return <SkeletonBlock className="h-8 w-16 rounded-8" />;
+    if (kind === "lines")
+        return (
+            <span className="block">
+                <SkeletonLine width="w-28 max-w-full" />
+                <SkeletonLine width={SUB_WIDTHS[variant]} />
+            </span>
+        );
+    return <SkeletonLine width={BAR_WIDTHS[variant]} align={align} />;
+}
 
 const SORT_ICON: Record<SortDirection | "none", typeof ArrowUp> = { asc: ArrowUp, desc: ArrowDown, none: ArrowUpDown };
 const ARIA_SORT: Record<SortDirection, "ascending" | "descending"> = { asc: "ascending", desc: "descending" };
@@ -301,11 +337,25 @@ export function DataTable<T>({
                             </TableRow>
                             {Array.from({ length: skeletonRows }, (_, i) => (
                                 <TableRow key={i} aria-hidden="true">
-                                    {Array.from({ length: columnCount }, (_, j) => (
-                                        <TableCell key={j}>
-                                            <div className="h-4 animate-pulse rounded-4 bg-solid-gray-100 motion-reduce:animate-none" />
+                                    {selectable && (
+                                        <TableCell className={cn("w-10 px-2!", CHECKBOX_CELL[size])}>
+                                            <SkeletonBlock className="size-6" />
+                                        </TableCell>
+                                    )}
+                                    {columns.map((column, j) => (
+                                        <TableCell key={column.key} align={column.align} className={column.width}>
+                                            <ColumnSkeleton kind={column.skeleton ?? "text"} align={column.align} variant={(i + j) % 3} />
                                         </TableCell>
                                     ))}
+                                    {rowActions && (
+                                        <TableCell className="px-2!">
+                                            <div className={cn("flex items-center justify-end", ACTION_CELL[size])}>
+                                                <span className="flex size-target items-center justify-center">
+                                                    <SkeletonBlock className="size-6 rounded-full" />
+                                                </span>
+                                            </div>
+                                        </TableCell>
+                                    )}
                                 </TableRow>
                             ))}
                         </>

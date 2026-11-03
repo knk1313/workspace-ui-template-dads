@@ -10,7 +10,7 @@ test.describe("申請の作成フォーム", () => {
 
         const summaryHeading = page.getByRole("heading", { name: /入力内容に \d+ 件の誤りがあります/ });
         await expect(summaryHeading).toBeVisible();
-        await expect(summaryHeading.or(summaryHeading.locator("[tabindex='-1']"))).toBeFocused();
+        await expect(summaryHeading).toBeFocused();
 
         const title = page.getByLabel(/^件名/);
         await expect(title).toHaveAttribute("aria-invalid", "true");

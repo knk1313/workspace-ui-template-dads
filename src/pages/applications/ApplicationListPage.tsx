@@ -99,9 +99,10 @@ export default function ApplicationListPage() {
             ),
             sortable: true,
             rowHeader: true,
+            skeleton: "lines",
         },
-        { key: "applicant", header: "申請者", accessor: (row) => row.applicant, sortable: true, width: "whitespace-nowrap" },
-        { key: "category", header: "種別", accessor: (row) => CATEGORY_LABELS[row.category], sortable: true, width: "whitespace-nowrap" },
+        { key: "applicant", header: "申請者", accessor: (row) => row.applicant, sortable: true, width: "w-30 whitespace-nowrap" },
+        { key: "category", header: "種別", accessor: (row) => CATEGORY_LABELS[row.category], sortable: true, width: "w-22 whitespace-nowrap" },
         {
             key: "status",
             header: "状態",
@@ -109,7 +110,8 @@ export default function ApplicationListPage() {
             accessor: (row) => STATUS_ORDER.indexOf(row.status),
             render: (row) => <ApplicationStatusChip status={row.status} />,
             sortable: true,
-            width: "whitespace-nowrap",
+            width: "w-28 whitespace-nowrap",
+            skeleton: "chip",
         },
         {
             key: "amount",
@@ -118,9 +120,9 @@ export default function ApplicationListPage() {
             render: (row) => formatAmount(row.amount) ?? <span className="text-text-muted">なし</span>,
             sortable: true,
             align: "right",
-            width: "whitespace-nowrap",
+            width: "w-32 whitespace-nowrap",
         },
-        { key: "assignee", header: "担当者", accessor: (row) => row.assignee, sortable: true, width: "whitespace-nowrap" },
+        { key: "assignee", header: "担当者", accessor: (row) => row.assignee, sortable: true, width: "w-26 whitespace-nowrap" },
         {
             key: "updatedAt",
             header: "更新日時",
@@ -129,6 +131,7 @@ export default function ApplicationListPage() {
             render: (row) => <time dateTime={row.updatedAt}>{formatDateTime(row.updatedAt)}</time>,
             sortable: true,
             align: "right",
+            width: "w-32",
         },
     ];
 

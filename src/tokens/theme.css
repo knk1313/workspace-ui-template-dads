@@ -21,7 +21,8 @@
   --color-text: var(--color-solid-gray-800);
   --color-text-strong: var(--color-solid-gray-900);
   --color-text-muted: var(--color-solid-gray-600); /* サポートテキスト・補足 */
-  --color-text-subtle: var(--color-solid-gray-536); /* 白に対して 4.5:1 ぎりぎりの最も淡い文字色 */
+  /* 最も淡い文字色。gray-536 は白では 4.5:1 だが地（canvas: gray-50）では 4.05:1 に下がるため、gray-600 にする */
+  --color-text-subtle: var(--color-solid-gray-600);
   --color-text-disabled: var(--color-solid-gray-420); /* disabled はコントラスト要件の対象外 */
   --color-text-on-primary: var(--color-white);
   --color-text-inverse: var(--color-white);
@@ -47,7 +48,8 @@
   /* --- リンク --- */
   --color-link: var(--color-blue-1000);
   --color-link-hover: var(--color-blue-900);
-  --color-link-active: var(--color-orange-800);
+  /* DADS は orange-800。地（canvas）で 4.33:1 のため 1 段濃い orange-900 を使う */
+  --color-link-active: var(--color-orange-900);
   --color-link-visited: var(--color-magenta-900);
 
   /* --- フォーカス（DADS: Yellow-300 と Black の 2 重構造。変更禁止） --- */
@@ -58,13 +60,16 @@
   --color-success: var(--color-success-2); /* 文字・枠・アイコン（白に対して 4.5:1） */
   --color-success-surface: var(--color-green-50);
   --color-success-hover: var(--color-green-1000);
-  --color-error: var(--color-error-1);
+  /* DADS の error-1（red-800）は白では 4.5:1 を満たすが、地（canvas）では 4.1:1 に下がる。
+     ※必須やエラーテキストは地の上にも置くため、1 段濃い error-2（red-900）を使う */
+  --color-error: var(--color-error-2);
   --color-error-hover: var(--color-red-1000);
   --color-error-active: var(--color-red-1200);
   --color-error-surface: var(--color-red-50);
   --color-error-outline-hover: var(--color-red-200);
-  --color-warning: var(--color-warning-yellow-2);
-  --color-warning-hover: var(--color-yellow-1000);
+  /* warning-yellow-2（yellow-900）は地（canvas）で 4.05:1 のため、1 段濃い yellow-1000 を使う */
+  --color-warning: var(--color-yellow-1000);
+  --color-warning-hover: var(--color-yellow-1100);
   --color-warning-chip: var(--color-yellow-400); /* カラーチップ（非テキスト） */
   --color-warning-surface: var(--color-yellow-50);
   --color-info: var(--color-key-900);

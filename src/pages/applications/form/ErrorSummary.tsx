@@ -6,7 +6,9 @@ import type { FieldError } from "./validation";
 // 送信時のエラーのまとめ（DADS: エラーサマリーはノティフィケーションバナーで示し、送信後にそこへフォーカスを移す。D-09）。
 // 各エラーは該当項目へのページ内リンクにし、押すとその入力部品にフォーカスを移す。
 
-export const ERROR_SUMMARY_HEADING_ID = "application-error-summary-heading";
+const ERROR_SUMMARY_ID = "application-error-summary";
+/** バナーの見出しの id（NotificationBanner は id から「{id}-title」を見出しに付け、見出しは tabIndex=-1 でフォーカスできる）。 */
+export const ERROR_SUMMARY_HEADING_ID = `${ERROR_SUMMARY_ID}-title`;
 
 export type ErrorSummaryProps = {
     errors: FieldError[];
@@ -16,12 +18,8 @@ export function ErrorSummary({ errors }: ErrorSummaryProps) {
     return (
         <NotificationBanner
             type="error"
-            title={
-                // バナーの見出しにフォーカスを移せるよう、見出しの中身を tabIndex=-1 にする（NotificationBanner は見出しに id を渡せないため）
-                <span id={ERROR_SUMMARY_HEADING_ID} tabIndex={-1} className="focus-visible:focus-ring">
-                    入力内容に {errors.length} 件の誤りがあります
-                </span>
-            }
+            id={ERROR_SUMMARY_ID}
+            title={`入力内容に ${errors.length} 件の誤りがあります`}
             description={
                 <>
                     <p className="m-0">次の項目を修正してから、もう一度「確認へ進む」を押してください。</p>

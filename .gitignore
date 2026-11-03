@@ -8,3 +8,5 @@ dist
 
 # Claude が書いた設計メモ（利用者の指示でコミット対象外）
 docs/*.md
+playwright-report
+test-results
