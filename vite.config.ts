@@ -19,4 +19,18 @@ export default defineConfig({
     resolve: {
         alias: { "@": fileURLToPath(new URL("./src", import.meta.url)) },
     },
+    build: {
+        rolldownOptions: {
+            output: {
+                // 1 つの JS が 500 kB を超えないよう、更新頻度の低いライブラリを別のファイルに分ける（ブラウザのキャッシュも効きやすくなる）。
+                codeSplitting: {
+                    groups: [
+                        { name: "charts", test: /node_modules[\\/](recharts|d3-[^\\/]+|victory-vendor|decimal\.js-light|es-toolkit|immer|@reduxjs|redux|reselect|react-redux|eventemitter3|tiny-invariant|use-sync-external-store)[\\/]/ },
+                        { name: "react", test: /node_modules[\\/](react|react-dom|react-router|scheduler|cookie|set-cookie-parser)[\\/]/ },
+                        { name: "vendor", test: /node_modules[\\/]/ },
+                    ],
+                },
+            },
+        },
+    },
 });

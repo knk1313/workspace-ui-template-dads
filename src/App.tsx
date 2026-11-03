@@ -1,21 +1,35 @@
-import { BrowserRouter, Route, Routes } from "react-router";
-import AppLayout from "@/components/AppLayout";
-import NotFoundPage from "@/pages/NotFoundPage";
-import { pageByPath } from "@/routes";
+import { BrowserRouter, useRoutes } from "react-router";
+import { ConfirmProvider } from "@/components/ui/ConfirmDialog";
+import { ToastProvider } from "@/components/ui/Toast";
+import { DisplaySettingsProvider } from "@/context/DisplaySettings";
+import { LayoutPreferenceProvider } from "@/context/LayoutPreference";
+import { routes } from "@/routes";
 
-const routes = Object.entries(pageByPath);
+function AppRoutes() {
+    return useRoutes(routes);
+}
+
+// アプリ全体の Provider とルーティング。テストでは MemoryRouter で AppProviders + AppRoutes を描く（src/test/renderApp.tsx）。
+export function AppProviders({ children }: { children: React.ReactNode }) {
+    return (
+        <DisplaySettingsProvider>
+            <LayoutPreferenceProvider>
+                <ToastProvider>
+                    <ConfirmProvider>{children}</ConfirmProvider>
+                </ToastProvider>
+            </LayoutPreferenceProvider>
+        </DisplaySettingsProvider>
+    );
+}
+
+export { AppRoutes };
 
 export default function App() {
     return (
         <BrowserRouter>
-            <Routes>
-                <Route element={<AppLayout />}>
-                    {routes.map(([path, Page]) => (
-                        <Route key={path} path={path} element={<Page />} />
-                    ))}
-                    <Route path="*" element={<NotFoundPage />} />
-                </Route>
-            </Routes>
+            <AppProviders>
+                <AppRoutes />
+            </AppProviders>
         </BrowserRouter>
     );
 }

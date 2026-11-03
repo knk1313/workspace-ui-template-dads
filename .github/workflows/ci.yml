@@ -15,5 +15,19 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
       - run: npm ci
+      # 型チェック + lint（デザイントークン検査を含む）+ 単体テスト（axe・コントラスト検査を含む）
       - run: npm run check
       - run: npm run build
+
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      # 主要ページの表示・操作・axe（desktop / mobile の 2 幅）
+      - run: npm run test:e2e
