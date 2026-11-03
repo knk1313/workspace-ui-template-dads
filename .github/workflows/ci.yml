@@ -5,6 +5,11 @@ on:
     branches: [main]
   pull_request:
 
+# 同じブランチに続けて push したときは、古い実行を取り消す（main は最後まで実行する）
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
 jobs:
   check:
     runs-on: ubuntu-latest
@@ -28,7 +33,16 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
       - run: npm ci
-      - run: npx playwright install --with-deps chromium
+      # ブラウザー本体はキャッシュし、OS の依存パッケージだけを毎回入れる
+      - uses: actions/cache@v4
+        id: playwright-cache
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+      - if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: npx playwright install --with-deps chromium
+      - if: steps.playwright-cache.outputs.cache-hit == 'true'
+        run: npx playwright install-deps chromium
       # 主要ページの表示・操作・axe（desktop / mobile の 2 幅）
       - run: npm run test:e2e
 
@@ -42,7 +56,12 @@ jobs:
       HOME: /root
     steps:
       - uses: actions/checkout@v7
-      - run: npm ci
+      # コンテナの中では setup-node のキャッシュが使えないため、npm のキャッシュを自分で持つ
+      - uses: actions/cache@v4
+        with:
+          path: /root/.npm
+          key: npm-visual-${{ hashFiles('package-lock.json') }}
+      - run: npm ci --prefer-offline --no-audit --no-fund
       # 主要な画面と開いた状態のスクリーンショットを基準画像と比べる
       - run: npx playwright test -c playwright.visual.config.ts
       - if: failure()
@@ -64,6 +83,14 @@ jobs:
       - run: npm ci
       - run: npm run remove-samples -- --force
       - run: npm run check
-      - run: npm run build
-      - run: npx playwright install --with-deps chromium
-      - run: npm run test:e2e
+      - uses: actions/cache@v4
+        id: playwright-cache
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+      - if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: npx playwright install --with-deps chromium
+      - if: steps.playwright-cache.outputs.cache-hit == 'true'
+        run: npx playwright install-deps chromium
+      # 消したあとも画面が動くかを確かめる。幅による違いは e2e ジョブで見ているため、desktop だけにする（ビルドも webServer の中で行う）
+      - run: npm run test:e2e -- --project=desktop
