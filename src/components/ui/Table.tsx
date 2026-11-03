@@ -1,4 +1,4 @@
-import { createContext, useContext, type HTMLAttributes, type ReactNode, type TdHTMLAttributes, type ThHTMLAttributes } from "react";
+import { createContext, useContext, useEffect, useRef, useState, type HTMLAttributes, type ReactNode, type RefObject, type TdHTMLAttributes, type ThHTMLAttributes } from "react";
 import { cn } from "@/lib/cn";
 
 // DADS テーブル（https://design.digital.go.jp/dads/components/table/、HTML 版 table.css）の静的な表の部品群。
@@ -70,11 +70,18 @@ export function Table({
     ...props
 }: TableProps) {
     const borderColor = striped || hoverHighlight || selectable ? "border-border-table" : "border-border";
+    const wrapperRef = useRef<HTMLDivElement>(null);
+    const scrollable = useHorizontallyScrollable(wrapperRef);
     return (
         <TableContext.Provider value={{ size, borderColor, striped, hoverHighlight, stickyHeader }}>
             {/* 領域内で横スクロールする。モバイル幅では右端にシャドーを出して続きがあることを示す。 */}
             {/* relative: 中の絶対配置の要素（並べ替えボタンの読み上げ用テキストなど）をこの領域に閉じ込め、ページ全体を横に広げないため */}
-            <div className={cn("relative overflow-x-auto max-md:scroll-shadow-x", wrapperClassName)}>
+            {/* 横にスクロールできるときだけ、領域をフォーカスできるようにする（リンクなどがない表でも、キーボードの矢印キーで横にスクロールできるように。WCAG 2.1.1） */}
+            <div
+                ref={wrapperRef}
+                className={cn("relative overflow-x-auto max-md:scroll-shadow-x", wrapperClassName)}
+                {...(scrollable ? { tabIndex: 0, role: "region", "aria-label": "表（横にスクロールできます）" } : {})}
+            >
                 <table
                     className={cn(
                         // sticky ヘッダーで罫線が消えないよう border-separate にし、罫線は各セルの下線で描く
@@ -214,4 +221,20 @@ export type TableCellLineProps = HTMLAttributes<HTMLSpanElement> & {
  */
 export function TableCellLine({ align = "left", className, ...props }: TableCellLineProps) {
     return <span className={cn("flex h-lh items-center", align === "right" && "justify-end", className)} {...props} />;
+}
+
+/** 要素が横にスクロールできる（中身が幅からはみ出している）かどうか。大きさが変わるたびに調べ直す。 */
+function useHorizontallyScrollable(ref: RefObject<HTMLElement | null>): boolean {
+    const [scrollable, setScrollable] = useState(false);
+    useEffect(() => {
+        const el = ref.current;
+        if (!el || typeof ResizeObserver === "undefined") return;
+        const check = () => setScrollable(el.scrollWidth > el.clientWidth + 1);
+        const observer = new ResizeObserver(check);
+        observer.observe(el);
+        if (el.firstElementChild) observer.observe(el.firstElementChild);
+        check();
+        return () => observer.disconnect();
+    }, [ref]);
+    return scrollable;
 }
