@@ -8,9 +8,9 @@
 
 ![ダッシュボード](docs/screenshots/dashboard.png)
 
-| 申請一覧 | 作成フォーム |
-| --- | --- |
-| ![申請一覧](docs/screenshots/applications.png) | ![作成フォーム](docs/screenshots/form.png) |
+| 申請一覧 | 作成フォーム | 設定 |
+| --- | --- | --- |
+| ![申請一覧](docs/screenshots/applications.png) | ![作成フォーム](docs/screenshots/form.png) | ![設定](docs/screenshots/settings.png) |
 
 ## DADS への準拠
 

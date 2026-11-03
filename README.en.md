@@ -8,6 +8,10 @@ All data and text on screen are fictional samples. No API or backend is included
 
 ![Dashboard](docs/screenshots/dashboard.png)
 
+| Application list | Create form | Settings |
+| --- | --- | --- |
+| ![Application list](docs/screenshots/applications.png) | ![Create form](docs/screenshots/form.png) | ![Settings](docs/screenshots/settings.png) |
+
 ## What is included
 
 - **Design tokens** (`src/tokens/`): values from `@digital-go-jp/design-tokens` 2.0.1 mapped into Tailwind's `@theme`. Tailwind's default palette and font sizes are disabled, so only tokens can be used.
