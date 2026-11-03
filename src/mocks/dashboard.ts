@@ -12,7 +12,7 @@ export type Kpi = {
 export const KPIS: Kpi[] = [
     { key: "received", label: "今月の受付件数", value: "1,284", unit: "件", delta: { value: "+8.2%", trend: "up", label: "前月比" }, note: "2026年10月1日〜31日" },
     { key: "pending", label: "処理待ち", value: "137", unit: "件", delta: { value: "-12", trend: "down", label: "前週比" }, note: "受付済み・審査中の合計" },
-    { key: "leadTime", label: "平均処理日数", value: "6.4", unit: "日", delta: { value: "-0.8日", trend: "down", label: "前月比" }, note: "受付から決定まで（目標7日）" },
+    { key: "leadTime", label: "平均処理日数", value: "6.4", unit: "日", delta: { value: "-0.8日", trend: "down", label: "前月比" }, note: "受付〜決定（目標7日）" },
     { key: "approval", label: "承認率", value: "91.3", unit: "%", delta: { value: "+0.4pt", trend: "up", label: "前月比" }, note: "差戻しを除く" },
 ];
 
