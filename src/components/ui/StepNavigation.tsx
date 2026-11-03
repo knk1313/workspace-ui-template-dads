@@ -70,6 +70,7 @@ export function StepNavigation({ steps, current, orientation = "horizontal", lab
                             </span>
                             <span
                                 aria-hidden="true"
+                                data-step-marker=""
                                 className={cn(
                                     // z-10: つなぐ線（::after）より前面に描き、線が丸の中に入り込まないようにする。
                                     "relative z-10 m-1 grid size-11 shrink-0 place-content-center rounded-full border-2 text-20 leading-150 font-bold tracking-2",

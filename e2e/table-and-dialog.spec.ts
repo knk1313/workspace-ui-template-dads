@@ -73,10 +73,9 @@ test.describe("申請一覧の表", () => {
         await expect(page.getByText(`${before[0]} を削除しました`)).toBeVisible();
         await expect(page.getByText("全 63 件", { exact: true })).toBeVisible();
         expect(await numbers(page)).not.toContain(before[0]);
-        // 消えた行にあったフォーカスは見出しへ移る
-        await expect(page.getByRole("heading", { level: 1 })).toBeFocused();
-
-        await page.getByRole("button", { name: "元に戻す" }).click();
+        // 消えた行にあったフォーカスは「元に戻す」へ移り、キーボードの Enter で取り消せる
+        await expect(page.getByRole("button", { name: "元に戻す" })).toBeFocused();
+        await page.keyboard.press("Enter");
         await expect(page.getByText(`${before[0]} の削除を取り消しました`)).toBeVisible();
         await expect(page.getByText("全 64 件", { exact: true })).toBeVisible();
         expect(await numbers(page)).toContain(before[0]);

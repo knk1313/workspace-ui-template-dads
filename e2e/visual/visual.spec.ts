@@ -78,3 +78,26 @@ test("ヘッダーのメニュー", async ({ page }) => {
         await expect(page).toHaveScreenshot("notifications.png");
     }
 });
+
+test.describe("強制カラーモード（Windows のハイコントラストなど）", () => {
+    test.beforeEach(async ({ page }) => {
+        await page.emulateMedia({ forcedColors: "active" });
+    });
+
+    test("通知の設定（スイッチ・チェックボックス・タブ）", async ({ page }) => {
+        await open(page, "/settings?tab=notifications");
+        await expect(page).toHaveScreenshot("forced-colors-settings.png");
+    });
+
+    test("申請の作成（ステップ・ラジオボタン）", async ({ page }) => {
+        await open(page, "/applications/new");
+        await page.getByRole("radio", { name: "補助金" }).check();
+        await expect(page).toHaveScreenshot("forced-colors-form.png");
+    });
+
+    test("申請一覧（行の選択・現在地）", async ({ page }) => {
+        await open(page, "/applications");
+        await page.locator("table tbody tr").first().getByRole("checkbox").check();
+        await expect(page).toHaveScreenshot("forced-colors-applications.png");
+    });
+});

@@ -25,10 +25,7 @@ export function PageHeader({ title, description, breadcrumbs, actions, meta, bre
             {breadcrumbs && breadcrumbs.length > 0 && <Breadcrumb items={breadcrumbs} label={breadcrumbLabel} collapseOnMobile />}
             <div className="flex min-w-0 flex-col gap-4 md:flex-row md:items-start md:justify-between">
                 <div className="flex min-w-0 flex-col gap-1 break-words">
-                    {/* tabIndex=-1: 削除などで操作していた要素が消えたとき、フォーカスの移し先にできるようにする */}
-                    <h1 tabIndex={-1} className="m-0 text-std-24B-150 text-text-strong md:text-std-28B-150">
-                        {title}
-                    </h1>
+                    <h1 className="m-0 text-std-24B-150 text-text-strong md:text-std-28B-150">{title}</h1>
                     {description && <p className="m-0 text-std-16N-170 text-text-muted">{description}</p>}
                     {meta && <div className="text-16 text-text-subtle">{meta}</div>}
                 </div>

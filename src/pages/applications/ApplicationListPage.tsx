@@ -65,11 +65,10 @@ export default function ApplicationListPage() {
         // 通信の結果を待たずに一覧から消し（楽観的な更新）、失敗したら読み込み直して元に戻す
         setQueryData<Application[]>(QUERY_KEY, (prev) => (prev ?? []).filter((a) => !ids.has(a.id)));
         setSelectedIds((prev) => prev.filter((id) => !ids.has(id)));
-        // 消えた行の操作ボタンにあったフォーカスが行き場を失わないよう、ページの見出しへ移す
-        document.querySelector<HTMLElement>("main h1")?.focus();
         try {
             const deleted = await deleteApi([...ids]);
-            toast({ type: "success", title: `${label}を削除しました`, action: { label: "元に戻す", onClick: () => void undoDelete(deleted, label) } });
+            // 消えた行にあったフォーカスの移し先として、「元に戻す」へフォーカスを移す（キーボードでもすぐ取り消せる）
+            toast({ type: "success", title: `${label}を削除しました`, action: { label: "元に戻す", focus: true, onClick: () => void undoDelete(deleted, label) } });
         } catch (e) {
             toast({ type: "error", title: `${label}を削除できませんでした`, description: (e as Error).message });
         } finally {

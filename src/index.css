@@ -54,3 +54,76 @@
     }
   }
 }
+
+/* ───────────── 強制カラーモード（Windows のハイコントラストなど） ─────────────
+   OS が色を指定の配色に置き換え、背景色は消える。背景色だけで状態を表している部品は、ここでシステムカラーを使って描き直す。
+   e2e/a11y.spec.ts で、状態が見分けられることを確かめている。
+   Tailwind のユーティリティ（@layer utilities）より優先させるため、レイヤーの外に書く。 */
+@media (forced-colors: active) {
+  /* チェックボックス・ラジオボタン: 見た目を作り込むと選択状態が消えるため、OS の標準の部品で描く */
+  input[type="checkbox"],
+  input[type="radio"] {
+    appearance: auto;
+  }
+  [data-control-mark] {
+    display: none !important;
+  }
+
+  /* スイッチ: オンは Highlight で塗り、つまみの位置と色でオン・オフを見分けられるようにする */
+  [role="switch"] > span,
+  [role="switch"] > span > span {
+    forced-color-adjust: none;
+  }
+  [role="switch"] > span {
+    border-color: CanvasText;
+    background-color: Canvas;
+  }
+  [role="switch"] > span > span {
+    background-color: CanvasText;
+    color: Canvas;
+  }
+  [role="switch"][aria-checked="true"] > span {
+    border-color: Highlight;
+    background-color: Highlight;
+  }
+  [role="switch"][aria-checked="true"] > span > span {
+    background-color: HighlightText;
+    color: Highlight;
+  }
+  [role="switch"]:disabled > span {
+    border-color: GrayText;
+  }
+  [role="switch"]:disabled > span > span {
+    background-color: GrayText;
+  }
+
+  /* タブ: 選んでいないタブの透明な下線が見えてしまうため消す（高さは余白で保つ） */
+  [role="tab"][aria-selected="false"] {
+    border-bottom-style: none;
+    margin-bottom: 4px;
+  }
+
+  /* サイドバー・ヘッダーの現在地の印（::before / ::after の帯） */
+  a[aria-current="page"]::before,
+  a[aria-current="page"]::after {
+    forced-color-adjust: none;
+    background-color: Highlight;
+  }
+
+  /* 背景色で描いている印（タイムラインの「現在」の点など） */
+  [data-forced-fill] {
+    forced-color-adjust: none;
+    background-color: CanvasText;
+  }
+
+  /* 読み込み中のスケルトン: 背景色が消えて何も見えなくなるため、枠で形を示す */
+  [data-skeleton] {
+    border: 1px dashed GrayText;
+  }
+
+  /* ステップの「現在」の印（ring = box-shadow は消えるため、outline で示す） */
+  [aria-current="step"] [data-step-marker] {
+    outline: 3px solid Highlight;
+    outline-offset: 2px;
+  }
+}

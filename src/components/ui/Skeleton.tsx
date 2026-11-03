@@ -21,12 +21,12 @@ export function Skeleton({ variant = "text", lines = 1, className }: SkeletonPro
         return (
             <div aria-hidden="true" className={cn("flex flex-col gap-2", className)}>
                 {Array.from({ length: lines }, (_, i) => (
-                    <div key={i} className={cn(BASE, "h-4 rounded-4", lines > 1 && i === lines - 1 ? "w-2/3" : "w-full")} />
+                    <div key={i} data-skeleton="" className={cn(BASE, "h-4 rounded-4", lines > 1 && i === lines - 1 ? "w-2/3" : "w-full")} />
                 ))}
             </div>
         );
     }
-    return <div aria-hidden="true" className={cn(BASE, variant === "circle" ? "rounded-full" : "rounded-8", className)} />;
+    return <div aria-hidden="true" data-skeleton="" className={cn(BASE, variant === "circle" ? "rounded-full" : "rounded-8", className)} />;
 }
 
 export type SkeletonTableProps = {

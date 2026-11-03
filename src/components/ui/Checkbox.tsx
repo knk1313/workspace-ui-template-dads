@@ -68,11 +68,12 @@ export function Checkbox({ children, size, indeterminate = false, invalid, class
                         {...props}
                     />
                     <Check
+                        data-control-mark=""
                         aria-hidden="true"
                         strokeWidth={3}
                         className={cn("pointer-events-none absolute hidden text-text-inverse peer-checked:block peer-indeterminate:hidden", s.icon)}
                     />
-                    <Minus aria-hidden="true" strokeWidth={3} className={cn("pointer-events-none absolute hidden text-text-inverse peer-indeterminate:block", s.icon)} />
+                    <Minus data-control-mark="" aria-hidden="true" strokeWidth={3} className={cn("pointer-events-none absolute hidden text-text-inverse peer-indeterminate:block", s.icon)} />
                 </span>
             </span>
             {children && <span className={cn(disabled ? "text-text-disabled" : "text-text")}>{children}</span>}

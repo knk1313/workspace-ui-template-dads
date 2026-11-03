@@ -49,7 +49,7 @@ export function Timeline({ items, className, ...props }: TimelineProps) {
                         <span aria-hidden="true" className="relative flex h-lh shrink-0 items-center">
                             <span className={cn("flex size-8 items-center justify-center rounded-full border-3", status.marker)}>
                                 {item.status === "done" && <Icon icon={Check} size="sm" className="stroke-3" />}
-                                {item.status === "current" && <span className="size-3 rounded-full bg-primary" />}
+                                {item.status === "current" && <span data-forced-fill="" className="size-3 rounded-full bg-primary" />}
                             </span>
                         </span>
                         <div className={cn("flex min-w-0 flex-1 flex-col gap-1", item.status === "upcoming" && "text-text-muted")}>

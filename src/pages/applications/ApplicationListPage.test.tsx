@@ -92,8 +92,8 @@ describe("ApplicationListPage", () => {
         expect(await screen.findByText("20 件の申請を削除しました")).toBeInTheDocument();
         expect(screen.getByText(`全 ${APPLICATIONS.length - 20} 件中 1〜20 件`)).toBeInTheDocument();
         expect(screen.queryByRole("region", { name: "選択中の項目の操作" })).not.toBeInTheDocument();
-        // 消えた行にあったフォーカスは見出しへ移る
-        expect(screen.getByRole("heading", { level: 1, name: "申請一覧" })).toHaveFocus();
+        // 消えた行にあったフォーカスは「元に戻す」へ移る
+        expect(screen.getByRole("button", { name: "元に戻す" })).toHaveFocus();
 
         await user.click(screen.getByRole("button", { name: "元に戻す" }));
         expect(await screen.findByText("20 件の申請の削除を取り消しました")).toBeInTheDocument();

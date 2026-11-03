@@ -67,7 +67,9 @@ export function Brand({ name, logo, href = "/", className }: BrandProps) {
             )}
         >
             {logo && <Icon icon={logo} size="lg" className="text-primary" />}
-            <span className="truncate">{name}</span>
+            {/* 狭い画面では折り返す（1 行で切ると「申請管…」のように名前が読めなくなるため）。
+                sm 未満は 16px にして、文字間隔を広げたとき（WCAG 1.4.12）も 3 行まで高さ 64px のヘッダーに収める */}
+            <span className="line-clamp-3 break-words max-sm:text-16">{name}</span>
         </Link>
     );
 }

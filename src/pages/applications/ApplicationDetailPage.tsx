@@ -119,6 +119,7 @@ export default function ApplicationDetailPage() {
                 title: `${number} を削除しました`,
                 action: {
                     label: "元に戻す",
+                    focus: true,
                     onClick: () =>
                         void restoreApplications(deleted)
                             .then(() => toast({ type: "success", title: `${number} の削除を取り消しました` }))
