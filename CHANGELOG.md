@@ -1,50 +1,97 @@
 # Changelog
 
+## 0.3.0：見た目の品質、データと状態、アクセシビリティ、文言、使い始めやすさ
+
+### 追加
+
+- **見た目の検査**：次を追加しました。
+  - 見た目の回帰テストを追加しました（`npm run test:visual`）。主な画面と開いた状態を撮り、基準画像と比べます。手元とCIの両方で、PlaywrightのLinuxのイメージの中で撮ります。
+  - アイコンやチェックボックスと、隣の文字の1行目とのずれを測るE2Eを追加しました。
+  - Tabで移ったフォーカスが固定のヘッダーの下に隠れないかを確かめるE2Eを追加しました。
+- **データと状態**：次を追加しました。
+  - ダミーのAPI（`src/api/`）と、読み込みの仕組み（`useQuery`、`useMutation`）を追加しました。データは画面を移っても残ります。
+  - 読み込めなかったときの表示（`LoadError`）を追加しました。
+  - トーストに操作（「元に戻す」など）を付けられるようにしました。
+  - 入力途中で画面を離れるときの確認（`useUnsavedChangesWarning`）を追加しました。
+  - 設定の画面に、通信の失敗と遅延を起こす「動作の確認」を追加しました。
+- **アクセシビリティの検査**：次を確かめるE2Eを追加しました。
+  - 400%の拡大、文字の間隔、見出しの構造
+  - 強制カラーモード、キーボードだけの操作
+- **文書**：次を追加しました。
+  - 画面の文言表（`docs/ui-text.md`）
+  - スクリーンリーダーで確かめる手順（`docs/accessibility.md`）
+  - `SECURITY.md`
+- **使い始めやすさ**：次を追加しました。
+  - 見本の画面をまとめて消すスクリプト（`npm run remove-samples`）を追加しました。CIで、消したあとも検査が通ることを毎回確かめます。
+  - Dependabotの設定を追加しました。
+
+### 変更
+
+- **削除の操作**：一覧と詳細の削除は確認ダイアログを出さず、トーストの「元に戻す」で取り消す形にしました。削除のあとは、フォーカスを「元に戻す」に移します。
+- **ルーター**：`BrowserRouter`から`createBrowserRouter`（データルーター）に変えました。単体テストの`renderApp`も`createMemoryRouter`を使います。
+- **画面の文言**：次のように変えました。
+  - 全角と半角の文字の間の空白をやめました。和文の中のコロンは全角にしました。
+  - 1文のメッセージには句点を付けない形にしました。
+  - 500の画面の題を「ページを表示できません」にしました。
+- **型の置き場所**：申請の型と表示名を`src/mocks/`から`src/api/applicationTypes.ts`に移しました。
+- **見本のデータ**：メールアドレスの例を`example.jp`に、電話番号を`000-0000-`で始まる番号にしました。
+- **パッケージ名**：`package.json`の名前を`workspace-ui-template-dads`にしました。
+
+### 直したこと
+
+- `body`に残っていた`overflow-hidden`のため、ページがスクロールできませんでした。
+- チェックボックス、ラジオボタン、アイコン、表のチップが、隣の文字と1〜3px上下にずれていました。
+- Shift+Tabで戻るとき、フォーカスした要素が固定のヘッダーの下に隠れていました。
+- 強制カラーモードで、スイッチ、チェックボックス、ラジオボタン、タブ、現在地の状態が見分けられませんでした。
+- 横にスクロールする表に、キーボードで入れないことがありました。
+- 設定の画面のように一つの画面にフォームが複数あると、離脱の確認が最後のフォームでしか働きませんでした。
+- ダイアログのボタンが、モバイルで縦に並び、見た目の順とフォーカスの順が逆でした。
+
 ## 0.2.0 — デジタル庁デザインシステム（DADS）準拠への作り直し
 
-テンプレート全体を DADS に合わせて作り直しました。旧版の部品と画面はすべて置き換えています。
+テンプレート全体をDADSに合わせて作り直しました。旧版の部品と画面はすべて置き換えています。
 
 ### 追加
 
 - **デザイントークン**（`src/tokens/`）
-  - `@digital-go-jp/design-tokens` 2.0.1 の値を Tailwind CSS v4 の `@theme` に転記しました。
+  - `@digital-go-jp/design-tokens` 2.0.1の値をTailwind CSS v4の`@theme`に転記しました。
   - セマンティック別名（面・文字・線・プライマリー・リンク・フォーカス・意味色・データ可視化・寸法）を定義しました。
-  - DADS のテキストスタイル 56 種を追加しました。
+  - DADSのテキストスタイル56種を追加しました。
 - **検査**
-  - `scripts/check-design-tokens.mjs` を `npm run lint` に組み込みました。色コードや任意値クラスの直書きを検出します。
+  - `scripts/check-design-tokens.mjs`を`npm run lint`に組み込みました。色コードや任意値クラスの直書きを検出します。
   - トークンの組み合わせごとのコントラスト検査を追加しました（WCAG 2.2 AA）。
-- **UI 部品**: 約 55 部品を追加しました（README の一覧を参照）。すべてに単体テストと axe 検査があります。
-- **グラフ部品**（Recharts のラッパー）
+- **UI部品**：約55部品を追加しました（READMEの一覧を参照）。すべてに単体テストとaxe検査があります。
+- **グラフ部品**（Rechartsのラッパー）
   - 折れ線・棒・面・ドーナツを追加しました。
   - 凡例、単位、出典、注記、データテーブルへの切り替え、代替テキストに対応しています。
   - 色に加えて、形・線種・模様でも系列を見分けられます。
 - **アプリケーションシェル**
   - サイドバー型（折りたたみ、モバイルはドロワー）と上部ナビゲーション型を追加しました。
-  - 本文へスキップ、コマンドパレット（Ctrl / Cmd + K）、お知らせ、アカウントメニューを付けました。
-- **ページ例**: ダッシュボード、申請一覧、申請詳細、作成・編集フォーム、設定、ログイン、404、500 を追加しました。
-- **ダミーデータ**: `src/mocks/` にまとめ、ページから分離しました。
-- **E2E テスト**: Playwright で desktop と mobile の 2 幅を検査します（`npm run test:e2e`）。
-- **フォント**: Noto Sans JP（`@fontsource-variable/noto-sans-jp`）を追加しました。
-- **設計資料**: `docs/` に判断記録、トークン一覧、グラフの選び方を追加しました。
+  - 本文へスキップ、コマンドパレット（Ctrl、Cmd + K）、お知らせ、アカウントメニューを付けました。
+- **ページ例**：ダッシュボード、申請一覧、申請詳細、作成・編集フォーム、設定、ログイン、404、500を追加しました。
+- **ダミーデータ**：`src/mocks/`にまとめ、ページから分離しました。
+- **E2Eテスト**：Playwrightでdesktopとmobileの2幅を検査します（`npm run test:e2e`）。
+- **フォント**：Noto Sans JP（`@fontsource-variable/noto-sans-jp`）を追加しました。
+- **設計資料**：`docs/`に判断記録、トークン一覧、グラフの選び方を追加しました。
 
 ### 変更（互換性のない変更）
 
-- **部品の場所と書き方**: 部品は `src/components/*.tsx` から `src/components/ui/*.tsx` に移り、default export から named export に変わりました。
-  - Button の variant は `primary` / `secondary` / `tonal` / `text` / `danger` から、DADS の `solid-fill` / `outline` / `text` に変わりました。危険な操作は `tone="error"` で指定します。
-  - Checkbox はネイティブの `<input type="checkbox">` になり、Props が変わりました。
-  - Input のフローティングラベルは廃止しました。ラベル、要否、サポートテキスト、エラーは `FormField` で付けます。
-  - Modal、SideDrawer、OverflowMenu、UserMenu は、ModalDialog、Drawer、DropdownMenu に置き換えました。
+- **部品の場所と書き方**：部品は`src/components/*.tsx`から`src/components/ui/*.tsx`に移り、default exportからnamed exportに変わりました。
+  - Buttonのvariantは`primary`、`secondary`、`tonal`、`text`、`danger`から、DADSの`solid-fill`、`outline`、`text`に変わりました。危険な操作は`tone="error"`で指定します。
+  - Checkboxはネイティブの`<input type="checkbox">`になり、Propsが変わりました。
+  - Inputのフローティングラベルは廃止しました。ラベル、要否、サポートテキスト、エラーは`FormField`で付けます。
+  - Modal、SideDrawer、OverflowMenu、UserMenuは、ModalDialog、Drawer、DropdownMenuに置き換えました。
 - **トークン**
-  - `src/index.css` の独自トークン（`canvas` / `ink` / `brand` / `nav-active` / `status-*` など）は廃止しました。`src/tokens/theme.css` のトークンを使ってください。
-  - Tailwind の既定パレット（`gray-100` など）、既定の文字サイズ（`text-sm` など）、既定の影と角丸は使えなくなりました。
+  - `src/index.css`の独自トークン（`canvas`、`ink`、`brand`、`nav-active`、`status-*`など）は廃止しました。`src/tokens/theme.css`のトークンを使ってください。
+  - Tailwindの既定パレット（`gray-100`など）、既定の文字サイズ（`text-sm`など）、既定の影と角丸は使えなくなりました。
 - **ルーティング**
-  - `src/routes.tsx` は `pageByPath` から react-router の `RouteObject[]` に変わりました。
-  - `app.config.ts` の `navigation` は、子項目と `end` を持てるようになりました。
-- **画面**: ドキュメント画面（`/documents`）は申請一覧（`/applications`）に置き換えました。
-- **ダミーデータ**: `src/data/sample.ts` は `src/mocks/` に置き換えました。
-- **npm scripts**: `lint` にデザイントークン検査を追加し、`test:e2e`、`test:e2e:install`、`test:watch` を追加しました。
+  - `src/routes.tsx`は`pageByPath`からreact-routerの`RouteObject[]`に変わりました。
+  - `app.config.ts`の`navigation`は、子項目と`end`を持てるようになりました。
+- **画面**：ドキュメント画面（`/documents`）は申請一覧（`/applications`）に置き換えました。
+- **ダミーデータ**：`src/data/sample.ts`は`src/mocks/`に置き換えました。
+- **npm scripts**：`lint`にデザイントークン検査を追加し、`test:e2e`、`test:e2e:install`、`test:watch`を追加しました。
 
 ### 削除
 
-- 旧部品（`src/components/*.tsx`）と旧ページ（`src/pages/documents/` など）を削除しました。
+- 旧部品（`src/components/*.tsx`）と旧ページ（`src/pages/documents/`など）を削除しました。
 - コンポーネントのデモページ（`/components`）は作りましたが、利用者の判断で削除しました。部品の使用例はページ例で示します。
