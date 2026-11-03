@@ -113,15 +113,15 @@ describe("ModalDialog", () => {
         const { user } = await openDialog({ withActions: true });
         expect(screen.queryByRole("button", { name: "閉じる" })).not.toBeInTheDocument();
         const cancel = screen.getByRole("button", { name: "キャンセル" });
-        expect(cancel.parentElement).toHaveClass("md:justify-between", "flex-col-reverse");
+        expect(cancel.parentElement).toHaveClass("justify-between", "flex-wrap");
         await user.click(screen.getByRole("button", { name: "削除する" }));
         expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
     });
 
     it("アクションの並びは 1 つで中央、2 つで左右、3 つ以上で右寄せ", () => {
-        expect(actionsLayoutClass(1)).toBe("md:justify-center");
-        expect(actionsLayoutClass(2)).toBe("md:justify-between");
-        expect(actionsLayoutClass(3)).toBe("md:justify-end");
+        expect(actionsLayoutClass(1)).toBe("justify-center");
+        expect(actionsLayoutClass(2)).toBe("justify-between");
+        expect(actionsLayoutClass(3)).toBe("justify-end");
     });
 
     it("開いている間は背景に inert が付き、スクロールが止まり、閉じると戻る", async () => {

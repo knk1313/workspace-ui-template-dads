@@ -13,7 +13,7 @@ describe("ButtonGroup", () => {
             </ButtonGroup>,
         );
         const group = screen.getByTestId("group");
-        expect(group).toHaveClass("flex-col-reverse", "md:flex-row", "justify-end", "md:gap-4", "gap-2");
+        expect(group).toHaveClass("flex-col", "md:flex-row", "justify-end", "md:gap-4", "gap-2");
         expect(screen.getAllByRole("button").map((b) => b.textContent)).toEqual(["キャンセル", "保存"]);
     });
 

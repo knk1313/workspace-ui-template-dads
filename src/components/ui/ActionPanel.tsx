@@ -4,8 +4,8 @@ import { cn } from "@/lib/cn";
 // フォーム下部のアクション領域。DADS ボタンの配置ルールに従う:
 //   確定（プライマリー）は右端、キャンセル（ターシャリー = テキストボタン）は左端、セカンダリーは確定の左。
 //   プライマリーは 1 つ、セカンダリーは最大 3 つ、ターシャリーはキャンセル用に 1 つ。
-// モバイル（md 未満）は縦積みで、DOM 順 = 意味順（セカンダリー → プライマリー → ターシャリー）。
-// md 以上の並びは CSS の order で変えるだけなので、フォーカス順は常に DOM 順。
+// DOM 順 = 見た目の順 = フォーカス順（キャンセル → セカンダリー → プライマリー）。モバイルでも同じ並びにし、
+// 収まらないときだけ折り返す（折り返しても確定側は右に寄せる）。
 // sticky を付けると画面下部に固定する（長いフォームで常に確定ボタンが見える）。
 
 export type ActionPanelProps = {
@@ -22,8 +22,6 @@ export type ActionPanelProps = {
     className?: string;
 };
 
-// モバイルでは各ボタンを幅いっぱいにし、md 以上で元の幅に戻す
-const SLOT = "flex flex-col gap-2 *:w-full md:flex-row md:items-center md:gap-4 md:*:w-auto";
 
 export function ActionPanel({ primary, secondary, cancel, sticky = false, label = "操作", className }: ActionPanelProps) {
     const secondaries = Children.toArray(secondary);
@@ -32,15 +30,17 @@ export function ActionPanel({ primary, secondary, cancel, sticky = false, label 
             role="group"
             aria-label={label}
             className={cn(
-                "flex flex-col gap-2 md:flex-row md:items-center md:justify-end md:gap-4",
+                "flex flex-wrap items-center gap-x-4 gap-y-2",
                 sticky === true && "sticky bottom-0 z-10 border-t border-border bg-surface py-4",
                 sticky === "md" && "md:sticky md:bottom-0 md:z-10 md:border-t md:border-border md:bg-surface md:py-4",
                 className,
             )}
         >
-            {secondaries.length > 0 && <div className={cn(SLOT, "md:order-2")}>{secondaries}</div>}
-            <div className={cn(SLOT, "md:order-3")}>{primary}</div>
-            {cancel && <div className={cn(SLOT, "md:order-1 md:mr-auto")}>{cancel}</div>}
+            {cancel && <div className="flex">{cancel}</div>}
+            <div className="ml-auto flex flex-wrap items-center justify-end gap-x-4 gap-y-2">
+                {secondaries}
+                {primary}
+            </div>
         </div>
     );
 }

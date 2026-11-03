@@ -4,7 +4,7 @@ import { cn } from "@/lib/cn";
 // DADS ボタンの配置ルール。
 //   - 進行方向は右: 確定（プライマリー）を右端、キャンセル（ターシャリー）を左端に置く → align="end" で DOM 順のまま右寄せ。
 //   - ボタン同士の間隔は 16px、縦に積むときは 8px。
-//   - モバイル（md 未満）では縦に積み、幅いっぱいにする。右寄せ配置では「確定が上」になるよう順序を反転する。
+//   - モバイル（md 未満）では縦に積み、幅いっぱいにする。順序は DOM 順のまま（見た目の順とフォーカス順をそろえる）。
 
 export type ButtonGroupAlign = "end" | "start" | "center";
 export type ButtonGroupDirection = "row" | "column";
@@ -40,8 +40,8 @@ export function ButtonGroup({ children, align = "end", direction = "row", stackO
                     ? cn("flex-col gap-2", COLUMN_ALIGN[align])
                     : stackOnMobile
                       ? cn(
-                            // モバイルは縦積み。右寄せ（確定が DOM の末尾）では確定を上に出すため順序を反転する。
-                            align === "end" ? "flex-col-reverse" : "flex-col",
+                            // モバイルは縦積み。順序は反転しない（反転すると見た目の順とフォーカス順が食い違う）。
+                            "flex-col",
                             "gap-2 md:flex-row md:flex-wrap md:items-center md:gap-4",
                             ROW_ALIGN[align],
                         )

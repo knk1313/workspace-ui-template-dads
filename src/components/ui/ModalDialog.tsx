@@ -42,11 +42,14 @@ const SIZE: Record<ModalDialogSize, string> = {
     lg: "md:w-full md:max-w-4xl",
 };
 
-/** アクションボタンの並び。ActionPanel と同じ規則（1 つは中央、2 つは左右、3 つ以上は右寄せ）。 */
+/**
+ * アクションボタンの並び（DADS: 1 つは中央、2 つは左がキャンセル・右が確定、3 つ以上は右寄せ）。
+ * モバイルでも同じ並びにする。収まらないときだけ折り返す（DOM 順 = 見た目の順 = フォーカス順を保つ）。
+ */
 export function actionsLayoutClass(count: number): string {
-    if (count <= 1) return "md:justify-center";
-    if (count === 2) return "md:justify-between";
-    return "md:justify-end";
+    if (count <= 1) return "justify-center";
+    if (count === 2) return "justify-between";
+    return "justify-end";
 }
 
 /** アクションの数。<>…</> でまとめて渡された場合は中身を数える。 */
@@ -128,7 +131,7 @@ export function ModalDialog({
                     </div>
                 )}
                 {actionCount > 0 && (
-                    <div className={cn("flex shrink-0 flex-col-reverse gap-2 px-4 pb-4 md:flex-row md:gap-4 md:px-6 md:pb-6", actionsLayoutClass(actionCount))}>
+                    <div className={cn("flex shrink-0 flex-wrap items-center gap-x-4 gap-y-2 px-4 pb-4 md:px-6 md:pb-6", actionsLayoutClass(actionCount))}>
                         {actions}
                     </div>
                 )}

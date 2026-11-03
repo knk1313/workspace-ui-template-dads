@@ -6,7 +6,7 @@ import { ActionPanel } from "./ActionPanel";
 import { Button } from "./Button";
 
 describe("ActionPanel", () => {
-    it("DOM 順はセカンダリー → プライマリー → キャンセル、md 以上は order で並べ替える", () => {
+    it("DOM 順 = 見た目の順はキャンセル → セカンダリー → プライマリーで、確定側は右に寄せる", () => {
         render(
             <ActionPanel
                 primary={<Button>保存する</Button>}
@@ -22,26 +22,24 @@ describe("ActionPanel", () => {
             />,
         );
         const names = screen.getAllByRole("button").map((b) => b.textContent);
-        expect(names).toEqual(["下書き保存", "プレビュー", "保存する", "キャンセル"]);
+        expect(names).toEqual(["キャンセル", "下書き保存", "プレビュー", "保存する"]);
         const panel = screen.getByRole("group", { name: "操作" });
-        expect(panel).toHaveClass("flex-col", "md:flex-row", "md:justify-end");
-        expect(screen.getByText("下書き保存").closest("button")?.parentElement).toHaveClass("md:order-2");
-        expect(screen.getByText("保存する").closest("button")?.parentElement).toHaveClass("md:order-3");
-        expect(screen.getByText("キャンセル").closest("button")?.parentElement).toHaveClass("md:order-1", "md:mr-auto");
+        expect(panel).toHaveClass("flex", "flex-wrap");
+        expect(screen.getByText("保存する").closest("button")?.parentElement).toHaveClass("ml-auto", "justify-end");
     });
 
-    it("Tab 順は DOM 順（セカンダリー → プライマリー → キャンセル）", async () => {
+    it("Tab 順は見た目の順（キャンセル → セカンダリー → プライマリー）", async () => {
         const user = userEvent.setup();
         const onSave = vi.fn();
         render(<ActionPanel primary={<Button onClick={onSave}>保存する</Button>} secondary={<Button variant="outline">下書き保存</Button>} cancel={<Button variant="text">キャンセル</Button>} />);
+        await user.tab();
+        expect(screen.getByRole("button", { name: "キャンセル" })).toHaveFocus();
         await user.tab();
         expect(screen.getByRole("button", { name: "下書き保存" })).toHaveFocus();
         await user.tab();
         expect(screen.getByRole("button", { name: "保存する" })).toHaveFocus();
         await user.keyboard("{Enter}");
         expect(onSave).toHaveBeenCalledTimes(1);
-        await user.tab();
-        expect(screen.getByRole("button", { name: "キャンセル" })).toHaveFocus();
     });
 
     it("プライマリーだけでも描画でき、sticky と label を反映する", () => {
