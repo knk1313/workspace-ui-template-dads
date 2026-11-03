@@ -60,7 +60,7 @@ export default function HomePage() {
                 <CardBody>
                     <EmptyState
                         title="最初の画面を作成"
-                        description="src/pages/home/HomePage.tsx を書き換えると、ここに表示されます。部品の使い方は src/components/ の各ファイルを参照してください。"
+                        description="src/pages/home/HomePage.tsxを書き換えると、ここに表示されます。部品の使い方は、src/components/にある各ファイルを参照してください。"
                         action={
                             <ButtonLink to="/settings" variant="outline" leadIcon={Settings}>
                                 設定を開く

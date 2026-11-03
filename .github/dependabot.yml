@@ -1,0 +1,22 @@
+# 依存パッケージの更新（Dependabot）。
+# - npm は毎週、マイナーとパッチをまとめて 1 つのプルリクエストにする。メジャーは個別に出し、変更点を読んでから取り込む
+# - Playwright は別にまとめる。上げるときは .github/workflows/ci.yml のイメージの版も合わせ、
+#   npm run test:visual:update で基準画像を撮り直す（版がずれると npm run lint の検査で止まる）
+# - GitHub Actions は毎月
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    groups:
+      playwright:
+        patterns: ["@playwright/test", "@axe-core/playwright"]
+      minor-and-patch:
+        update-types: [minor, patch]
+        exclude-patterns: ["@playwright/test", "@axe-core/playwright"]
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
