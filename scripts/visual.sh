@@ -14,4 +14,4 @@ docker run --rm --ipc=host \
     -w /work \
     -e CI="${CI:-}" \
     "$IMAGE" \
-    /bin/bash -c "npm ci --no-audit --no-fund --loglevel=error && npx playwright test -c playwright.visual.config.ts $*"
+    /bin/bash -c 'npm ci --no-audit --no-fund --loglevel=error && npx playwright test -c playwright.visual.config.ts "$@"' bash "$@"
