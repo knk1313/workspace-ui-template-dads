@@ -7,8 +7,8 @@
 | フェーズ | 状態 | メモ |
 | --- | --- | --- |
 | 1. 調査 | 完了 | `docs/dads-research.md`、`docs/current-state.md`、`docs/decisions.md`（docs/*.md は .gitignore 対象） |
-| 2. デザイントークン | 未着手 | `src/tokens/`、コントラスト検査、ハードコード検査スクリプト |
-| 3. コンポーネント実装 | 未着手 | 下表 |
+| 2. デザイントークン | 完了 | `src/tokens/`（primitives / theme / typography）、`contrast.test.ts`、`scripts/check-design-tokens.mjs`（lint に組み込み） |
+| 3. コンポーネント実装 | 実装中 | 下表。Button / FormField / Input / Checkbox / Icon / Spinner / Link は完了。残りは並行実装中 |
 | 4. ページ例 | 未着手 | |
 | 5. リファクタ | 未着手 | |
 | 6. テスト | 未着手 | 単体 / axe / E2E |
