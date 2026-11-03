@@ -207,7 +207,7 @@ export function DropdownMenu({ label, items, style = "text", size = "md", icon, 
                     <>
                         {icon && <Icon icon={icon} size="md" />}
                         <span>{label}</span>
-                        <Icon icon={ChevronDown} size="sm" className={cn("mt-0.5 transition-transform", open && "rotate-180")} />
+                        <Icon icon={ChevronDown} size="sm" className={cn("transition-transform", open && "rotate-180")} />
                     </>
                 )}
             </button>

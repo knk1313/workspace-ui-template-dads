@@ -10,6 +10,7 @@ import { Link } from "@/components/ui/Link";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Select } from "@/components/ui/Select";
 import { StatCard } from "@/components/ui/StatCard";
+import { TableCellLine } from "@/components/ui/Table";
 import { useToast } from "@/components/ui/Toast";
 import { useDisplaySettings } from "@/context/DisplaySettings";
 import { useMediaQuery } from "@/layouts/useMediaQuery";
@@ -91,7 +92,11 @@ export default function DashboardPage() {
         {
             key: "status",
             header: "状態",
-            render: (row) => <StatusChip status={STATUS_CHIP[row.status]}>{STATUS_LABELS[row.status]}</StatusChip>,
+            render: (row) => (
+                <TableCellLine>
+                    <StatusChip status={STATUS_CHIP[row.status]}>{STATUS_LABELS[row.status]}</StatusChip>
+                </TableCellLine>
+            ),
             width: "whitespace-nowrap",
         },
         {

@@ -42,14 +42,17 @@ export function Timeline({ items, className, ...props }: TimelineProps) {
                         {!last && (
                             <span
                                 aria-hidden="true"
-                                className={cn("absolute top-8 bottom-0 left-4 w-0.5 -translate-x-1/2", item.status === "done" ? "bg-primary" : "bg-border")}
+                                className={cn("absolute top-4 bottom-0 left-4 w-0.5 -translate-x-1/2", item.status === "done" ? "bg-primary" : "bg-border")}
                             />
                         )}
-                        <span aria-hidden="true" className={cn("flex size-8 shrink-0 items-center justify-center rounded-full border-3", status.marker)}>
-                            {item.status === "done" && <Icon icon={Check} size="sm" className="stroke-3" />}
-                            {item.status === "current" && <span className="size-3 rounded-full bg-primary" />}
+                        {/* 1 行目の高さの枠で上下中央に置き、見出しが何行になってもマーカーを 1 行目の中央にそろえる */}
+                        <span aria-hidden="true" className="relative flex h-lh shrink-0 items-center">
+                            <span className={cn("flex size-8 items-center justify-center rounded-full border-3", status.marker)}>
+                                {item.status === "done" && <Icon icon={Check} size="sm" className="stroke-3" />}
+                                {item.status === "current" && <span className="size-3 rounded-full bg-primary" />}
+                            </span>
                         </span>
-                        <div className={cn("flex min-w-0 flex-1 flex-col gap-1 pt-1", item.status === "upcoming" && "text-text-muted")}>
+                        <div className={cn("flex min-w-0 flex-1 flex-col gap-1", item.status === "upcoming" && "text-text-muted")}>
                             <p className="m-0 font-bold">
                                 {item.title}
                                 <span className="sr-only">（{status.text}）</span>

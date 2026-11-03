@@ -205,11 +205,15 @@ export function CommandPalette({ open, onClose, items, label = "ページやコ�
                                             }}
                                             onClick={() => run(item)}
                                             className={cn(
-                                                "flex min-h-11 cursor-pointer items-center gap-2 px-4 py-2 text-16",
+                                                "flex min-h-11 cursor-pointer items-start gap-2 px-4 py-2 text-16 leading-170",
                                                 selected ? "bg-primary-surface font-bold text-primary" : "text-text hover:bg-surface-muted",
                                             )}
                                         >
-                                            {item.icon && <Icon icon={item.icon} size="md" />}
+                                            {item.icon && (
+                                                <span className="flex h-lh shrink-0 items-center">
+                                                    <Icon icon={item.icon} size="md" />
+                                                </span>
+                                            )}
                                             <span className="min-w-0 break-words">{item.label}</span>
                                         </div>
                                     );

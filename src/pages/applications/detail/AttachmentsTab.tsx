@@ -24,8 +24,12 @@ export function AttachmentsTab({ attachments }: { attachments: Application["atta
                 {attachments.map((file) => (
                     <StackedListItem
                         key={file.name}
-                        // 複数行になってもアイコンが 1 行目の文字と揃うよう、行の高さに合わせて少し下げる
-                        leading={<Icon icon={FileText} size="lg" className="mt-0.5 text-text-muted" />}
+                        // 1 行目の高さの枠で上下中央に置き、ファイル名が折り返してもアイコンを 1 行目にそろえる
+                        leading={
+                            <span className="flex h-lh items-center">
+                                <Icon icon={FileText} size="lg" className="text-text-muted" />
+                            </span>
+                        }
                         title={file.name}
                         description={<span className="nums">{formatFileSize(file.size)}</span>}
                         meta={

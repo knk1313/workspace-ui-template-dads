@@ -26,18 +26,18 @@ describe("Timeline", () => {
         render(<Timeline items={items} />);
         const entries = screen.getAllByRole("listitem");
         // done: 塗り + チェック
-        const doneMarker = entries[0].querySelector("[aria-hidden='true'].rounded-full");
+        const doneMarker = entries[0].querySelector("[aria-hidden='true'] .rounded-full");
         expect(doneMarker).toHaveClass("bg-primary");
         expect(doneMarker?.querySelector("svg.lucide-check")).toBeInTheDocument();
         expect(entries[0]).toHaveTextContent("（完了）");
         expect(entries[0]).not.toHaveAttribute("aria-current");
         // current: 枠 + aria-current="step"
         expect(entries[1]).toHaveAttribute("aria-current", "step");
-        const currentMarker = entries[1].querySelector("[aria-hidden='true'].rounded-full");
+        const currentMarker = entries[1].querySelector("[aria-hidden='true'] .rounded-full");
         expect(currentMarker).toHaveClass("border-primary", "bg-surface");
         expect(entries[1]).toHaveTextContent("（現在）");
         // upcoming: 薄い枠 + 文字は控えめ
-        const upcomingMarker = entries[2].querySelector("[aria-hidden='true'].rounded-full");
+        const upcomingMarker = entries[2].querySelector("[aria-hidden='true'] .rounded-full");
         expect(upcomingMarker).toHaveClass("border-border");
         expect(entries[2]).toHaveTextContent("（未着手）");
         // 縦線は最後の項目にはない

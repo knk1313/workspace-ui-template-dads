@@ -65,7 +65,11 @@ export function StackedListItem({ title, description, meta, leading, href, onCli
                 {description && <div className="text-text-muted">{description}</div>}
             </div>
             {meta && <div className="shrink-0 text-right text-text-muted">{meta}</div>}
-            {interactive && <Icon icon={ChevronRight} size="md" className="mt-1 shrink-0 text-text-muted" />}
+            {interactive && (
+                <span className="flex h-lh shrink-0 items-center">
+                    <Icon icon={ChevronRight} size="md" className="text-text-muted" />
+                </span>
+            )}
         </li>
     );
 }

@@ -9,6 +9,7 @@ import { DropdownMenu } from "@/components/ui/DropdownMenu";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Link } from "@/components/ui/Link";
 import { PageHeader } from "@/components/ui/PageHeader";
+import { TableCellLine } from "@/components/ui/Table";
 import { useToast } from "@/components/ui/Toast";
 import { useDisplaySettings } from "@/context/DisplaySettings";
 import { APPLICATIONS, CATEGORY_LABELS, STATUS_LABELS, type Application } from "@/mocks/applications";
@@ -108,7 +109,11 @@ export default function ApplicationListPage() {
             header: "状態",
             // 表示名の五十音ではなく、手続きの進む順（下書き → 受付済み → … ）で並べる
             accessor: (row) => STATUS_ORDER.indexOf(row.status),
-            render: (row) => <ApplicationStatusChip status={row.status} />,
+            render: (row) => (
+                <TableCellLine>
+                    <ApplicationStatusChip status={row.status} />
+                </TableCellLine>
+            ),
             sortable: true,
             width: "w-28 whitespace-nowrap",
             skeleton: "chip",

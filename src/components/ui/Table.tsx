@@ -203,3 +203,15 @@ export function TableCell({ className, align = "left", children, ...props }: Tab
 export function useTable(): TableContextValue {
     return useContext(TableContext);
 }
+
+export type TableCellLineProps = HTMLAttributes<HTMLSpanElement> & {
+    align?: CellAlign;
+};
+
+/**
+ * セルの 1 行目と同じ高さの枠。チップ・チェックボックス・ボタンなどを入れると、上下中央に置かれ、隣の列の 1 行目の文字とそろう。
+ * これらの部品はインラインのまま置くと文字のベースラインに合わせて上下にずれるため、表の中ではこの枠で包む。
+ */
+export function TableCellLine({ align = "left", className, ...props }: TableCellLineProps) {
+    return <span className={cn("flex h-lh items-center", align === "right" && "justify-end", className)} {...props} />;
+}

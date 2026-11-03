@@ -117,7 +117,9 @@ function ToastView({ item, dismiss }: { item: ToastItem; dismiss: (id: number) =
             }}
             onKeyDown={onKeyDown}
         >
-            <TypeIcon aria-hidden="true" focusable="false" className={cn("mt-0.5 size-6 shrink-0", color.icon)} />
+            <span className="flex h-lh shrink-0 items-center">
+                <TypeIcon aria-hidden="true" focusable="false" className={cn("size-6", color.icon)} />
+            </span>
             <div className="min-w-0 flex-1">
                 <p className="m-0 font-bold text-text-strong">{item.title}</p>
                 {item.description && <p className="m-0 text-text-muted">{item.description}</p>}

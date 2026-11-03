@@ -6,7 +6,7 @@ import { Checkbox } from "./Checkbox";
 import { Icon } from "./Icon";
 import { Pagination } from "./Pagination";
 import { Spinner } from "./Spinner";
-import { Table, TableBody, TableCell, TableHead, TableHeaderCell, TableRow, type CellAlign, type TableSize } from "./Table";
+import { Table, TableBody, TableCell, TableHead, TableCellLine, TableHeaderCell, TableRow, type CellAlign, type TableSize } from "./Table";
 
 // DADS データテーブル（https://design.digital.go.jp/dads/components/table/ の「データテーブル」）。
 // 静的な Table の上に、業務画面で必要になる操作を載せる。
@@ -95,12 +95,8 @@ export type DataTableProps<T> = {
     className?: string;
 };
 
-// 行のセルは上寄せなので、1 行目の文字の中心に合わせて部品の位置を調整する。
-//   default: 上余白 20px + 行高 27.2px（16px × 1.7）→ 文字の中心は 33.6px
-//   dense:   上余白 12px + 行高 20.8px（16px × 1.3）→ 文字の中心は 22.4px
-// チェックボックス（24px）は上余白を、操作ボタン（44px）は負のマージンで中心を揃える。
-const CHECKBOX_CELL: Record<TableSize, string> = { default: "pt-5.5", dense: "pt-2.5" };
-const ACTION_CELL: Record<TableSize, string> = { default: "-my-2", dense: "-my-3" };
+// 行のセルは上寄せ。選択のチェックボックスと操作ボタンは TableCellLine で包み、隣の列の 1 行目の文字とそろえる。
+// 操作ボタン（44px）は枠からはみ出すが、行の高さは変えない。
 
 // --- 読み込み中のスケルトン ---
 // 文字の行（16px × 行高）の中に 16px の帯を縦中央で置き、読み込み後の文字と同じ位置・高さにする。
@@ -114,15 +110,20 @@ function SkeletonBlock({ className }: { className?: string }) {
 
 function SkeletonLine({ width, align }: { width: string; align?: CellAlign }) {
     return (
-        <span className={cn("flex h-lh items-center", align === "right" && "justify-end")}>
+        <TableCellLine align={align}>
             <SkeletonBlock className={cn("h-4", width)} />
-        </span>
+        </TableCellLine>
     );
 }
 
 function ColumnSkeleton({ kind, align, variant }: { kind: NonNullable<DataTableColumn<unknown>["skeleton"]>; align?: CellAlign; variant: number }) {
     if (kind === "none") return null;
-    if (kind === "chip") return <SkeletonBlock className="h-8 w-16 rounded-8" />;
+    if (kind === "chip")
+        return (
+            <TableCellLine align={align}>
+                <SkeletonBlock className="h-8 w-16 rounded-8" />
+            </TableCellLine>
+        );
     if (kind === "lines")
         return (
             <span className="block">
@@ -283,13 +284,15 @@ export function DataTable<T>({
                     <TableRow>
                         {selectable && (
                             <TableHeaderCell className="w-10 px-2!">
-                                <Checkbox
-                                    size="sm"
-                                    aria-label="すべての行を選択"
-                                    checked={allVisibleSelected}
-                                    indeterminate={someVisibleSelected}
-                                    onChange={toggleAll}
-                                />
+                                <TableCellLine>
+                                    <Checkbox
+                                        size="sm"
+                                        aria-label="すべての行を選択"
+                                        checked={allVisibleSelected}
+                                        indeterminate={someVisibleSelected}
+                                        onChange={toggleAll}
+                                    />
+                                </TableCellLine>
                             </TableHeaderCell>
                         )}
                         {columns.map((column) => {
@@ -312,7 +315,9 @@ export function DataTable<T>({
                                             )}
                                         >
                                             <span className="whitespace-nowrap">{column.header}</span>
-                                            <Icon icon={SORT_ICON[active ?? "none"]} size="md" className={cn("mt-1", active ? "text-text-strong" : "text-text-muted")} />
+                                            <span className="flex h-lh shrink-0 items-center">
+                                                <Icon icon={SORT_ICON[active ?? "none"]} size="md" className={active ? "text-text-strong" : "text-text-muted"} />
+                                            </span>
                                             <span className="sr-only">{active === "asc" ? "（昇順）" : active === "desc" ? "（降順）" : "（並べ替え）"}</span>
                                         </button>
                                     ) : (
@@ -338,8 +343,10 @@ export function DataTable<T>({
                             {Array.from({ length: skeletonRows }, (_, i) => (
                                 <TableRow key={i} aria-hidden="true">
                                     {selectable && (
-                                        <TableCell className={cn("w-10 px-2!", CHECKBOX_CELL[size])}>
-                                            <SkeletonBlock className="size-6" />
+                                        <TableCell className="w-10 px-2!">
+                                            <TableCellLine>
+                                                <SkeletonBlock className="size-6" />
+                                            </TableCellLine>
                                         </TableCell>
                                     )}
                                     {columns.map((column, j) => (
@@ -349,11 +356,11 @@ export function DataTable<T>({
                                     ))}
                                     {rowActions && (
                                         <TableCell className="px-2!">
-                                            <div className={cn("flex items-center justify-end", ACTION_CELL[size])}>
+                                            <TableCellLine align="right">
                                                 <span className="flex size-target items-center justify-center">
                                                     <SkeletonBlock className="size-6 rounded-full" />
                                                 </span>
-                                            </div>
+                                            </TableCellLine>
                                         </TableCell>
                                     )}
                                 </TableRow>
@@ -372,8 +379,10 @@ export function DataTable<T>({
                             return (
                                 <TableRow key={rowId} selected={selected}>
                                     {selectable && (
-                                        <TableCell className={cn("w-10 px-2!", CHECKBOX_CELL[size])}>
-                                            <Checkbox size="sm" aria-label={`${resolveLabel(row)} を選択`} checked={selected} onChange={() => toggleRow(rowId)} />
+                                        <TableCell className="w-10 px-2!">
+                                            <TableCellLine>
+                                                <Checkbox size="sm" aria-label={`${resolveLabel(row)} を選択`} checked={selected} onChange={() => toggleRow(rowId)} />
+                                            </TableCellLine>
                                         </TableCell>
                                     )}
                                     {columns.map((column) => {
@@ -390,7 +399,7 @@ export function DataTable<T>({
                                     })}
                                     {rowActions && (
                                         <TableCell className="whitespace-nowrap px-2!">
-                                            <div className={cn("flex items-center justify-end", ACTION_CELL[size])}>{rowActions(row)}</div>
+                                            <TableCellLine align="right">{rowActions(row)}</TableCellLine>
                                         </TableCell>
                                     )}
                                 </TableRow>

@@ -45,12 +45,15 @@ export function ActivityFeed({ items, className, ...props }: ActivityFeedProps) 
                 const last = index === items.length - 1;
                 return (
                     <li key={item.id} className={cn("relative flex gap-3", !last && "pb-6")}>
-                        {/* 縦線: マーカー（32px）の中心から次の項目まで */}
-                        {!last && <span aria-hidden="true" className="absolute top-8 bottom-0 left-4 w-px -translate-x-1/2 bg-border" />}
-                        <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-surface-strong text-text-muted">
-                            {item.avatar ?? <Icon icon={item.icon ?? Circle} size="sm" />}
+                        {/* 縦線: マーカーの後ろから次の項目まで */}
+                        {!last && <span aria-hidden="true" className="absolute top-4 bottom-0 left-4 w-px -translate-x-1/2 bg-border" />}
+                        {/* 1 行目の高さの枠で上下中央に置き、本文が何行になってもマーカーを 1 行目の中央にそろえる */}
+                        <div className="relative flex h-lh shrink-0 items-center">
+                            <div className="flex size-8 items-center justify-center rounded-full bg-surface-strong text-text-muted">
+                                {item.avatar ?? <Icon icon={item.icon ?? Circle} size="sm" />}
+                            </div>
                         </div>
-                        <div className="flex min-w-0 flex-1 flex-col gap-1 pt-1">
+                        <div className="flex min-w-0 flex-1 flex-col gap-1">
                             <p className="m-0">
                                 <span className="font-bold">{item.actor}</span>が{item.target && <>{item.target}を</>}
                                 {item.action}
