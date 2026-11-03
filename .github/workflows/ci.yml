@@ -26,6 +26,12 @@ jobs:
 
   e2e:
     runs-on: ubuntu-latest
+    # desktop と mobile の幅を別のジョブにし、並行に実行する
+    strategy:
+      fail-fast: false
+      matrix:
+        project: [desktop, mobile]
+    name: e2e (${{ matrix.project }})
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
@@ -43,8 +49,8 @@ jobs:
         run: npx playwright install --with-deps chromium
       - if: steps.playwright-cache.outputs.cache-hit == 'true'
         run: npx playwright install-deps chromium
-      # 主要ページの表示・操作・axe（desktop / mobile の 2 幅）
-      - run: npm run test:e2e
+      # 主要ページの表示・操作・axe
+      - run: npm run test:e2e -- --project=${{ matrix.project }}
 
   visual:
     runs-on: ubuntu-latest

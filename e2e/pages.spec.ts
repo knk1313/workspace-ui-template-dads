@@ -38,6 +38,8 @@ test("ナビゲーションで各画面へ移動でき、現在地が示され�
 
 test("最初のTabで「本文へスキップ」が現れ、本文へ移動できる", async ({ page }) => {
     await page.goto("/settings");
+    // 描画が終わる前に Tab を押すと、フォーカスがページに入らないことがある
+    await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
     await page.keyboard.press("Tab");
     const skip = page.getByRole("link", { name: "本文へスキップ" });
     await expect(skip).toBeFocused();
