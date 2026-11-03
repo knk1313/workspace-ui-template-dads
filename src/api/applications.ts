@@ -1,11 +1,22 @@
 // 申請の API（ダミー）。画面はこの関数だけを通して申請を読み書きする。
 // 実際の API に置き換えるときは、各関数の中身を fetch などに差し替える（戻り値の型は変えない）。
 
-import { CURRENT_USER } from "@/mocks/applications";
-import { db } from "./db";
+import { RECENT_ACTIVITY } from "@/mocks/activity";
+import { generateApplications } from "@/mocks/applications";
+import { CURRENT_USER } from "@/mocks/settings";
+import { defineStore } from "./db";
 import { ApiError, mockRequest } from "./mock";
 import { invalidate } from "./query";
-import type { ActivityItem, Application, ApplicationDetail, ApplicationInput, ApplicationStatus } from "./types";
+import type { ActivityItem, Application, ApplicationDetail, ApplicationInput, ApplicationStatus } from "./applicationTypes";
+
+const db = defineStore(() => ({
+    applications: generateApplications(),
+    activity: structuredClone(RECENT_ACTIVITY),
+    /** 差戻しの理由（申請 id ごと）。 */
+    returnReasons: {} as Record<string, string>,
+    /** 払い出した受付番号の数。 */
+    issued: 0,
+}));
 
 function pad(n: number, len: number): string {
     return String(n).padStart(len, "0");

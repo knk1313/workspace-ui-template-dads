@@ -9,7 +9,7 @@ import { SearchBox } from "@/components/ui/SearchBox";
 import { Select } from "@/components/ui/Select";
 import { useMediaQuery } from "@/layouts/useMediaQuery";
 import { ASSIGNEES } from "@/mocks/applications";
-import { CATEGORY_LABELS, STATUS_LABELS } from "@/api/types";
+import { CATEGORY_LABELS, STATUS_LABELS } from "@/api/applicationTypes";
 import type { ApplicationQuery, FilterKey } from "./useApplicationQuery";
 
 // 一覧の絞り込み。キーワード検索は常に表示し、種別・状態・担当者は

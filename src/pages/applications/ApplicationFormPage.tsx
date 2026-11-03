@@ -15,7 +15,7 @@ import { useToast } from "@/components/ui/Toast";
 import { useUnsavedChangesWarning } from "@/hooks/useUnsavedChangesWarning";
 import { useMediaQuery } from "@/layouts/useMediaQuery";
 import { findApplicationContact, toMockFiles } from "@/mocks/applicationForm";
-import type { Application, ApplicationInput } from "@/api/types";
+import type { Application, ApplicationInput } from "@/api/applicationTypes";
 import { ApplicationFormComplete, COMPLETE_HEADING_ID } from "./form/ApplicationFormComplete";
 import { ApplicationFormConfirm } from "./form/ApplicationFormConfirm";
 import { ApplicationFormFields } from "./form/ApplicationFormFields";

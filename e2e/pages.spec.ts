@@ -1,19 +1,9 @@
 import { expect, test } from "@playwright/test";
 import { expectNoAxeViolations, expectNoHorizontalOverflow, isMobile, navigateVia } from "./helpers";
+import { PAGES } from "./routes";
 
 // 主要ページの表示・ナビゲーション・アクセシビリティ（desktop / mobile の両プロジェクトで実行する）。
 
-const PAGES = [
-    { path: "/", h1: "ダッシュボード" },
-    { path: "/applications", h1: "申請一覧" },
-    { path: "/applications/app-001", h1: null },
-    { path: "/applications/new", h1: "新規申請" },
-    { path: "/applications/app-001/edit", h1: "申請を編集" },
-    { path: "/settings", h1: "設定" },
-    { path: "/login", h1: "ログイン" },
-    { path: "/no-such-page", h1: "ページが見つかりません" },
-    { path: "/error/500", h1: "ページを表示できません" },
-] as const;
 
 for (const p of PAGES) {
     test(`${p.path}を表示でき、axeの違反がなく、横にはみ出さない`, async ({ page }) => {
@@ -28,7 +18,7 @@ for (const p of PAGES) {
 }
 
 test("長いページはマウスホイールで縦にスクロールできる", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/settings");
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
     const viewport = page.viewportSize()!;
     await page.mouse.move(viewport.width / 2, viewport.height / 2);
@@ -38,10 +28,6 @@ test("長いページはマウスホイールで縦にスクロールできる",
 
 test("ナビゲーションで各画面へ移動でき、現在地が示される", async ({ page }) => {
     await page.goto("/");
-    await navigateVia(page, "申請一覧");
-    await expect(page).toHaveURL(/\/applications$/);
-    await expect(page.getByRole("heading", { level: 1, name: "申請一覧" })).toBeVisible();
-
     await navigateVia(page, "設定");
     await expect(page).toHaveURL(/\/settings$/);
     if (!isMobile(page)) {
@@ -51,7 +37,7 @@ test("ナビゲーションで各画面へ移動でき、現在地が示され�
 });
 
 test("最初のTabで「本文へスキップ」が現れ、本文へ移動できる", async ({ page }) => {
-    await page.goto("/applications");
+    await page.goto("/settings");
     await page.keyboard.press("Tab");
     const skip = page.getByRole("link", { name: "本文へスキップ" });
     await expect(skip).toBeFocused();

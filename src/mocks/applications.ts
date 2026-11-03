@@ -1,15 +1,7 @@
 // 画面表示用の架空データ（申請管理）。実在の組織・人物・数値とは関係ありません。
 // 実データに差し替えるときは、このディレクトリを API 呼び出し等に置き換える。
 
-import type { Application, ApplicationCategory, ApplicationStatus } from "@/api/types";
-
-export const CURRENT_USER = {
-    id: "u-001",
-    name: "佐藤 花子",
-    email: "sato.hanako@example.go.jp",
-    department: "デジタル推進課",
-    role: "管理者",
-};
+import type { Application, ApplicationCategory, ApplicationStatus } from "@/api/applicationTypes";
 
 export const ASSIGNEES = ["佐藤 花子", "鈴木 一郎", "高橋 美咲", "田中 健太"] as const;
 

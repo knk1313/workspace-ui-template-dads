@@ -1,7 +1,7 @@
 // 申請フォーム用の架空データ。実在の組織・人物とは関係ありません。
 // 一覧のモック（applications.ts）にない連絡先などを、編集画面の初期値として補う。
 
-import type { Application } from "@/api/types";
+import type { Application } from "@/api/applicationTypes";
 import { APPLICATIONS } from "./applications";
 
 export type ApplicationContact = {

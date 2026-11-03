@@ -18,7 +18,7 @@ import { useDisplaySettings } from "@/context/DisplaySettings";
 import { useMediaQuery } from "@/layouts/useMediaQuery";
 import { listApplications, listRecentActivity } from "@/api/applications";
 import { useQuery } from "@/api/query";
-import { STATUS_LABELS, type ActivityItem, type Application, type ApplicationStatus } from "@/api/types";
+import { STATUS_LABELS, type ActivityItem, type Application, type ApplicationStatus } from "@/api/applicationTypes";
 import { DATA_SOURCE, KPIS, MONTHLY_RECEIVED, RECEIVED_BY_CATEGORY, RECEIVED_BY_CHANNEL } from "@/mocks/dashboard";
 
 // ダッシュボード（ダッシュボードデザインの実践ガイドブック / docs/chart-guide.md の画面構成）。

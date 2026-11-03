@@ -1,6 +1,6 @@
 // アクティビティ（操作履歴）の架空データ。
 
-import type { ActivityItem, HistoryItem } from "@/api/types";
+import type { ActivityItem, HistoryItem } from "@/api/applicationTypes";
 
 export const RECENT_ACTIVITY: ActivityItem[] = [
     { id: "act-1", actor: "鈴木 一郎", action: "承認しました", target: "R08-001012「中小企業デジタル化支援補助金」", applicationId: "app-005", at: "2026-10-31T08:40:00Z", type: "approve" },

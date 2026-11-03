@@ -14,7 +14,7 @@ import { useToast } from "@/components/ui/Toast";
 import { useDisplaySettings } from "@/context/DisplaySettings";
 import { assignApplications, deleteApplications as deleteApi, invalidateApplications, listApplications, restoreApplications } from "@/api/applications";
 import { setQueryData, useMutation, useQuery } from "@/api/query";
-import { CATEGORY_LABELS, STATUS_LABELS, type Application } from "@/api/types";
+import { CATEGORY_LABELS, STATUS_LABELS, type Application } from "@/api/applicationTypes";
 import { ApplicationFilters } from "./list/ApplicationFilters";
 import { ApplicationStatusChip } from "./list/ApplicationStatusChip";
 import { AssignDialog } from "./list/AssignDialog";

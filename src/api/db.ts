@@ -1,36 +1,19 @@
-// ダミーのデータベース。ページを移っても内容を保つ（再読み込みすると初期値に戻る）。
-// src/mocks/ の架空データを初期値にする。
+// ダミーのデータベース。機能ごとに defineStore でデータの入れ物を作る（src/api/applications.ts、src/api/settings.ts）。
+// ページを移っても内容を保ち、再読み込みすると初期値に戻る。機能を消すときは、その機能の API のファイルだけを消せばよい。
 
-import { RECENT_ACTIVITY } from "@/mocks/activity";
-import { generateApplications } from "@/mocks/applications";
-import { NOTIFICATION_SETTINGS, PROFILE } from "@/mocks/settings";
-import type { ActivityItem, Application, NotificationSettings, Profile } from "./types";
+const resets: (() => void)[] = [];
 
-type Db = {
-    applications: Application[];
-    activity: ActivityItem[];
-    /** 差戻しの理由（申請 id ごと）。 */
-    returnReasons: Record<string, string>;
-    profile: Profile;
-    notifications: NotificationSettings;
-    /** 払い出した受付番号の数。 */
-    issued: number;
-};
-
-function initialDb(): Db {
-    return {
-        applications: generateApplications(),
-        activity: structuredClone(RECENT_ACTIVITY),
-        returnReasons: {},
-        profile: { name: PROFILE.name, email: PROFILE.email, department: PROFILE.department, bio: PROFILE.bio },
-        notifications: structuredClone(NOTIFICATION_SETTINGS),
-        issued: 0,
-    };
+/** 初期値を作る関数から、データの入れ物を作る。返した入れ物の中身を直接書き換えてよい。 */
+export function defineStore<T extends object>(init: () => T): T {
+    const store = init();
+    resets.push(() => {
+        for (const key of Object.keys(store)) delete (store as Record<string, unknown>)[key];
+        Object.assign(store, init());
+    });
+    return store;
 }
 
-export let db: Db = initialDb();
-
-/** 初期値に戻す（単体テストで、テストごとにデータをそろえるために使う）。 */
-export function resetDb(): void {
-    db = initialDb();
+/** すべての入れ物を初期値に戻す（単体テストで、テストごとにデータをそろえるために使う）。 */
+export function resetStores(): void {
+    for (const reset of resets) reset();
 }

@@ -3,7 +3,7 @@ import { Card, CardBody, CardHeader } from "@/components/ui/Card";
 import { DescriptionList } from "@/components/ui/DescriptionList";
 import { StackedList, StackedListItem } from "@/components/ui/StackedList";
 import { useDisplaySettings } from "@/context/DisplaySettings";
-import { CATEGORY_LABELS, type Application } from "@/api/types";
+import { CATEGORY_LABELS, type Application } from "@/api/applicationTypes";
 import { findStaff } from "@/mocks/staff";
 import { ApplicationStatusChip } from "../list/ApplicationStatusChip";
 import { formatAmount } from "../list/format";

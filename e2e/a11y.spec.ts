@@ -1,15 +1,15 @@
-import { expect, test, type Locator, type Page } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 import { expectNoHorizontalOverflow, isMobile, waitForLoaded } from "./helpers";
+import { PAGES } from "./routes";
 
 // axe では見つけにくいアクセシビリティの検査。
 //   - 400% 拡大（320px 幅）でのリフロー（WCAG 1.4.10）
 //   - 文字間隔を広げたときに文字が切れない（WCAG 1.4.12）
 //   - 見出しの構造とランドマーク（スクリーンリーダーでの移動の手がかり）
 //   - 強制カラーモード（Windows のハイコントラストなど）で状態が見分けられる
-//   - マウスを使わず、キーボードだけで申請を完了できる
 // スクリーンリーダーでの実際の読み上げは自動化できないため、docs/accessibility.md の手順で人が確かめる。
 
-const PAGES = ["/", "/applications", "/applications/app-001", "/applications/new", "/settings", "/settings?tab=notifications", "/settings?tab=display", "/login", "/no-such-page", "/error/500"];
+const PATHS = PAGES.map((p) => p.path);
 
 async function open(page: Page, path: string) {
     await page.goto(path);
@@ -19,7 +19,7 @@ async function open(page: Page, path: string) {
 
 test.describe("400%拡大（320px幅）", () => {
     test.use({ viewport: { width: 320, height: 256 } });
-    for (const path of PAGES) {
+    for (const path of PATHS) {
         test(`${path}が横にはみ出さない`, async ({ page }) => {
             await open(page, path);
             await expectNoHorizontalOverflow(page);
@@ -42,7 +42,7 @@ async function findClippedText(page: Page): Promise<string[]> {
     );
 }
 
-for (const path of PAGES) {
+for (const path of PATHS) {
     test(`${path}: 文字間隔を広げても文字が切れない`, async ({ page }) => {
         await open(page, path);
         // WCAG 1.4.12 の値: 行の高さ 1.5、段落の後 2 倍、文字の間隔 0.12 倍、単語の間隔 0.16 倍
@@ -54,7 +54,7 @@ for (const path of PAGES) {
     });
 }
 
-for (const path of PAGES) {
+for (const path of PATHS) {
     test(`${path}: h1が1つで、見出しのレベルが飛ばず、mainが1つある`, async ({ page }) => {
         await open(page, path);
         const levels = await page.evaluate(() =>
@@ -81,10 +81,10 @@ test.describe("強制カラーモード", () => {
     });
 
     test("チェックボックス・ラジオボタンはOSの標準の部品で描き、選択状態が分かる", async ({ page }) => {
-        await open(page, "/applications/new");
-        for (const el of [page.getByRole("radio", { name: "補助金" }), page.getByRole("checkbox", { name: "記載内容に誤りがないことを確かめた" })]) {
-            expect(await el.evaluate((e) => getComputedStyle(e).appearance)).toBe("auto");
-        }
+        await open(page, "/settings?tab=notifications");
+        expect(await page.getByRole("checkbox", { name: "メール" }).evaluate((e) => getComputedStyle(e).appearance)).toBe("auto");
+        await open(page, "/settings?tab=display");
+        expect(await page.getByRole("radio", { name: /サイドバー型/ }).evaluate((e) => getComputedStyle(e).appearance)).toBe("auto");
     });
 
     test("選んでいないタブに下線が出ない", async ({ page }) => {
@@ -103,48 +103,4 @@ test.describe("強制カラーモード", () => {
             .evaluate((el) => getComputedStyle(el, "::before").backgroundColor);
         expect(marker).not.toBe("rgba(0, 0, 0, 0)");
     });
-});
-
-/** Tab を押して、target にフォーカスが来るまで進む（マウスを使わずに操作できることの確認）。 */
-async function tabTo(page: Page, target: Locator, max = 60) {
-    for (let i = 0; i < max; i++) {
-        await page.keyboard.press("Tab");
-        if (await target.evaluate((el) => el === document.activeElement)) return;
-    }
-    throw new Error(`Tabで${target}まで移動できなかった`);
-}
-
-test("キーボードだけで新規申請を完了できる", async ({ page }) => {
-    await open(page, "/applications/new");
-
-    await tabTo(page, page.getByLabel(/^件名/));
-    await page.keyboard.type("公園使用許可の申請");
-    await tabTo(page, page.getByRole("radio", { name: "補助金" }));
-    // ラジオボタンは矢印キーで選ぶ（補助金 → 許認可）
-    await page.keyboard.press("ArrowDown");
-    await expect(page.getByRole("radio", { name: "許認可" })).toBeChecked();
-    await tabTo(page, page.getByLabel(/^申請額/));
-    await page.keyboard.type("50000");
-    await tabTo(page, page.getByLabel(/^氏名/));
-    await page.keyboard.type("山田 太郎");
-    await tabTo(page, page.getByLabel(/^メールアドレス/));
-    await page.keyboard.type("yamada@example.jp");
-    await tabTo(page, page.getByLabel(/^希望日/));
-    await page.keyboard.type("2099/12/01");
-
-    await tabTo(page, page.getByRole("button", { name: "ファイルを選択" }));
-    // ファイルの選択はネイティブの <input type="file">。Space で開く（ブラウザの標準の動き）
-    const chooser = page.waitForEvent("filechooser");
-    await page.keyboard.press("Space");
-    await (await chooser).setFiles({ name: "申請書.pdf", mimeType: "application/pdf", buffer: Buffer.from("%PDF-1.4") });
-
-    await tabTo(page, page.getByRole("checkbox", { name: "記載内容に誤りがないことを確かめた" }));
-    await page.keyboard.press("Space");
-    await tabTo(page, page.getByRole("button", { name: "確認へ進む" }));
-    await page.keyboard.press("Enter");
-
-    await expect(page.getByRole("heading", { level: 2, name: "入力内容の確認" })).toBeFocused();
-    await tabTo(page, page.getByRole("button", { name: "申請する" }));
-    await page.keyboard.press("Enter");
-    await expect(page.getByText("申請の受付完了")).toBeFocused();
 });

@@ -10,7 +10,7 @@ import { RadioGroup } from "@/components/ui/RadioGroup";
 import { Switch } from "@/components/ui/Switch";
 import { Textarea } from "@/components/ui/Textarea";
 import { ASSIGNEES } from "@/mocks/applications";
-import { CATEGORY_LABELS, type ApplicationCategory } from "@/api/types";
+import { CATEGORY_LABELS, type ApplicationCategory } from "@/api/applicationTypes";
 import { fieldId } from "./fields";
 import {
     ACCEPTED_FILE_TYPES,

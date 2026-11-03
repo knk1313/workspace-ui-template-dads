@@ -43,9 +43,9 @@ describe("validateApplicationForm", () => {
     });
 
     it("申請額が数字でなければエラー", () => {
-        expect(messageOf({ ...VALID, amount: "百万円" }, "amount")).toContain("数字だけ");
+        expect(messageOf({ ...VALID, amount: "百万円" }, "amount")).toContain("数字とカンマ");
         expect(messageOf({ ...VALID, amount: "0" }, "amount")).toContain("1円以上");
-        expect(messageOf({ ...VALID, amount: "1-000" }, "amount")).toContain("数字だけ");
+        expect(messageOf({ ...VALID, amount: "1-000" }, "amount")).toContain("数字とカンマ");
     });
 
     it("メールアドレスの形式を確かめる", () => {

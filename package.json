@@ -19,7 +19,8 @@
     "test:e2e:install": "playwright install chromium",
     "test:visual": "scripts/visual.sh",
     "test:visual:update": "scripts/visual.sh --update-snapshots",
-    "check": "npm run typecheck && npm run lint && npm run test"
+    "check": "npm run typecheck && npm run lint && npm run test",
+    "remove-samples": "node scripts/remove-samples.mjs"
   },
   "dependencies": {
     "lucide-react": "^1.61.0",

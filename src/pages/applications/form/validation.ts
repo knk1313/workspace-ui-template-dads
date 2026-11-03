@@ -1,4 +1,4 @@
-import type { ApplicationCategory } from "@/api/types";
+import type { ApplicationCategory } from "@/api/applicationTypes";
 
 // 申請フォームの入力値と検証（純粋関数）。画面から切り離して単体テストできるようにする。
 // DADS のバリデーション方針: 送信時にまとめて検証し、入力中やフォーカスアウトではエラーを出さない。
@@ -143,7 +143,7 @@ export function validateApplicationForm(values: ApplicationFormValues, today: st
     if (amount === null) {
         if (requiresAmount(values.category)) errors.amount = "補助金・許認可の申請では申請額を円単位で入力してください";
     } else if (Number.isNaN(amount)) {
-        errors.amount = "申請額は数字だけで入力してください（例：1200000または1,200,000）";
+        errors.amount = "申請額は数字とカンマで入力してください（例：1200000または1,200,000）";
     } else if (amount <= 0) {
         errors.amount = "申請額は1円以上で入力してください";
     } else if (amount > AMOUNT_MAX) {

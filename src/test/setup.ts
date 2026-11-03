@@ -1,7 +1,7 @@
 import "@testing-library/jest-dom/vitest";
 import { cleanup } from "@testing-library/react";
 import { afterEach, vi } from "vitest";
-import { resetDb } from "@/api/db";
+import { resetStores } from "@/api/db";
 import { clearQueryCache } from "@/api/query";
 
 afterEach(() => {
@@ -9,7 +9,7 @@ afterEach(() => {
     localStorage.clear();
     sessionStorage.clear();
     // ダミー API のデータと読み込み結果をテストごとに初期値へ戻す
-    resetDb();
+    resetStores();
     clearQueryCache();
 });
 

@@ -1,5 +1,13 @@
 // 設定画面・ログイン画面の架空データ。実在の組織・連絡先とは関係ありません。
-import { CURRENT_USER } from "./applications";
+
+/** ログインしている職員（架空）。 */
+export const CURRENT_USER = {
+    id: "u-001",
+    name: "佐藤 花子",
+    email: "sato.hanako@example.go.jp",
+    department: "デジタル推進課",
+    role: "管理者",
+};
 
 /** 所属の選択肢。 */
 export const DEPARTMENTS = ["デジタル推進課", "総務課", "財政課", "市民課", "産業振興課", "都市計画課"] as const;

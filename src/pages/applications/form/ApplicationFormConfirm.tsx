@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { DescriptionList } from "@/components/ui/DescriptionList";
 import { formatFileSize } from "@/components/ui/FileUpload";
-import { CATEGORY_LABELS } from "@/api/types";
+import { CATEGORY_LABELS } from "@/api/applicationTypes";
 import { FIELD_LABELS } from "./fields";
 import { formatAmount, type ApplicationFormValues, type FieldName } from "./validation";
 

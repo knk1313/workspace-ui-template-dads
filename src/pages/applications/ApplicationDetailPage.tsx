@@ -3,7 +3,7 @@ import { useLocation, useNavigate, useParams } from "react-router";
 import { Check, Pencil, Trash2, Undo2 } from "lucide-react";
 import { approveApplication, deleteApplications, getApplication, invalidateApplications, restoreApplications, returnApplication as returnApi } from "@/api/applications";
 import { useMutation, useQuery } from "@/api/query";
-import type { ApplicationStatus } from "@/api/types";
+import type { ApplicationStatus } from "@/api/applicationTypes";
 import { Button, ButtonLink } from "@/components/ui/Button";
 import { useConfirm } from "@/components/ui/ConfirmDialog";
 import { DropdownMenu, type DropdownMenuEntry } from "@/components/ui/DropdownMenu";
@@ -173,7 +173,7 @@ export default function ApplicationDetailPage() {
                 <NotificationBanner
                     type="success"
                     title="申請を承認しました"
-                    description="申請者に承認の通知を送りました。見本のため、実際には送りません。"
+                    description="見本のため、申請者に承認の通知は送っていません"
                     live
                     onClose={() => setNotice(null)}
                 />

@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router";
-import { Bell, FileText, LogOut, Search, Settings, UserRound } from "lucide-react";
+import { Bell, LogOut, Search, Settings, UserRound } from "lucide-react";
 import { appConfig } from "@/app.config";
 import { CommandPalette, useCommandPaletteShortcut, type CommandItem } from "@/components/ui/CommandPalette";
 import { DropdownMenu } from "@/components/ui/DropdownMenu";
@@ -9,13 +9,12 @@ import { Popover } from "@/components/ui/Popover";
 import { StackedList, StackedListItem } from "@/components/ui/StackedList";
 import { Tooltip } from "@/components/ui/Tooltip";
 import { useToast } from "@/components/ui/Toast";
-import { listApplications, listRecentActivity } from "@/api/applications";
-import { useQuery } from "@/api/query";
-import { CURRENT_USER } from "@/mocks/applications";
+import { CURRENT_USER } from "@/mocks/settings";
+import { useHeaderNotifications, useHeaderSearchItems } from "./headerContent";
 
 // ヘッダー右側の操作。AppShell と TopNavLayout の両方で使う。
 //   検索 = コマンドパレット（Ctrl / Cmd + K）、お知らせ = ポップオーバー、アカウント = ドロップダウンメニュー
-const fetchNotifications = () => listRecentActivity(3);
+// 検索の候補とお知らせの中身は、アプリ固有の内容として headerContent.ts に分けている。
 
 export function HeaderActions() {
     const navigate = useNavigate();
@@ -23,8 +22,8 @@ export function HeaderActions() {
     const [paletteOpen, setPaletteOpen] = useState(false);
     useCommandPaletteShortcut(() => setPaletteOpen(true));
 
-    const applications = useQuery("applications", listApplications);
-    const notifications = useQuery("activity/notifications", fetchNotifications);
+    const searchItems = useHeaderSearchItems(navigate);
+    const notifications = useHeaderNotifications();
 
     const commands = useMemo<CommandItem[]>(() => {
         const pages: CommandItem[] = appConfig.navigation.flatMap((section) =>
@@ -36,16 +35,8 @@ export function HeaderActions() {
                 onSelect: () => navigate(item.href),
             })),
         );
-        const apps: CommandItem[] = (applications.data ?? []).slice(0, 20).map((a) => ({
-            id: `app-${a.id}`,
-            label: `${a.number}「${a.title}」`,
-            group: "申請",
-            icon: FileText,
-            keywords: [a.applicant, a.organization],
-            onSelect: () => navigate(`/applications/${a.id}`),
-        }));
-        return [...pages, ...apps];
-    }, [navigate, applications.data]);
+        return [...pages, ...searchItems];
+    }, [navigate, searchItems]);
 
     const accountItems = [
         { label: "設定", icon: Settings, onSelect: () => navigate("/settings") },
@@ -67,16 +58,14 @@ export function HeaderActions() {
             </Tooltip>
             <Popover title="お知らせ" placement="bottom-end" trigger={<IconButton icon={Bell} label="お知らせ" />}>
                 <div className="w-72 max-w-full sm:w-80">
-                    {notifications.error && !notifications.data && <p className="m-0 p-4 text-std-16N-170 text-text">お知らせを読み込めませんでした。時間をおいて開き直してください。</p>}
+                    {notifications.error && <p className="m-0 p-4 text-std-16N-170 text-text">お知らせを読み込めませんでした。時間をおいて開き直してください。</p>}
                     {notifications.isLoading && <p className="m-0 p-4 text-std-16N-170 text-text-muted">読み込んでいます</p>}
+                    {!notifications.error && !notifications.isLoading && notifications.items.length === 0 && (
+                        <p className="m-0 p-4 text-std-16N-170 text-text-muted">新しいお知らせはありません</p>
+                    )}
                     <StackedList>
-                        {(notifications.data ?? []).map((a) => (
-                            <StackedListItem
-                                key={a.id}
-                                title={`${a.actor}が${a.action}`}
-                                description={a.target}
-                                href={a.applicationId ? `/applications/${a.applicationId}` : undefined}
-                            />
+                        {notifications.items.map((n) => (
+                            <StackedListItem key={n.id} title={n.title} description={n.description} href={n.href} />
                         ))}
                     </StackedList>
                 </div>

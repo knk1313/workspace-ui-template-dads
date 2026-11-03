@@ -4,8 +4,8 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { Timeline } from "@/components/ui/Timeline";
 import { useDisplaySettings } from "@/context/DisplaySettings";
 import { historyFor } from "@/mocks/activity";
-import { type ActivityItem as ActivityRecord } from "@/api/types";
-import type { ApplicationStatus } from "@/api/types";
+import { type ActivityItem as ActivityRecord } from "@/api/applicationTypes";
+import type { ApplicationStatus } from "@/api/applicationTypes";
 
 // 履歴タブ。手続きの進み具合（タイムライン）と、職員の操作履歴（アクティビティ）を並べる。
 
