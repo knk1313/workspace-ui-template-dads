@@ -13,7 +13,7 @@ test.describe("申請一覧の表", () => {
         await expect(page.locator("table tbody th a").first()).toBeVisible();
     });
 
-    test("列見出しで並べ替えると順序と aria-sort が変わる", async ({ page }) => {
+    test("列見出しで並べ替えると順序とaria-sortが変わる", async ({ page }) => {
         const header = page.getByRole("columnheader", { name: /受付番号/ });
         await page.getByRole("button", { name: /^受付番号・件名/ }).click();
         await expect(header).toHaveAttribute("aria-sort", "ascending");
@@ -28,21 +28,21 @@ test.describe("申請一覧の表", () => {
 
     test("ページ送りで表示行が変わり、現在のページが示される", async ({ page }) => {
         const first = await numbers(page);
-        await expect(page.getByText("全 64 件中 1〜20 件")).toBeVisible();
+        await expect(page.getByText("全64件中1〜20件")).toBeVisible();
         await page.getByRole("navigation", { name: "ページ送り" }).getByRole("button", { name: /2/ }).first().click();
-        await expect(page.getByText("全 64 件中 21〜40 件")).toBeVisible();
+        await expect(page.getByText("全64件中21〜40件")).toBeVisible();
         const second = await numbers(page);
         expect(second).not.toEqual(first);
         await expect(page.getByRole("navigation", { name: "ページ送り" }).locator("[aria-current='page']")).toHaveText(/2/);
     });
 
-    test("PC 幅では表が横にはみ出さない", async ({ page }) => {
-        test.skip(isMobile(page), "PC 幅だけ");
+    test("PC幅では表が横にはみ出さない", async ({ page }) => {
+        test.skip(isMobile(page), "PC幅だけ");
         const overflow = await page.locator("table").evaluate((t) => t.parentElement!.scrollWidth - t.parentElement!.clientWidth);
         expect(overflow).toBeLessThanOrEqual(0);
     });
 
-    test("行を選ぶと一括操作が現れ、担当者変更のモーダルはフォーカスを閉じ込め、Esc で閉じて元のボタンへ戻る", async ({ page }) => {
+    test("行を選ぶと一括操作が現れ、担当者変更のモーダルはフォーカスを閉じ込め、Escで閉じて元のボタンへ戻る", async ({ page }) => {
         await page.locator("table tbody tr").first().getByRole("checkbox").check();
         const region = page.getByRole("region", { name: "選択中の項目の操作" });
         await expect(region).toBeVisible();
@@ -70,19 +70,19 @@ test.describe("申請一覧の表", () => {
         await page.locator("table tbody tr").first().getByRole("checkbox").check();
         await page.getByRole("region", { name: "選択中の項目の操作" }).getByRole("button", { name: "削除" }).click();
         await expect(page.getByRole("dialog")).toHaveCount(0);
-        await expect(page.getByText(`${before[0]} を削除しました`)).toBeVisible();
-        await expect(page.getByText("全 63 件", { exact: true })).toBeVisible();
+        await expect(page.getByText(`${before[0]}を削除しました`)).toBeVisible();
+        await expect(page.getByText("全63件", { exact: true })).toBeVisible();
         expect(await numbers(page)).not.toContain(before[0]);
         // 消えた行にあったフォーカスは「元に戻す」へ移り、キーボードの Enter で取り消せる
         await expect(page.getByRole("button", { name: "元に戻す" })).toBeFocused();
         await page.keyboard.press("Enter");
-        await expect(page.getByText(`${before[0]} の削除を取り消しました`)).toBeVisible();
-        await expect(page.getByText("全 64 件", { exact: true })).toBeVisible();
+        await expect(page.getByText(`${before[0]}を元に戻しました`)).toBeVisible();
+        await expect(page.getByText("全64件", { exact: true })).toBeVisible();
         expect(await numbers(page)).toContain(before[0]);
     });
 });
 
-test("申請詳細: 差戻しのモーダルは理由が空だとエラーを出し、入力すると警告バナーが出る", async ({ page }) => {
+test("申請詳細：差戻しのモーダルは理由が空だとエラーを出し、入力すると警告バナーが出る", async ({ page }) => {
     await page.goto("/applications/app-001");
     await page.getByRole("button", { name: "その他の操作" }).click();
     const item = page.getByRole("menuitem", { name: "差戻し" });

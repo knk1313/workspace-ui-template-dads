@@ -3,7 +3,7 @@ import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip, type PieLabelRenderP
 import { ChartDataTable, ChartFrame, type ChartFrameBaseProps, type ChartSize, type LegendItem } from "./ChartFrame";
 import { ChartPatterns } from "./ChartPatterns";
 import { ChartTooltip } from "./ChartTooltip";
-import { CHART_COLORS, MAX_SERIES, buildShareSummary, formatNumber, formatPercent, seriesFill, seriesStyle, toSafeId, type ChartDatum } from "./chartUtils";
+import { CHART_COLORS, MAX_SERIES, buildShareSummary, formatNumber, formatPercent, joinNameValue, seriesFill, seriesStyle, toSafeId, type ChartDatum } from "./chartUtils";
 
 // ドーナツグラフ（構成比）。総量が明らかで、コンパクトに伝えたい場合だけ使う。
 // 多くの場合は棒グラフの方が正確に比較できる（ガイドブック）。
@@ -72,7 +72,7 @@ export function DonutChart({
         const pct = typeof p.percent === "number" ? formatPercent(p.percent) : "";
         return (
             <text x={x} y={y} textAnchor={p.textAnchor} dominantBaseline="central" fill={CHART_COLORS.text}>
-                {`${String(p.name ?? "")} ${pct}`}
+                {joinNameValue(String(p.name ?? ""), pct)}
             </text>
         );
     };

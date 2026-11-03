@@ -65,7 +65,7 @@ export function StepNavigation({ steps, current, orientation = "horizontal", lab
                             )}
                         >
                             <span className="sr-only">
-                                ステップ {i + 1} / {total}
+                                ステップ{i + 1} / {total}
                                 {STATE_LABEL[state] && `、${STATE_LABEL[state]}`}
                             </span>
                             <span

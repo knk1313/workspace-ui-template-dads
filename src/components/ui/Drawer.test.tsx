@@ -17,7 +17,7 @@ function Harness(props: HarnessProps) {
             </button>
             <Drawer open={open} onClose={() => setOpen(false)} title="絞り込み" footer={<Button onClick={() => setOpen(false)}>適用する</Button>} {...props}>
                 <label>
-                    キーワード <input />
+                    キーワード<input />
                 </label>
             </Drawer>
         </div>
@@ -32,7 +32,7 @@ async function openDrawer(props: HarnessProps = {}) {
 }
 
 describe("Drawer", () => {
-    it("開くと role=dialog（aria-modal）で見出しに関連付き、閉じるボタンにフォーカスする", async () => {
+    it("開くとrole=dialog（aria-modal）で見出しに関連付き、閉じるボタンにフォーカスする", async () => {
         await openDrawer();
         const dialog = screen.getByRole("dialog", { name: "絞り込み" });
         expect(dialog).toHaveAttribute("aria-modal", "true");
@@ -48,7 +48,7 @@ describe("Drawer", () => {
         expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
     });
 
-    it("placement=left で左から開き、閉じるボタンが左寄せになる", async () => {
+    it("placement=leftで左から開き、閉じるボタンが左寄せになる", async () => {
         await openDrawer({ placement: "left" });
         const dialog = screen.getByRole("dialog");
         expect(dialog.parentElement).toHaveClass("justify-start");
@@ -56,18 +56,18 @@ describe("Drawer", () => {
         expect(screen.getByRole("button", { name: "閉じる" }).parentElement).toHaveClass("flex-row-reverse");
     });
 
-    it("size=lg で md 以上の幅が広がる", async () => {
+    it("size=lgでmd以上の幅が広がる", async () => {
         await openDrawer({ size: "lg" });
         expect(screen.getByRole("dialog")).toHaveClass("w-drawer", "md:w-lg");
     });
 
-    it("title がないときは aria-label で名前を付ける", async () => {
+    it("titleがないときはaria-labelで名前を付ける", async () => {
         await openDrawer({ title: undefined, "aria-label": "メニュー" });
         expect(screen.getByRole("dialog", { name: "メニュー" })).toBeInTheDocument();
         expect(screen.queryByRole("heading")).not.toBeInTheDocument();
     });
 
-    it("Tab はドロワーの中で巡回する（本文とフッターを含む）", async () => {
+    it("Tabはドロワーの中で巡回する（本文とフッターを含む）", async () => {
         const { user } = await openDrawer();
         await user.tab();
         expect(screen.getByLabelText("キーワード")).toHaveFocus();
@@ -79,14 +79,14 @@ describe("Drawer", () => {
         expect(screen.getByRole("button", { name: "適用する" })).toHaveFocus();
     });
 
-    it("Esc で閉じ、開く前の要素へフォーカスを戻す", async () => {
+    it("Escで閉じ、開く前の要素へフォーカスを戻す", async () => {
         const { user } = await openDrawer();
         await user.keyboard("{Escape}");
         expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
         expect(screen.getByRole("button", { name: "開く" })).toHaveFocus();
     });
 
-    it("閉じるボタンと暗幕のクリックで閉じる（dismissOnBackdrop=false なら暗幕では閉じない）", async () => {
+    it("閉じるボタンと暗幕のクリックで閉じる（dismissOnBackdrop=falseなら暗幕では閉じない）", async () => {
         const { user } = await openDrawer();
         await user.click(screen.getByRole("button", { name: "閉じる" }));
         expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
@@ -96,13 +96,13 @@ describe("Drawer", () => {
         expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
     });
 
-    it("dismissOnBackdrop=false なら暗幕のクリックでは閉じない", async () => {
+    it("dismissOnBackdrop=falseなら暗幕のクリックでは閉じない", async () => {
         const { user } = await openDrawer({ dismissOnBackdrop: false });
         await user.click(screen.getByRole("dialog").parentElement!);
         expect(screen.getByRole("dialog")).toBeInTheDocument();
     });
 
-    it("開いている間は背景に inert が付き、閉じると外れる", async () => {
+    it("開いている間は背景にinertが付き、閉じると外れる", async () => {
         const { user, container } = await openDrawer();
         expect(container).toHaveAttribute("inert");
         await user.keyboard("{Escape}");

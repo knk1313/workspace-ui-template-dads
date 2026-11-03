@@ -37,7 +37,7 @@ export function AssignDialog({ count, onClose, onSubmit, pending = false }: Prop
             }
         >
             <div className="flex flex-col gap-6">
-                <p className="m-0">選択した {count} 件の申請の担当者を変更します。</p>
+                <p className="m-0">選択した{count}件について、担当者を変更します</p>
                 <FormField label="新しい担当者">
                     <Select block options={OPTIONS} value={assignee} onChange={(e) => setAssignee(e.target.value)} />
                 </FormField>

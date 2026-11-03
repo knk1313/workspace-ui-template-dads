@@ -20,14 +20,14 @@ function renderNav(path: string) {
 }
 
 describe("HeaderNav", () => {
-    it("nav + ul でリンクを並べる", () => {
+    it("nav + ulでリンクを並べる", () => {
         renderNav("/");
         const nav = screen.getByRole("navigation", { name: "メインナビゲーション" });
         expect(nav.querySelector("ul")).toBeInTheDocument();
         expect(screen.getAllByRole("link")).toHaveLength(3);
     });
 
-    it("現在地に aria-current=page と下線 4px を付ける（下位パスも含む）", () => {
+    it("現在地にaria-current=pageと下線4pxを付ける（下位パスも含む）", () => {
         renderNav("/items/123");
         const current = screen.getByRole("link", { name: "申請" });
         expect(current).toHaveAttribute("aria-current", "page");
@@ -37,7 +37,7 @@ describe("HeaderNav", () => {
         expect(screen.getByRole("link", { name: "設定" })).toHaveClass("hover:bg-surface-muted");
     });
 
-    it("Tab で順に移動できる", async () => {
+    it("Tabで順に移動できる", async () => {
         const user = userEvent.setup();
         renderNav("/");
         await user.tab();

@@ -25,7 +25,7 @@ const tooltip = () => screen.getByRole("tooltip");
 const button = () => screen.getByRole("button", { name: "削除" });
 
 describe("Tooltip", () => {
-    it("子要素に aria-describedby を付け、非表示のときもテキストを支援技術に渡す", () => {
+    it("子要素にaria-describedbyを付け、非表示のときもテキストを支援技術に渡す", () => {
         setup();
         expect(button()).toHaveAccessibleDescription("選択した項目を削除します");
         expect(button()).toHaveAttribute("aria-describedby", tooltip().id);
@@ -41,7 +41,7 @@ describe("Tooltip", () => {
         expect(tooltip()).toHaveClass("sr-only");
     });
 
-    it("フォーカスで表示し、Esc で隠し、フォーカスが外れても隠す", async () => {
+    it("フォーカスで表示し、Escで隠し、フォーカスが外れても隠す", async () => {
         const { user } = setup();
         await user.tab();
         expect(button()).toHaveFocus();
@@ -56,7 +56,7 @@ describe("Tooltip", () => {
         expect(tooltip()).toHaveClass("sr-only");
     });
 
-    it("既存の aria-describedby を残す", () => {
+    it("既存のaria-describedbyを残す", () => {
         render(
             <div>
                 <p id="hint">補足</p>

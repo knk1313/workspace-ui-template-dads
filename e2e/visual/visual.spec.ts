@@ -79,7 +79,7 @@ test("ヘッダーのメニュー", async ({ page }) => {
     }
 });
 
-test.describe("強制カラーモード（Windows のハイコントラストなど）", () => {
+test.describe("強制カラーモード（Windowsのハイコントラストなど）", () => {
     test.beforeEach(async ({ page }) => {
         await page.emulateMedia({ forcedColors: "active" });
     });

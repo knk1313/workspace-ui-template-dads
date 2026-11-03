@@ -14,12 +14,12 @@ export function AttachmentsTab({ attachments }: { attachments: Application["atta
     const { toast } = useToast();
 
     if (attachments.length === 0) {
-        return <EmptyState as="h2" title="添付ファイルはありません" description="申請者がファイルを添付すると、ここに表示されます。" />;
+        return <EmptyState as="h2" title="添付ファイルはありません" description="申請者がファイルを添付すると、ここに表示されます" />;
     }
 
     return (
         <Card as="section" padding="sm" className="overflow-hidden">
-            <CardHeader title="添付ファイル" description={`${attachments.length} 件`} />
+            <CardHeader title="添付ファイル" description={`${attachments.length}件`} />
             <StackedList className="mt-3 border-t border-border">
                 {attachments.map((file) => (
                     <StackedListItem
@@ -36,9 +36,9 @@ export function AttachmentsTab({ attachments }: { attachments: Application["atta
                             <Button
                                 variant="text"
                                 size="sm"
-                                aria-label={`${file.name} をダウンロード`}
+                                aria-label={`${file.name}をダウンロード`}
                                 // 架空のデータなので実ファイルはない。実装時はファイルの URL へのリンク（ButtonAnchor download）にする。
-                                onClick={() => toast({ type: "info", title: `${file.name} のダウンロードを開始しました`, description: "表示例のため、実際のファイルは保存されません。" })}
+                                onClick={() => toast({ type: "info", title: `${file.name}のダウンロードを開始しました`, description: "見本のため、実際のファイルは保存しません" })}
                             >
                                 ダウンロード
                             </Button>

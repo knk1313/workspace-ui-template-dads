@@ -12,7 +12,7 @@ function setup(placement: "bottom-start" | "bottom-end" = "bottom-start") {
         <div>
             <Popover trigger={<Button variant="outline">絞り込み</Button>} title="絞り込み条件" placement={placement} onOpenChange={onOpenChange}>
                 <label>
-                    担当者 <input />
+                    担当者<input />
                 </label>
                 <Button size="sm">適用</Button>
             </Popover>
@@ -25,7 +25,7 @@ function setup(placement: "bottom-start" | "bottom-end" = "bottom-start") {
 const trigger = () => screen.getByRole("button", { name: "絞り込み" });
 
 describe("Popover", () => {
-    it("トリガーに aria-expanded / aria-haspopup が付き、閉じているときはパネルを描画しない", () => {
+    it("トリガーにaria-expanded / aria-haspopupが付き、閉じているときはパネルを描画しない", () => {
         setup();
         expect(trigger()).toHaveAttribute("aria-expanded", "false");
         expect(trigger()).toHaveAttribute("aria-haspopup", "dialog");
@@ -45,13 +45,13 @@ describe("Popover", () => {
         expect(onOpenChange).toHaveBeenCalledWith(true);
     });
 
-    it("placement=bottom-end で右端に揃える", async () => {
+    it("placement=bottom-endで右端に揃える", async () => {
         const { user } = setup("bottom-end");
         await user.click(trigger());
         expect(screen.getByRole("dialog")).toHaveClass("right-0");
     });
 
-    it("Esc で閉じてトリガーへフォーカスを戻す", async () => {
+    it("Escで閉じてトリガーへフォーカスを戻す", async () => {
         const { user, onOpenChange } = setup();
         await user.click(trigger());
         await user.keyboard("{Escape}");
@@ -67,7 +67,7 @@ describe("Popover", () => {
         expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
     });
 
-    it("Tab でパネルの外へ出ると閉じる（フォーカストラップはしない）", async () => {
+    it("Tabでパネルの外へ出ると閉じる（フォーカストラップはしない）", async () => {
         const { user } = setup();
         await user.click(trigger());
         await user.tab();

@@ -17,7 +17,7 @@ describe("ButtonGroup", () => {
         expect(screen.getAllByRole("button").map((b) => b.textContent)).toEqual(["キャンセル", "保存"]);
     });
 
-    it("align / direction / stackOnMobile を切り替えられる", () => {
+    it("align / direction / stackOnMobileを切り替えられる", () => {
         const { rerender } = render(
             <ButtonGroup data-testid="group" align="start" stackOnMobile={false}>
                 <Button>A</Button>
@@ -33,7 +33,7 @@ describe("ButtonGroup", () => {
         expect(screen.getByTestId("group")).toHaveClass("flex-col", "items-center", "gap-2");
     });
 
-    it("className で拡張できる", () => {
+    it("classNameで拡張できる", () => {
         render(
             <ButtonGroup data-testid="group" className="mt-6">
                 <Button>A</Button>

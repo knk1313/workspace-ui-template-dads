@@ -12,27 +12,27 @@ const data = [
 const size = { width: 400, height: 300 };
 
 describe("DonutChart", () => {
-    it("SVG に role=img と要約（合計・構成比）の aria-label を付け、中央に合計を出す", () => {
+    it("SVGにrole=imgと要約（合計・構成比）のaria-labelを付け、中央に合計を出す", () => {
         render(<DonutChart title="申請の状態別構成比" unit="件" data={data} size={size} />);
         const img = screen.getByRole("img");
         expect(img.tagName).toBe("svg");
-        expect(img).toHaveAttribute("aria-label", expect.stringContaining("合計 1,000件"));
-        expect(img).toHaveAttribute("aria-label", expect.stringContaining("承認 600件（60%）"));
+        expect(img).toHaveAttribute("aria-label", expect.stringContaining("合計1,000件"));
+        expect(img).toHaveAttribute("aria-label", expect.stringContaining("承認600件（60%）"));
         expect(screen.getByText("1,000件")).toBeInTheDocument();
         expect(screen.getByText("合計")).toBeInTheDocument();
     });
 
-    it("扇の数だけセクターを描き、名前と % のラベルを外側に出す", () => {
+    it("扇の数だけセクターを描き、名前と%のラベルを外側に出す", () => {
         const { container } = render(<DonutChart title="構成比" data={data} size={size} />);
         expect(container.querySelectorAll("path.recharts-sector")).toHaveLength(3);
-        expect(screen.getByText("承認 60%")).toBeInTheDocument();
-        expect(screen.getByText("差し戻し 10%")).toBeInTheDocument();
+        expect(screen.getByText("承認60%")).toBeInTheDocument();
+        expect(screen.getByText("差し戻し10%")).toBeInTheDocument();
         const sectors = container.querySelectorAll("path.recharts-sector");
         expect(sectors[0]).toHaveAttribute("fill", "var(--color-chart-1)");
         expect(sectors[1]?.getAttribute("fill")).toMatch(/^url\(#.+-pattern-1\)$/);
     });
 
-    it("maxSlices を超えた分を「その他」にまとめる", () => {
+    it("maxSlicesを超えた分を「その他」にまとめる", () => {
         const many = Array.from({ length: 7 }, (_, i) => ({ name: `項目${i + 1}`, value: 100 - i * 10 }));
         expect(groupSlices(many, 5, "その他")).toEqual([
             { name: "項目1", value: 100 },
@@ -51,7 +51,7 @@ describe("DonutChart", () => {
     it("データテーブルに値と構成比を出す", async () => {
         const user = userEvent.setup();
         render(<DonutChart title="申請の状態別構成比" unit="件" data={data} size={size} />);
-        await user.click(screen.getByRole("button", { name: "データテーブルを表示" }));
+        await user.click(screen.getByRole("button", { name: "数値の表を表示" }));
         const table = screen.getByRole("table", { name: /申請の状態別構成比/ });
         expect(within(table).getByRole("columnheader", { name: "構成比" })).toBeInTheDocument();
         expect(within(table).getByRole("rowheader", { name: "審査中" })).toBeInTheDocument();

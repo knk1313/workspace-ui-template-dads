@@ -9,10 +9,10 @@ export type StaffProfile = {
 };
 
 export const STAFF_PROFILES: Record<string, StaffProfile> = {
-    "佐藤 花子": { name: "佐藤 花子", department: "デジタル推進課", extension: "内線 1201" },
-    "鈴木 一郎": { name: "鈴木 一郎", department: "産業振興課", extension: "内線 2305" },
-    "高橋 美咲": { name: "高橋 美咲", department: "都市整備課", extension: "内線 3110" },
-    "田中 健太": { name: "田中 健太", department: "市民課", extension: "内線 1042" },
+    "佐藤 花子": { name: "佐藤 花子", department: "デジタル推進課", extension: "内線1201" },
+    "鈴木 一郎": { name: "鈴木 一郎", department: "産業振興課", extension: "内線2305" },
+    "高橋 美咲": { name: "高橋 美咲", department: "都市整備課", extension: "内線3110" },
+    "田中 健太": { name: "田中 健太", department: "市民課", extension: "内線1042" },
 };
 
 /** 名前から担当者の情報を引く。登録のない名前は所属を「未登録」にして返す。 */

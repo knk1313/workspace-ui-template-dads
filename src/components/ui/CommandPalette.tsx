@@ -58,7 +58,7 @@ export function useCommandPaletteShortcut(onOpen: () => void): void {
     }, []);
 }
 
-export function CommandPalette({ open, onClose, items, label = "ページやコマンドを検索", emptyMessage = "該当する項目がありません", className }: CommandPaletteProps) {
+export function CommandPalette({ open, onClose, items, label = "ページやコマンドを検索", emptyMessage = "一致する画面と申請はありません。別の言葉で検索してください。", className }: CommandPaletteProps) {
     const baseId = useId();
     const inputId = `${baseId}-input`;
     const listId = `${baseId}-list`;
@@ -181,7 +181,7 @@ export function CommandPalette({ open, onClose, items, label = "ページやコ�
                             className="h-control-md w-full rounded-8 border border-border-strong bg-surface py-3 pr-4 pl-12 text-16 text-text-strong hover:border-border-emphasis focus-visible:focus-ring"
                         />
                     </div>
-                    <p className="m-0 text-14 leading-130 text-text-muted">↑↓ で選択、Enter で実行、Esc で閉じる</p>
+                    <p className="m-0 text-14 leading-130 text-text-muted">上下の矢印キーで選び、Enterで開き、Escで閉じます</p>
                 </div>
                 <div className="min-h-0 flex-1 overflow-y-auto py-2">
                     {filtered.length === 0 ? (

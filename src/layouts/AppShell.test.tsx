@@ -39,7 +39,7 @@ function renderShell(path = "/") {
 }
 
 describe("AppShell（デスクトップ）", () => {
-    it("ヘッダー・サイドバー・main を描画し、<Outlet /> の内容を出す", () => {
+    it("ヘッダー・サイドバー・mainを描画し、<Outlet />の内容を出す", () => {
         restore = mockViewport(1280);
         renderShell("/documents");
         expect(screen.getByRole("banner")).toBeInTheDocument();
@@ -53,7 +53,7 @@ describe("AppShell（デスクトップ）", () => {
         expect(screen.queryByRole("button", { name: "メニュー" })).toBeNull();
     });
 
-    it("最初の Tab で「本文へスキップ」が現れ、#main を指す", async () => {
+    it("最初のTabで「本文へスキップ」が現れ、#mainを指す", async () => {
         restore = mockViewport(1280);
         const { user } = renderShell();
         await user.tab();
@@ -63,7 +63,7 @@ describe("AppShell（デスクトップ）", () => {
         expect(skip).toHaveClass("sr-only", "focus:not-sr-only");
     });
 
-    it("サイドバーを折りたたむと、アイコンだけになり title が付く", async () => {
+    it("サイドバーを折りたたむと、アイコンだけになりtitleが付く", async () => {
         restore = mockViewport(1280);
         const { user } = renderShell();
         const toggle = screen.getByRole("button", { name: "サイドバーを折りたたむ" });
@@ -104,7 +104,7 @@ describe("AppShell（モバイル）", () => {
         expect(hamburger).toHaveFocus();
     });
 
-    it("Esc で閉じ、Tab はドロワー内を巡回する", async () => {
+    it("Escで閉じ、Tabはドロワー内を巡回する", async () => {
         restore = mockViewport(375);
         const { user } = renderShell();
         await user.click(screen.getByRole("button", { name: "メニュー" }));
@@ -137,7 +137,7 @@ describe("AppShell（モバイル）", () => {
 });
 
 describe("AppShell（children / embedded）", () => {
-    it("children を渡すとそれを描画し、embedded では main とスキップリンクを出さない", () => {
+    it("childrenを渡すとそれを描画し、embeddedではmainとスキップリンクを出さない", () => {
         restore = mockViewport(1280);
         render(
             <MemoryRouter>

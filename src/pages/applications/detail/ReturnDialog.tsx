@@ -32,7 +32,7 @@ export function ReturnDialog({ number, onClose, onSubmit, pending = false }: Pro
             return;
         }
         if (Array.from(text).length > MAX_LENGTH) {
-            setError(`差戻しの理由は ${MAX_LENGTH} 文字以内で入力してください`);
+            setError(`差戻しの理由は${MAX_LENGTH}文字以内で入力してください`);
             textareaRef.current?.focus();
             return;
         }
@@ -56,8 +56,8 @@ export function ReturnDialog({ number, onClose, onSubmit, pending = false }: Pro
             }
         >
             <div className="flex flex-col gap-6">
-                <p className="m-0">{number} を申請者に差し戻します。理由は申請者への通知に記載されます。</p>
-                <FormField label="差戻しの理由" requirement="required" supportText="修正してほしい箇所と、その理由を具体的に書いてください。" errorText={error ?? undefined}>
+                <p className="m-0">{number}を申請者に差し戻します。理由は申請者への通知に載ります。</p>
+                <FormField label="差戻しの理由" requirement="required" supportText="直してほしい箇所と、その理由を具体的に書いてください" errorText={error ?? undefined}>
                     <Textarea
                         ref={textareaRef}
                         rows={5}

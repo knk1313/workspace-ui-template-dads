@@ -4,7 +4,7 @@ import { expectNoA11yViolations } from "@/test/axe";
 import { renderApp } from "@/test/renderApp";
 
 describe("NotFoundPage", () => {
-    it("存在しない URL ではシェルの中に 404 を表示する", () => {
+    it("存在しないURLではシェルの中に404を表示する", () => {
         renderApp("/no-such-page");
         expect(screen.getByRole("heading", { level: 1, name: "ページが見つかりません" })).toBeInTheDocument();
         expect(screen.getByText("404")).toBeInTheDocument();

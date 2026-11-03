@@ -9,7 +9,7 @@ import { FormField } from "./FormField";
 function Controlled({ multiple = false, onChange, dropArea = true }: { multiple?: boolean; onChange?: (f: File[]) => void; dropArea?: boolean }) {
     const [files, setFiles] = useState<File[]>([]);
     return (
-        <FormField label="添付ファイル" supportText="PDF または画像、1 ファイル 10 MB まで">
+        <FormField label="添付ファイル" supportText="PDFまたは画像、1ファイル10 MBまで">
             <FileUpload
                 files={files}
                 onChange={(f) => {
@@ -34,13 +34,13 @@ describe("FileUpload", () => {
         expect(formatFileSize(15 * 1024 * 1024)).toBe("15 MB");
     });
 
-    it("input[type=file] がラベルと関連付き、Tab で到達できる。未選択メッセージを出す", async () => {
+    it("input[type=file] がラベルと関連付き、Tabで到達できる。未選択メッセージを出す", async () => {
         const user = userEvent.setup();
         render(<Controlled />);
         const input = screen.getByLabelText(/添付ファイル/) as HTMLInputElement;
         expect(input.type).toBe("file");
         expect(input).toHaveAttribute("accept", ".pdf,image/*");
-        expect(input).toHaveAccessibleDescription("PDF または画像、1 ファイル 10 MB まで");
+        expect(input).toHaveAccessibleDescription("PDFまたは画像、1ファイル10 MBまで");
         expect(input).toHaveClass("sr-only");
         expect(screen.getByText("ファイルを選択")).toHaveAttribute("for", input.id);
         expect(screen.getByText("ファイルが選択されていません")).toBeInTheDocument();
@@ -49,7 +49,7 @@ describe("FileUpload", () => {
         expect(input).toHaveFocus();
     });
 
-    it("ファイルを選ぶと onChange に渡り、一覧に名前とサイズと削除ボタンを表示する", async () => {
+    it("ファイルを選ぶとonChangeに渡り、一覧に名前とサイズと削除ボタンを表示する", async () => {
         const user = userEvent.setup();
         const onChange = vi.fn();
         render(<Controlled onChange={onChange} />);
@@ -58,7 +58,7 @@ describe("FileUpload", () => {
         const list = screen.getByRole("list", { name: "選択したファイル" });
         expect(list).toHaveTextContent("report.pdf");
         expect(list).toHaveTextContent("14 B");
-        const remove = screen.getByRole("button", { name: "report.pdf を削除" });
+        const remove = screen.getByRole("button", { name: "report.pdfを削除" });
         await user.click(remove);
         expect(onChange).toHaveBeenLastCalledWith([]);
         expect(screen.getByText("ファイルが選択されていません")).toBeInTheDocument();
@@ -82,7 +82,7 @@ describe("FileUpload", () => {
         expect(screen.getAllByRole("listitem")).toHaveLength(2);
     });
 
-    it("ドロップエリアにドロップできる。drag over で見た目が変わる", () => {
+    it("ドロップエリアにドロップできる。drag overで見た目が変わる", () => {
         const onChange = vi.fn();
         render(<Controlled onChange={onChange} multiple />);
         const area = screen.getByText("または、このエリア内にドラッグ＆ドロップ").closest("div.border-dashed")!;
@@ -94,9 +94,9 @@ describe("FileUpload", () => {
         expect(area).not.toHaveClass("bg-primary-surface");
     });
 
-    it("dropArea=false でボタンだけにできる。エラーを反映する", () => {
+    it("dropArea=falseでボタンだけにできる。エラーを反映する", () => {
         render(
-            <FormField label="A" errorText="PDF を選択してください">
+            <FormField label="A" errorText="PDFを選択してください">
                 <FileUpload files={[]} onChange={() => {}} dropArea={false} />
             </FormField>,
         );

@@ -20,7 +20,7 @@ function Controlled({ onChange, initial = false }: { onChange?: (v: boolean) => 
 }
 
 describe("Switch", () => {
-    it("role=switch と aria-checked で描画し、ラベルが名前になる", () => {
+    it("role=switchとaria-checkedで描画し、ラベルが名前になる", () => {
         render(<Controlled />);
         const sw = screen.getByRole("switch", { name: "通知" });
         expect(sw).toHaveAttribute("aria-checked", "false");
@@ -28,7 +28,7 @@ describe("Switch", () => {
         expect(screen.getByText("通知").tagName).toBe("LABEL");
     });
 
-    it("クリックで onChange に反転した値を渡す", async () => {
+    it("クリックでonChangeに反転した値を渡す", async () => {
         const user = userEvent.setup();
         const onChange = vi.fn();
         render(<Controlled onChange={onChange} />);
@@ -40,7 +40,7 @@ describe("Switch", () => {
         expect(onChange).toHaveBeenLastCalledWith(false);
     });
 
-    it("Space と Enter で切り替えられる", async () => {
+    it("SpaceとEnterで切り替えられる", async () => {
         const user = userEvent.setup();
         const onChange = vi.fn();
         render(<Controlled onChange={onChange} />);
@@ -53,14 +53,14 @@ describe("Switch", () => {
         expect(onChange).toHaveBeenCalledTimes(2);
     });
 
-    it("On のときチェックアイコンを表示する（group-aria-checked）", () => {
+    it("Onのときチェックアイコンを表示する（group-aria-checked）", () => {
         render(<Controlled initial />);
         const sw = screen.getByRole("switch");
         expect(sw).toHaveAttribute("aria-checked", "true");
         expect(sw.querySelector("svg")).toHaveAttribute("aria-hidden", "true");
     });
 
-    it("disabled のとき押せない。hideLabel でラベルを視覚的に隠す", async () => {
+    it("disabledのとき押せない。hideLabelでラベルを視覚的に隠す", async () => {
         const user = userEvent.setup();
         const onChange = vi.fn();
         render(<Switch label="位置情報" checked={false} onChange={onChange} disabled hideLabel />);

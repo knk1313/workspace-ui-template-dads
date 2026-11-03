@@ -4,7 +4,7 @@ const yen = new Intl.NumberFormat("ja-JP");
 
 /** 申請額を「1,250,000 円」の形にする。金額のない申請（0）は null を返し、画面側で「なし」と表示する。 */
 export function formatAmount(amount: number): string | null {
-    return amount > 0 ? `${yen.format(amount)} 円` : null;
+    return amount > 0 ? `${yen.format(amount)}円` : null;
 }
 
 /** ファイルサイズを KB / MB で表示する。 */

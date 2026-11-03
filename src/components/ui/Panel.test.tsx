@@ -4,7 +4,7 @@ import { expectNoA11yViolations } from "@/test/axe";
 import { Panel } from "./Panel";
 
 describe("Panel", () => {
-    it("title なしは div、あり は section + 見出しで描画する", () => {
+    it("titleなしはdiv、あり はsection + 見出しで描画する", () => {
         const { rerender } = render(<Panel data-testid="p">補足</Panel>);
         expect(screen.getByTestId("p").tagName).toBe("DIV");
         expect(screen.getByTestId("p")).toHaveClass("bg-surface-muted", "rounded-8");
@@ -17,7 +17,7 @@ describe("Panel", () => {
         expect(screen.getByRole("heading", { level: 2, name: "絞り込み" })).toBeInTheDocument();
     });
 
-    it("padding と className を切り替えられる", () => {
+    it("paddingとclassNameを切り替えられる", () => {
         render(
             <Panel data-testid="p" padding="sm" className="mt-4">
                 内容

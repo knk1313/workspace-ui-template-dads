@@ -13,7 +13,7 @@ describe("Avatar", () => {
         expect(getInitials("")).toBe("");
     });
 
-    it("画像がなければイニシャルを表示し、role=img + aria-label で名前を伝える", () => {
+    it("画像がなければイニシャルを表示し、role=img + aria-labelで名前を伝える", () => {
         render(<Avatar name="山田 太郎" />);
         const avatar = screen.getByRole("img", { name: "山田 太郎" });
         expect(avatar).toHaveTextContent("山");
@@ -21,7 +21,7 @@ describe("Avatar", () => {
         expect(avatar).toHaveClass("size-10", "rounded-full");
     });
 
-    it("src があれば画像（alt は空）を表示し、読み込み失敗でイニシャルに戻す", () => {
+    it("srcがあれば画像（altは空）を表示し、読み込み失敗でイニシャルに戻す", () => {
         render(<Avatar name="山田 太郎" src="/avatar.png" />);
         const avatar = screen.getByRole("img", { name: "山田 太郎" });
         const img = avatar.querySelector("img")!;
@@ -33,20 +33,20 @@ describe("Avatar", () => {
         expect(avatar).toHaveTextContent("山");
     });
 
-    it("size / shape に応じたクラス", () => {
+    it("size / shapeに応じたクラス", () => {
         const { rerender } = render(<Avatar name="A" size="sm" shape="square" />);
         expect(screen.getByRole("img")).toHaveClass("size-8", "rounded-8", "text-14");
         rerender(<Avatar name="A" size="lg" />);
         expect(screen.getByRole("img")).toHaveClass("size-12", "rounded-full", "text-18");
     });
 
-    it("AvatarGroup は max までを表示し、超過分を「+n」で示す", () => {
+    it("AvatarGroupはmaxまでを表示し、超過分を「+n」で示す", () => {
         render(<AvatarGroup items={[{ name: "A" }, { name: "B" }, { name: "C" }, { name: "D" }, { name: "E" }]} max={3} label="担当者" />);
         const list = screen.getByRole("list", { name: "担当者" });
         expect(list).toBeInTheDocument();
         expect(screen.getAllByRole("img")).toHaveLength(3);
         expect(screen.getByText("+2")).toHaveAttribute("aria-hidden", "true");
-        expect(screen.getByText("他 2 人")).toHaveClass("sr-only");
+        expect(screen.getByText("他2人")).toHaveClass("sr-only");
         expect(screen.getAllByRole("listitem")).toHaveLength(4);
     });
 

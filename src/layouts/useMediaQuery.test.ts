@@ -9,7 +9,7 @@ afterEach(() => {
 });
 
 describe("useMediaQuery", () => {
-    it("matchMedia の結果を返し、change で更新する", () => {
+    it("matchMediaの結果を返し、changeで更新する", () => {
         let matches = false;
         const listeners = new Set<() => void>();
         window.matchMedia = vi.fn().mockImplementation((query: string) => ({
@@ -31,7 +31,7 @@ describe("useMediaQuery", () => {
         expect(listeners.size).toBe(0);
     });
 
-    it("matchMedia がない環境では false", () => {
+    it("matchMediaがない環境ではfalse", () => {
         // @ts-expect-error テストのために削除する
         window.matchMedia = undefined;
         const { result } = renderHook(() => useMediaQuery("(min-width: 64rem)"));

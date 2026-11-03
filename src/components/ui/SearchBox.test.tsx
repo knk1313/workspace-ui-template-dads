@@ -11,7 +11,7 @@ function Controlled({ onSubmit, onClear, size }: { onSubmit?: (v: string) => voi
 }
 
 describe("SearchBox", () => {
-    it("form[role=search] の中に searchbox と検索ボタンを描画する", () => {
+    it("form[role=search] の中にsearchboxと検索ボタンを描画する", () => {
         render(<Controlled />);
         const form = screen.getByRole("search");
         const input = screen.getByRole("searchbox", { name: "サイト内検索" });
@@ -23,7 +23,7 @@ describe("SearchBox", () => {
         expect(form.querySelector("svg")).toHaveAttribute("aria-hidden", "true");
     });
 
-    it("入力して Enter またはボタンで onSubmit を呼ぶ（ページ遷移しない）", async () => {
+    it("入力してEnterまたはボタンでonSubmitを呼ぶ（ページ遷移しない）", async () => {
         const user = userEvent.setup();
         const onSubmit = vi.fn();
         render(<Controlled onSubmit={onSubmit} />);
@@ -34,7 +34,7 @@ describe("SearchBox", () => {
         expect(onSubmit).toHaveBeenCalledTimes(2);
     });
 
-    it("onClear があると入力中に消去ボタンを表示する", async () => {
+    it("onClearがあると入力中に消去ボタンを表示する", async () => {
         const user = userEvent.setup();
         render(<Controlled onClear />);
         expect(screen.queryByRole("button", { name: "入力内容を消去" })).not.toBeInTheDocument();
@@ -45,7 +45,7 @@ describe("SearchBox", () => {
         expect(screen.queryByRole("button", { name: "入力内容を消去" })).not.toBeInTheDocument();
     });
 
-    it("size / showLabel / buttonLabel を反映する", () => {
+    it("size / showLabel / buttonLabelを反映する", () => {
         const { rerender } = render(<Controlled size="sm" />);
         expect(screen.getByRole("searchbox")).toHaveClass("h-control-sm", "pl-12");
         rerender(<SearchBox label="検索語" showLabel value="" onChange={() => {}} buttonLabel="絞り込む" size="lg" />);
@@ -54,7 +54,7 @@ describe("SearchBox", () => {
         expect(screen.getByRole("searchbox")).toHaveClass("h-control-lg");
     });
 
-    it("Tab で入力欄 → 検索ボタンの順に移動する", async () => {
+    it("Tabで入力欄 → 検索ボタンの順に移動する", async () => {
         const user = userEvent.setup();
         render(<Controlled />);
         await user.tab();

@@ -17,15 +17,15 @@ const series = [
 const size = { width: 600, height: 240 };
 
 describe("AreaChart", () => {
-    it("SVG に role=img と要約の aria-label を付ける", () => {
+    it("SVGにrole=imgと要約のaria-labelを付ける", () => {
         render(<AreaChart title="申請経路の月次推移" unit="件" data={data} xKey="month" series={series} size={size} />);
         const img = screen.getByRole("img");
         expect(img.tagName).toBe("svg");
         expect(img).toHaveAttribute("aria-label", expect.stringContaining("申請経路の月次推移"));
-        expect(img).toHaveAttribute("aria-label", expect.stringContaining("郵送 の推移、最新値 100件（6月）"));
+        expect(img).toHaveAttribute("aria-label", expect.stringContaining("郵送の推移、最新値100件（6月）"));
     });
 
-    it("系列の数だけ面を描き、2 系列目以降は模様で塗る", () => {
+    it("系列の数だけ面を描き、2系列目以降は模様で塗る", () => {
         const { container } = render(<AreaChart title="推移" data={data} xKey="month" series={series} size={size} />);
         expect(container.querySelectorAll("path.recharts-area-area[data-series]")).toHaveLength(3);
         const fills = Array.from(container.querySelectorAll("path.recharts-area-area")).map((p) => p.getAttribute("fill"));
@@ -36,13 +36,13 @@ describe("AreaChart", () => {
         expect(container.querySelectorAll("svg[role='img'] defs pattern")).toHaveLength(2);
     });
 
-    it("percent で Y 軸が % になり、データテーブルに構成比を併記する", async () => {
+    it("percentでY軸が%になり、データテーブルに構成比を併記する", async () => {
         const user = userEvent.setup();
         const { container } = render(<AreaChart title="構成比" unit="件" data={data} xKey="month" series={series} percent size={size} />);
         const yTicks = Array.from(container.querySelectorAll(".recharts-yAxis-tick-labels .recharts-cartesian-axis-tick-value")).map((t) => t.textContent);
         expect(yTicks).toContain("100%");
         expect(yTicks).toContain("0%");
-        await user.click(screen.getByRole("button", { name: "データテーブルを表示" }));
+        await user.click(screen.getByRole("button", { name: "数値の表を表示" }));
         expect(within(screen.getByRole("table")).getByRole("cell", { name: "600件（50%）" })).toBeInTheDocument();
     });
 

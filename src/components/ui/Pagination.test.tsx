@@ -5,22 +5,22 @@ import { expectNoA11yViolations } from "@/test/axe";
 import { getPageItems, Pagination } from "./Pagination";
 
 describe("Pagination", () => {
-    it("nav と前 / 次ボタン、ページ番号を描画し、現在ページに aria-current を付ける", () => {
+    it("navと前 / 次ボタン、ページ番号を描画し、現在ページにaria-currentを付ける", () => {
         render(<Pagination page={3} totalPages={5} onChange={() => {}} />);
         expect(screen.getByRole("navigation", { name: "ページ送り" })).toBeInTheDocument();
         expect(screen.getByRole("button", { name: "前のページ" })).toBeInTheDocument();
         expect(screen.getByRole("button", { name: "次のページ" })).toBeInTheDocument();
-        const current = screen.getByRole("button", { name: "3 ページ目" });
+        const current = screen.getByRole("button", { name: "3ページ目" });
         expect(current).toHaveAttribute("aria-current", "page");
         expect(current).toHaveClass("bg-primary");
-        expect(screen.getByRole("button", { name: "1 ページ目" })).not.toHaveAttribute("aria-current");
+        expect(screen.getByRole("button", { name: "1ページ目" })).not.toHaveAttribute("aria-current");
     });
 
-    it("ページ番号・前 / 次のクリックで onChange を呼ぶ", async () => {
+    it("ページ番号・前 / 次のクリックでonChangeを呼ぶ", async () => {
         const user = userEvent.setup();
         const onChange = vi.fn();
         render(<Pagination page={3} totalPages={10} onChange={onChange} />);
-        await user.click(screen.getByRole("button", { name: "4 ページ目" }));
+        await user.click(screen.getByRole("button", { name: "4ページ目" }));
         expect(onChange).toHaveBeenLastCalledWith(4);
         await user.click(screen.getByRole("button", { name: "前のページ" }));
         expect(onChange).toHaveBeenLastCalledWith(2);
@@ -28,7 +28,7 @@ describe("Pagination", () => {
         expect(onChange).toHaveBeenLastCalledWith(4);
     });
 
-    it("先頭では「前」、末尾では「次」が aria-disabled になり、押しても何も起きないが Tab で到達できる", async () => {
+    it("先頭では「前」、末尾では「次」がaria-disabledになり、押しても何も起きないがTabで到達できる", async () => {
         const user = userEvent.setup();
         const onChange = vi.fn();
         const { rerender } = render(<Pagination page={1} totalPages={3} onChange={onChange} />);
@@ -58,18 +58,18 @@ describe("Pagination", () => {
 
         render(<Pagination page={10} totalPages={20} onChange={() => {}} />);
         expect(screen.getAllByText("…")).toHaveLength(2);
-        expect(screen.getByRole("button", { name: "1 ページ目" })).toBeInTheDocument();
-        expect(screen.getByRole("button", { name: "20 ページ目" })).toBeInTheDocument();
-        expect(screen.queryByRole("button", { name: "5 ページ目" })).not.toBeInTheDocument();
+        expect(screen.getByRole("button", { name: "1ページ目" })).toBeInTheDocument();
+        expect(screen.getByRole("button", { name: "20ページ目" })).toBeInTheDocument();
+        expect(screen.queryByRole("button", { name: "5ページ目" })).not.toBeInTheDocument();
     });
 
-    it("showCounter でページ番号の代わりに「n / N ページ」を表示する", () => {
+    it("showCounterでページ番号の代わりに「n / Nページ」を表示する", () => {
         render(<Pagination page={2} totalPages={7} onChange={() => {}} showCounter />);
-        expect(screen.getByRole("navigation")).toHaveTextContent("2 / 7 ページ");
-        expect(screen.queryByRole("button", { name: "2 ページ目" })).not.toBeInTheDocument();
+        expect(screen.getByRole("navigation")).toHaveTextContent("2 / 7ページ");
+        expect(screen.queryByRole("button", { name: "2ページ目" })).not.toBeInTheDocument();
     });
 
-    it("size に応じて矢印ボタンの大きさとタップ領域を変える", () => {
+    it("sizeに応じて矢印ボタンの大きさとタップ領域を変える", () => {
         const { rerender } = render(<Pagination page={1} totalPages={3} onChange={() => {}} />);
         expect(screen.getByRole("button", { name: "次のページ" })).toHaveClass("size-11", "rounded-full");
         rerender(<Pagination page={1} totalPages={3} onChange={() => {}} size="md" />);
@@ -85,7 +85,7 @@ describe("Pagination", () => {
         await user.tab(); // 前（aria-disabled）
         await user.tab(); // 1 ページ目
         await user.tab(); // 2 ページ目
-        expect(screen.getByRole("button", { name: "2 ページ目" })).toHaveFocus();
+        expect(screen.getByRole("button", { name: "2ページ目" })).toHaveFocus();
         await user.keyboard("{Enter}");
         expect(onChange).toHaveBeenCalledWith(2);
     });

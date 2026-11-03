@@ -12,7 +12,7 @@ const PREFECTURES = [
 ];
 
 describe("Select", () => {
-    it("options から選択肢を描画し、選択で onChange を呼ぶ", async () => {
+    it("optionsから選択肢を描画し、選択でonChangeを呼ぶ", async () => {
         const user = userEvent.setup();
         const onChange = vi.fn();
         render(
@@ -29,7 +29,7 @@ describe("Select", () => {
         expect(select).toHaveValue("14");
     });
 
-    it("children で option を書ける", () => {
+    it("childrenでoptionを書ける", () => {
         render(
             <Select aria-label="並び順">
                 <option value="asc">昇順</option>
@@ -62,7 +62,7 @@ describe("Select", () => {
         expect(svg).toHaveClass("pointer-events-none");
     });
 
-    it("キーボードで操作できる（Tab でフォーカス、矢印キーで選択）", async () => {
+    it("キーボードで操作できる（Tabでフォーカス、矢印キーで選択）", async () => {
         const user = userEvent.setup();
         render(<Select aria-label="A" options={PREFECTURES} />);
         await user.tab();

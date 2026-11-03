@@ -8,12 +8,12 @@ export default function ServerErrorPage() {
     return (
         <ErrorPage
             status={500}
-            title="システムエラーが発生しました"
+            title="ページを表示できません"
             description={
                 <>
-                    一時的な問題により、画面を表示できませんでした。しばらく時間をおいてから、もう一度お試しください。
+                    システムの一時的な問題で、ページを表示できませんでした。時間をおいて、もう一度お試しください。
                     <br />
-                    解決しない場合は、{SUPPORT_CONTACT.name}（電話 <span className="nums">{SUPPORT_CONTACT.phone}</span>、{SUPPORT_CONTACT.hours}）までお問い合わせください。
+                    解決しない場合は、{SUPPORT_CONTACT.name}（電話<span className="nums">{SUPPORT_CONTACT.phone}</span>、{SUPPORT_CONTACT.hours}）に問い合わせてください。
                 </>
             }
             actions={

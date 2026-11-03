@@ -92,7 +92,7 @@ export function AvatarGroup({ items, max = 3, size = "md", label = "メンバー
                         )}
                     >
                         <span aria-hidden="true">+{rest}</span>
-                        <span className="sr-only">他 {rest} 人</span>
+                        <span className="sr-only">他{rest}人</span>
                     </span>
                 </li>
             )}

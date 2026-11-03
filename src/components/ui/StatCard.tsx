@@ -43,10 +43,10 @@ const TREND: Record<StatTrend, { icon: LucideIcon; text: string; color: string }
     flat: { icon: Minus, text: "横ばい", color: "text-text-muted" },
 };
 
-/** スクリーンリーダー向けの増減テキスト。「前月比 12.3% 増加」のように符号を言葉にする。 */
+/** スクリーンリーダー向けの増減テキスト。「前月比12.3%増加」のように符号を言葉にする。 */
 function describeDelta(delta: StatDelta): string {
     const magnitude = delta.value.replace(/^[+\-−±]\s*/, "");
-    return [delta.label, magnitude, TREND[delta.trend].text].filter(Boolean).join(" ");
+    return [delta.label, magnitude, TREND[delta.trend].text].filter(Boolean).join("");
 }
 
 export function StatCard({ label, value, unit, delta, note, highlight = false, icon, href, className }: StatCardProps) {

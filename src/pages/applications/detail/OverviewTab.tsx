@@ -65,7 +65,7 @@ export function OverviewTab({ application: app, related }: Props) {
                 </Card>
 
                 <Card as="section" padding="sm" className="overflow-hidden">
-                    <CardHeader title="関連する申請" description={`${app.applicant} さんの他の申請`} />
+                    <CardHeader title="関連する申請" description={`${app.applicant}さんが出したほかの申請です`} />
                     {related.length > 0 ? (
                         <StackedList className="mt-3 border-t border-border">
                             {related.slice(0, RELATED_LIMIT).map((r) => (

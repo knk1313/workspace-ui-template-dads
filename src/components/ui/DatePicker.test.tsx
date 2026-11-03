@@ -9,7 +9,7 @@ import { FormField } from "./FormField";
 function Controlled({ onChange, initial = "", min, max }: { onChange?: (v: string) => void; initial?: string; min?: string; max?: string }) {
     const [value, setValue] = useState(initial);
     return (
-        <FormField label="開催日" supportText="西暦で YYYY-MM-DD の形式。例: 2026-04-01">
+        <FormField label="開催日" supportText="西暦でYYYY-MM-DDの形式。例：2026-04-01">
             <DatePicker
                 value={value}
                 onChange={(v) => {
@@ -41,13 +41,13 @@ describe("DatePicker", () => {
         expect(normalizeDateText("abc")).toBeUndefined();
     });
 
-    it("テキスト入力でき、blur で正規化して onChange を呼ぶ", async () => {
+    it("テキスト入力でき、blurで正規化してonChangeを呼ぶ", async () => {
         const user = userEvent.setup();
         const onChange = vi.fn();
         render(<Controlled onChange={onChange} />);
         const input = screen.getByRole("textbox", { name: "開催日" });
         expect(input).toHaveAttribute("inputmode", "numeric");
-        expect(input).toHaveAccessibleDescription("西暦で YYYY-MM-DD の形式。例: 2026-04-01");
+        expect(input).toHaveAccessibleDescription("西暦でYYYY-MM-DDの形式。例：2026-04-01");
         await user.type(input, "2026-4-1");
         await user.tab();
         expect(onChange).toHaveBeenLastCalledWith("2026-04-01");
@@ -57,7 +57,7 @@ describe("DatePicker", () => {
         expect(onChange).toHaveBeenLastCalledWith("");
     });
 
-    it("カレンダーボタンでダイアログを開き、grid にその月を表示する", async () => {
+    it("カレンダーボタンでダイアログを開き、gridにその月を表示する", async () => {
         const user = userEvent.setup();
         render(<Controlled />);
         const button = screen.getByRole("button", { name: "カレンダーを開く" });
@@ -89,7 +89,7 @@ describe("DatePicker", () => {
         expect(within(dialog).getByText("2025年12月")).toBeInTheDocument();
     });
 
-    it("矢印キー / PageUp / PageDown / Home / End で移動し、Enter で選択して入力欄に戻る", async () => {
+    it("矢印キー / PageUp / PageDown / Home / Endで移動し、Enterで選択して入力欄に戻る", async () => {
         const user = userEvent.setup();
         const onChange = vi.fn();
         render(<Controlled onChange={onChange} />);
@@ -123,7 +123,7 @@ describe("DatePicker", () => {
         expect(input).toHaveFocus();
     });
 
-    it("Esc で閉じて入力欄にフォーカスを戻す。Space でも選択できる", async () => {
+    it("Escで閉じて入力欄にフォーカスを戻す。Spaceでも選択できる", async () => {
         const user = userEvent.setup();
         const onChange = vi.fn();
         render(<Controlled onChange={onChange} />);
@@ -136,7 +136,7 @@ describe("DatePicker", () => {
         expect(onChange).toHaveBeenLastCalledWith("2026-11-03");
     });
 
-    it("min / max の範囲外は aria-disabled で選択できない", async () => {
+    it("min / maxの範囲外はaria-disabledで選択できない", async () => {
         const user = userEvent.setup();
         const onChange = vi.fn();
         render(<Controlled onChange={onChange} min="2026-11-02" max="2026-11-10" />);
@@ -151,7 +151,7 @@ describe("DatePicker", () => {
         expect(screen.getByRole("dialog")).toBeInTheDocument();
     });
 
-    it("showCalendar=false でカレンダーボタンを出さない。エラーを反映する", () => {
+    it("showCalendar=falseでカレンダーボタンを出さない。エラーを反映する", () => {
         render(
             <FormField label="生年月日" errorText="生年月日を入力してください">
                 <DatePicker value="" onChange={() => {}} showCalendar={false} autoComplete="bday" />

@@ -6,7 +6,7 @@ import { expectNoA11yViolations } from "@/test/axe";
 import { StackedList, StackedListItem } from "./StackedList";
 
 describe("StackedList", () => {
-    it("ul / li で描画し、タイトル・説明・メタを表示する", () => {
+    it("ul / liで描画し、タイトル・説明・メタを表示する", () => {
         render(
             <StackedList>
                 <StackedListItem title="利用者登録の申請" description="山田 太郎" meta="10月1日" />
@@ -22,7 +22,7 @@ describe("StackedList", () => {
         expect(screen.queryByRole("link")).not.toBeInTheDocument();
     });
 
-    it("href でタイトルがリンクになり、行全体に領域が広がる", () => {
+    it("hrefでタイトルがリンクになり、行全体に領域が広がる", () => {
         render(
             <MemoryRouter>
                 <StackedList>
@@ -38,7 +38,7 @@ describe("StackedList", () => {
         expect(screen.getByTestId("avatar")).toBeInTheDocument();
     });
 
-    it("onClick でタイトルがボタンになり、クリックとキーボードで呼ばれる", async () => {
+    it("onClickでタイトルがボタンになり、クリックとキーボードで呼ばれる", async () => {
         const user = userEvent.setup();
         const onClick = vi.fn();
         render(

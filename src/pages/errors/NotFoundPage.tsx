@@ -8,7 +8,7 @@ export default function NotFoundPage() {
         <ErrorPage
             status={404}
             title="ページが見つかりません"
-            description="お探しのページは、URL が間違っているか、移動または削除された可能性があります。URL を確かめるか、下のリンクから目的の画面を開いてください。"
+            description="開こうとしたページは、URLが間違っているか、移動または削除されています。URLを確かめるか、「ホームへ戻る」か「申請一覧へ」から開き直してください。"
             actions={
                 <>
                     <ButtonLink to="/">ホームへ戻る</ButtonLink>

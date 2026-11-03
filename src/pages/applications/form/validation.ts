@@ -135,7 +135,7 @@ export function validateApplicationForm(values: ApplicationFormValues, today: st
 
     const title = values.title.trim();
     if (title === "") errors.title = "件名を入力してください";
-    else if (countChars(title) > TITLE_MAX) errors.title = `件名を ${TITLE_MAX} 文字以内で入力してください（現在 ${countChars(title)} 文字）`;
+    else if (countChars(title) > TITLE_MAX) errors.title = `件名を${TITLE_MAX}文字以内で入力してください（現在${countChars(title)}文字）`;
 
     if (values.category === "") errors.category = "種別を選択してください";
 
@@ -143,11 +143,11 @@ export function validateApplicationForm(values: ApplicationFormValues, today: st
     if (amount === null) {
         if (requiresAmount(values.category)) errors.amount = "補助金・許認可の申請では申請額を円単位で入力してください";
     } else if (Number.isNaN(amount)) {
-        errors.amount = "申請額は数字だけで入力してください（例: 1200000 または 1,200,000）";
+        errors.amount = "申請額は数字だけで入力してください（例：1200000または1,200,000）";
     } else if (amount <= 0) {
-        errors.amount = "申請額は 1 円以上で入力してください";
+        errors.amount = "申請額は1円以上で入力してください";
     } else if (amount > AMOUNT_MAX) {
-        errors.amount = `申請額は ${AMOUNT_MAX.toLocaleString("ja-JP")} 円以下で入力してください`;
+        errors.amount = `申請額は${AMOUNT_MAX.toLocaleString("ja-JP")}円以下で入力してください`;
     }
 
     if (values.applicant.trim() === "") errors.applicant = "氏名を入力してください";
@@ -157,27 +157,27 @@ export function validateApplicationForm(values: ApplicationFormValues, today: st
     else if (!isValidEmail(email)) errors.email = "メールアドレスを「name@example.jp」のように、@ とドメインを含めて入力してください";
 
     if (values.phone.trim() !== "" && !isValidPhone(values.phone)) {
-        errors.phone = "電話番号は数字とハイフンで、市外局番から入力してください（例: 03-1234-5678）";
+        errors.phone = "電話番号は数字とハイフンで、市外局番から入力してください（例：03-1234-5678）";
     }
 
-    if (values.desiredDate === "") errors.desiredDate = "希望日を西暦の年月日で入力してください（例: 2026-12-01）";
+    if (values.desiredDate === "") errors.desiredDate = "希望日を西暦の年月日で入力してください（例：2026-12-01）";
     else if (values.desiredDate < today) errors.desiredDate = `希望日は今日（${today}）以降の日付を入力してください`;
 
     const rejected = values.attachments.filter((f) => !isAcceptedFile(f));
     const oversized = values.attachments.filter((f) => isAcceptedFile(f) && f.size > FILE_SIZE_MAX);
     if (rejected.length > 0) {
-        errors.attachments = `PDF・JPEG・PNG 以外のファイルは添付できません。「${rejected.map((f) => f.name).join("」「")}」を削除してください`;
+        errors.attachments = `PDF・JPEG・PNG以外のファイルは添付できません。「${rejected.map((f) => f.name).join("」「")}」を削除してください`;
     } else if (oversized.length > 0) {
-        errors.attachments = `1 ファイル 10 MB 以下にしてください。「${oversized.map((f) => f.name).join("」「")}」を削除するか、容量を減らしてから添付し直してください`;
+        errors.attachments = `「${oversized.map((f) => f.name).join("」「")}」が10 MBを超えています。10 MB以下のファイルを添付し直してください。`;
     } else if (values.attachments.length === 0 && requiresAttachment(values.category)) {
         errors.attachments = "補助金の申請では申請書（PDF）を添付してください";
     }
 
     if (countChars(values.memo) > MEMO_MAX) {
-        errors.memo = `メモを ${MEMO_MAX} 文字以内にしてください（${countChars(values.memo) - MEMO_MAX} 文字超過）`;
+        errors.memo = `メモを${MEMO_MAX}文字以内にしてください（${countChars(values.memo) - MEMO_MAX}文字超過）`;
     }
 
-    if (!values.agreed) errors.agreed = "内容を確認のうえ、「記載内容に誤りがないことを確認しました」にチェックを入れてください";
+    if (!values.agreed) errors.agreed = "内容を確認のうえ、「記載内容に誤りがないことを確かめた」にチェックを入れてください";
 
     return FIELD_ORDER.flatMap((field) => (errors[field] ? [{ field, message: errors[field] }] : []));
 }
@@ -186,5 +186,5 @@ export function validateApplicationForm(values: ApplicationFormValues, today: st
 export function formatAmount(text: string): string | undefined {
     const amount = normalizeAmount(text);
     if (amount === null || Number.isNaN(amount)) return undefined;
-    return `${amount.toLocaleString("ja-JP")} 円`;
+    return `${amount.toLocaleString("ja-JP")}円`;
 }

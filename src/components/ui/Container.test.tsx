@@ -4,12 +4,12 @@ import { expectNoA11yViolations } from "@/test/axe";
 import { Container } from "./Container";
 
 describe("Container", () => {
-    it("既定は lg 幅（80rem）で左右に余白を持つ", () => {
+    it("既定はlg幅（80rem）で左右に余白を持つ", () => {
         render(<Container data-testid="c">本文</Container>);
         expect(screen.getByTestId("c")).toHaveClass("mx-auto", "w-full", "max-w-320", "px-4", "md:px-6");
     });
 
-    it("size / flush / as を切り替えられる", () => {
+    it("size / flush / asを切り替えられる", () => {
         const { rerender } = render(
             <Container data-testid="c" size="md" flush>
                 本文

@@ -38,7 +38,7 @@ export function HeaderActions() {
         );
         const apps: CommandItem[] = (applications.data ?? []).slice(0, 20).map((a) => ({
             id: `app-${a.id}`,
-            label: `${a.number} ${a.title}`,
+            label: `${a.number}「${a.title}」`,
             group: "申請",
             icon: FileText,
             keywords: [a.applicant, a.organization],

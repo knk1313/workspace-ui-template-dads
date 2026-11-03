@@ -48,7 +48,7 @@ const TabsContext = createContext<TabsContextValue | null>(null);
 
 function useTabs(): TabsContextValue {
     const ctx = useContext(TabsContext);
-    if (!ctx) throw new Error("TabList / Tab / TabPanel は Tabs の中で使ってください");
+    if (!ctx) throw new Error("TabList / Tab / TabPanelはTabsの中で使ってください");
     return ctx;
 }
 

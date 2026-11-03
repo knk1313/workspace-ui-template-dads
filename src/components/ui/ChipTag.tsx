@@ -41,7 +41,7 @@ export function ChipTag({ label, onRemove, href, leading, className, ...props }:
             {onRemove && (
                 <button
                     type="button"
-                    aria-label={`${label} を削除`}
+                    aria-label={`${label}を削除`}
                     onClick={onRemove}
                     className="tap-area flex size-6 shrink-0 items-center justify-center rounded-full border-0 bg-transparent p-0 text-text hover:bg-surface-muted focus-visible:focus-ring after:w-target"
                 >

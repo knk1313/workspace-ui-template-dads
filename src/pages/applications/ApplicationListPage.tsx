@@ -60,8 +60,8 @@ export default function ApplicationListPage() {
 
     async function deleteApplications(targets: Application[]) {
         const ids = new Set(targets.map((t) => t.id));
-        // 「R08-001060 を削除しました」「3 件の申請を削除しました」（英数字と仮名の間は空ける）
-        const label = targets.length === 1 ? `${targets[0].number} ` : `${targets.length} 件の申請`;
+        // 「R08-001060を削除しました」「3件の申請を削除しました」
+        const label = targets.length === 1 ? targets[0].number : `${targets.length}件の申請`;
         // 通信の結果を待たずに一覧から消し（楽観的な更新）、失敗したら読み込み直して元に戻す
         setQueryData<Application[]>(QUERY_KEY, (prev) => (prev ?? []).filter((a) => !ids.has(a.id)));
         setSelectedIds((prev) => prev.filter((id) => !ids.has(id)));
@@ -69,8 +69,8 @@ export default function ApplicationListPage() {
             const deleted = await deleteApi([...ids]);
             // 消えた行にあったフォーカスの移し先として、「元に戻す」へフォーカスを移す（キーボードでもすぐ取り消せる）
             toast({ type: "success", title: `${label}を削除しました`, action: { label: "元に戻す", focus: true, onClick: () => void undoDelete(deleted, label) } });
-        } catch (e) {
-            toast({ type: "error", title: `${label}を削除できませんでした`, description: (e as Error).message });
+        } catch {
+            toast({ type: "error", title: `${label}を削除できませんでした`, description: "時間をおいて、もう一度削除してください。" });
         } finally {
             invalidateApplications();
         }
@@ -79,9 +79,9 @@ export default function ApplicationListPage() {
     async function undoDelete(deleted: Application[], label: string) {
         try {
             await restoreApplications(deleted);
-            toast({ type: "success", title: `${label}の削除を取り消しました` });
-        } catch (e) {
-            toast({ type: "error", title: `${label}を元に戻せませんでした`, description: (e as Error).message });
+            toast({ type: "success", title: `${label}を元に戻しました` });
+        } catch {
+            toast({ type: "error", title: `${label}を元に戻せませんでした`, description: "時間をおいて、もう一度「元に戻す」を押してください。" });
         } finally {
             invalidateApplications();
         }
@@ -90,12 +90,12 @@ export default function ApplicationListPage() {
     async function assignSelected(assignee: string) {
         try {
             await assign.run(selectedIds, assignee);
-            toast({ type: "success", title: `${selectedIds.length} 件の担当者を ${assignee} に変更しました` });
+            toast({ type: "success", title: `${selectedIds.length}件の担当者を${assignee}に変更しました` });
             setAssignOpen(false);
             invalidateApplications();
-        } catch (e) {
+        } catch {
             // ダイアログは閉じずに残し、そのままやり直せるようにする
-            toast({ type: "error", title: "担当者を変更できませんでした", description: (e as Error).message });
+            toast({ type: "error", title: "担当者を変更できませんでした", description: "時間をおいて、もう一度変更してください。" });
         }
     }
 
@@ -188,7 +188,7 @@ export default function ApplicationListPage() {
                             columns={columns}
                             rows={rows}
                             getRowId={(row) => row.id}
-                            getRowLabel={(row) => `${row.number} ${row.title}`}
+                            getRowLabel={(row) => `${row.number}「${row.title}」`}
                             loading={list.isLoading}
                             // 表の中だけを縦スクロールさせるとページのスクロールと二重になり、最終行が切れて見えるため固定ヘッダーは使わない（20 件ずつのページ送りで十分短い）。
                             sort={query.sort}
@@ -217,7 +217,7 @@ export default function ApplicationListPage() {
                             }
                             rowActions={(row) => (
                                 <DropdownMenu
-                                    label={`${row.number} の操作`}
+                                    label={`${row.number}の操作`}
                                     iconOnly
                                     size="sm"
                                     align="end"
@@ -233,8 +233,8 @@ export default function ApplicationListPage() {
                             filtered ? (
                                 <EmptyState
                                     icon={SearchX}
-                                    title="条件に一致する申請はありません"
-                                    description="キーワードや絞り込み条件を変えて、もう一度お試しください。"
+                                    title="条件に合う申請はありません"
+                                    description="キーワードや絞り込みの条件を変えて、もう一度検索してください"
                                     action={
                                         <Button variant="outline" onClick={clearAll}>
                                             条件をクリア
@@ -243,8 +243,8 @@ export default function ApplicationListPage() {
                                 />
                             ) : (
                                 <EmptyState
-                                    title="申請はまだありません"
-                                    description="新しい申請を登録すると、ここに表示されます。"
+                                    title="最初の申請を登録"
+                                    description="まだ申請がありません。「新規申請」から登録すると、ここに表示されます。"
                                     action={
                                         <ButtonLink to="/applications/new" leadIcon={Plus}>
                                             新規申請

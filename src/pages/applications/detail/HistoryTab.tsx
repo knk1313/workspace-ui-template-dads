@@ -49,7 +49,7 @@ export function HistoryTab({ status, activity }: Props) {
                     {feed.length > 0 ? (
                         <ActivityFeed items={feed} />
                     ) : (
-                        <EmptyState as="h3" title="操作履歴はありません" description="担当者の変更や承認などの操作をすると、ここに記録されます。" />
+                        <EmptyState as="h3" title="操作履歴はありません" description="担当者の変更や承認をすると、ここに記録されます" />
                     )}
                 </CardBody>
             </Card>

@@ -31,7 +31,7 @@ const trigger = () => screen.getByRole("button", { name: "操作" });
 const menuItems = () => screen.getAllByRole("menuitem");
 
 describe("DropdownMenu", () => {
-    it("トリガーは aria-haspopup=menu を持ち、閉じているときはメニューを描画しない", () => {
+    it("トリガーはaria-haspopup=menuを持ち、閉じているときはメニューを描画しない", () => {
         setup();
         expect(trigger()).toHaveAttribute("aria-haspopup", "menu");
         expect(trigger()).toHaveAttribute("aria-expanded", "false");
@@ -39,7 +39,7 @@ describe("DropdownMenu", () => {
         expect(screen.queryByRole("menu")).not.toBeInTheDocument();
     });
 
-    it("クリックで開き、最初の項目にフォーカスし、aria-expanded / aria-controls が付く", async () => {
+    it("クリックで開き、最初の項目にフォーカスし、aria-expanded / aria-controlsが付く", async () => {
         const { user } = await setup();
         await user.click(trigger());
         const menu = screen.getByRole("menu", { name: "操作" });
@@ -53,7 +53,7 @@ describe("DropdownMenu", () => {
         expect(screen.queryByRole("menu")).not.toBeInTheDocument();
     });
 
-    it("項目を選ぶと onSelect が呼ばれて閉じ、トリガーへフォーカスが戻る", async () => {
+    it("項目を選ぶとonSelectが呼ばれて閉じ、トリガーへフォーカスが戻る", async () => {
         const { user, onEdit } = setup();
         await user.click(trigger());
         await user.click(screen.getByRole("menuitem", { name: "編集" }));
@@ -62,7 +62,7 @@ describe("DropdownMenu", () => {
         expect(trigger()).toHaveFocus();
     });
 
-    it("矢印キーで移動（端で折り返す）、Home / End、Enter / Space で実行する", async () => {
+    it("矢印キーで移動（端で折り返す）、Home / End、Enter / Spaceで実行する", async () => {
         const { user, onCopy, onDelete } = setup();
         trigger().focus();
         await user.keyboard("{ArrowDown}");
@@ -87,7 +87,7 @@ describe("DropdownMenu", () => {
         expect(onDelete).toHaveBeenCalledTimes(1);
     });
 
-    it("Esc で閉じてトリガーへ戻り、Tab で閉じて次の要素へ移る", async () => {
+    it("Escで閉じてトリガーへ戻り、Tabで閉じて次の要素へ移る", async () => {
         const { user } = setup();
         await user.click(trigger());
         await user.keyboard("{Escape}");
@@ -116,7 +116,7 @@ describe("DropdownMenu", () => {
         expect(screen.queryByRole("menu")).not.toBeInTheDocument();
     });
 
-    it("danger はエラー色、disabled は aria-disabled で選べない", async () => {
+    it("dangerはエラー色、disabledはaria-disabledで選べない", async () => {
         const { user, onArchive } = setup();
         await user.click(trigger());
         expect(screen.getByRole("menuitem", { name: "削除" })).toHaveClass("text-error");
@@ -141,7 +141,7 @@ describe("DropdownMenu", () => {
         expect(trigger()).toHaveClass("bg-surface-muted", "min-h-11");
     });
 
-    it("iconOnly は縦三点リーダーのアイコンだけで、label が aria-label になる", async () => {
+    it("iconOnlyは縦三点リーダーのアイコンだけで、labelがaria-labelになる", async () => {
         const { user } = setup({ iconOnly: true });
         const button = screen.getByRole("button", { name: "操作" });
         expect(button).toHaveAttribute("aria-label", "操作");

@@ -4,7 +4,7 @@ import { expectNoA11yViolations } from "@/test/axe";
 import { renderApp } from "@/test/renderApp";
 
 describe("LoginPage", () => {
-    it("シェルなしで、自前の main と h1 を持つ", () => {
+    it("シェルなしで、自前のmainとh1を持つ", () => {
         renderApp("/login");
         expect(screen.getByRole("main")).toHaveAttribute("id", "main");
         expect(screen.getByRole("heading", { level: 1, name: "ログイン" })).toBeInTheDocument();
@@ -26,7 +26,7 @@ describe("LoginPage", () => {
         await user.type(screen.getByRole("textbox", { name: "メールアドレス" }), "fail@example.go.jp");
         await user.type(screen.getByLabelText("パスワード"), "password");
         await user.click(screen.getByRole("button", { name: "ログイン" }));
-        const title = await screen.findByRole("heading", { name: "メールアドレスまたはパスワードが正しくありません" });
+        const title = await screen.findByRole("heading", { name: "メールアドレスかパスワードが違います" });
         expect(title).toHaveFocus();
         expect(screen.getByRole("heading", { level: 1, name: "ログイン" })).toBeInTheDocument();
     });

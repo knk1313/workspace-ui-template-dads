@@ -64,10 +64,10 @@ export function ApplicationFilters({ query, resultCount, loading = false, onFilt
     }
 
     const chips = [
-        query.q && { key: "q" as const, label: `キーワード: ${query.q}` },
-        query.category && { key: "category" as const, label: `種別: ${CATEGORY_LABELS[query.category]}` },
-        query.status && { key: "status" as const, label: `状態: ${STATUS_LABELS[query.status]}` },
-        query.assignee && { key: "assignee" as const, label: `担当者: ${query.assignee}` },
+        query.q && { key: "q" as const, label: `キーワード：${query.q}` },
+        query.category && { key: "category" as const, label: `種別：${CATEGORY_LABELS[query.category]}` },
+        query.status && { key: "status" as const, label: `状態：${STATUS_LABELS[query.status]}` },
+        query.assignee && { key: "assignee" as const, label: `担当者：${query.assignee}` },
     ].filter((c): c is { key: FilterKey; label: string } => Boolean(c));
     // ドロワーに入れた条件の数（キーワードはドロワーの外にあるので数えない）
     const drawerFilterCount = chips.filter((c) => c.key !== "q").length;
@@ -119,7 +119,7 @@ export function ApplicationFilters({ query, resultCount, loading = false, onFilt
                                     <Button variant="outline" onClick={onClear}>
                                         条件をクリア
                                     </Button>
-                                    <Button onClick={() => setDrawerOpen(false)}>{resultCount === undefined ? "結果を表示" : `${resultCount} 件を表示`}</Button>
+                                    <Button onClick={() => setDrawerOpen(false)}>{resultCount === undefined ? "結果を表示" : `${resultCount}件を表示`}</Button>
                                 </div>
                             }
                         >
@@ -149,7 +149,7 @@ export function ApplicationFilters({ query, resultCount, loading = false, onFilt
                         loading && "読み込んでいます"
                     ) : (
                         <>
-                            全 <span className="font-bold">{resultCount}</span> 件
+                            全<span className="font-bold">{resultCount}</span>件
                         </>
                     )}
                 </p>

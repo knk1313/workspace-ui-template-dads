@@ -61,7 +61,7 @@ export default function SettingsPage() {
         <div className="flex flex-col gap-8">
             <PageHeader
                 title="設定"
-                description="プロフィール、通知、画面の表示を変更できます。"
+                description="プロフィール、通知、画面の表示を変えられます"
                 breadcrumbs={[{ label: "ホーム", href: "/" }, { label: "設定" }]}
             />
             <Tabs
@@ -135,14 +135,14 @@ function ProfileForm({ initial }: { initial: Profile }) {
         // 画像の形式・サイズは選んだ時点で分かるので、送信を待たずに知らせる。
         const file = files[0];
         let image: string | undefined;
-        if (file && !IMAGE_ACCEPT.split(",").includes(file.type)) image = "PNG または JPEG の画像を選んでください";
-        else if (file && file.size > IMAGE_MAX_BYTES) image = "2 MB 以下の画像を選んでください";
+        if (file && !IMAGE_ACCEPT.split(",").includes(file.type)) image = "PNGまたはJPEGの画像を選んでください";
+        else if (file && file.size > IMAGE_MAX_BYTES) image = "2 MB以下の画像を選んでください";
         setErrors((prev) => ({ ...prev, image }));
         setPreviewFile(image ? undefined : file);
     };
 
     const dirty = name !== saved.name || email !== saved.email || department !== saved.department || bio !== saved.bio || images.length > 0;
-    useUnsavedChangesWarning(dirty, { title: "プロフィールの変更を破棄して移動しますか" });
+    useUnsavedChangesWarning(dirty, { title: "プロフィールの変更を破棄して移動する" });
 
     const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -164,9 +164,9 @@ function ProfileForm({ initial }: { initial: Profile }) {
             setEmail(result.email);
             setImages([]);
             toast({ type: "success", title: "プロフィールを保存しました" });
-        } catch (err) {
+        } catch {
             // 入力はそのまま残し、もう一度「保存する」を押せばやり直せる
-            toast({ type: "error", title: "プロフィールを保存できませんでした", description: (err as Error).message });
+            toast({ type: "error", title: "プロフィールを保存できませんでした", description: "時間をおいて、もう一度保存してください。" });
         }
     };
 
@@ -174,8 +174,8 @@ function ProfileForm({ initial }: { initial: Profile }) {
         <Card>
             <CardBody>
                 <form noValidate onSubmit={onSubmit}>
-                    <FormSection layout="settings" title="プロフィール" description="ほかの職員に表示される名前と連絡先です。">
-                        <FormField label="表示名" requirement="required" supportText="申請の担当者欄などに表示されます。" errorText={errors.name}>
+                    <FormSection layout="settings" title="プロフィール" description="ほかの職員に表示される名前と連絡先です">
+                        <FormField label="表示名" requirement="required" supportText="申請の担当者欄などに表示されます" errorText={errors.name}>
                             <Input ref={nameRef} name="name" autoComplete="name" value={name} onChange={(e) => setName(e.target.value)} />
                         </FormField>
                         <FormField label="メールアドレス" requirement="required" errorText={errors.email}>
@@ -197,12 +197,12 @@ function ProfileForm({ initial }: { initial: Profile }) {
                                 options={DEPARTMENTS.map((d) => ({ value: d, label: d }))}
                             />
                         </FormField>
-                        <FormField label="自己紹介" requirement="optional" supportText={`担当業務などを ${BIO_MAX} 文字以内で書いてください。`}>
+                        <FormField label="自己紹介" requirement="optional" supportText={`担当業務などを${BIO_MAX}文字以内で書いてください`}>
                             <Textarea name="bio" rows={4} counterMax={BIO_MAX} value={bio} onChange={(e) => setBio(e.target.value)} />
                         </FormField>
-                        <FormField label="プロフィール画像" requirement="optional" supportText="PNG または JPEG、2 MB まで。" errorText={errors.image}>
+                        <FormField label="プロフィール画像" requirement="optional" supportText="PNGかJPEGの画像で、2 MBまでです" errorText={errors.image}>
                             {/* アバター（48px）とファイル選択ボタン（48px）は高さが同じなので、上端で揃えると中央も揃う。
-                                選択後にファイル一覧が下に伸びてもアバターが中央へずれないよう items-start にする。 */}
+                                選択後にファイル一覧が下に伸びてもアバターが中央へずれないようitems-startにする。 */}
                             <div className="flex items-start gap-4">
                                 <Avatar name={name.trim() || PROFILE.name} src={preview} size="lg" />
                                 <FileUpload files={images} onChange={onImageChange} accept={IMAGE_ACCEPT} dropArea={false} buttonLabel="画像を選択" className="min-w-0 flex-1" />
@@ -229,13 +229,13 @@ function AccountDeletion() {
 
     const onDelete = async () => {
         const ok = await confirm({
-            title: "アカウントを削除しますか",
-            message: "削除すると、このアカウントでログインできなくなります。この操作は取り消せません。",
+            title: "アカウントを削除する",
+            message: "削除すると、このアカウントでログインできなくなります。削除したアカウントは元に戻せません。",
             confirmLabel: "削除する",
             tone: "error",
         });
         if (!ok) return;
-        toast({ type: "info", title: "サンプルのため、アカウントは削除されません" });
+        toast({ type: "info", title: "見本のため、アカウントは削除しません" });
     };
 
     return (
@@ -310,7 +310,7 @@ function NotificationsForm({ settings }: { settings: NotificationSettings }) {
     const firstChannelRef = useRef<HTMLInputElement>(null);
 
     const dirty = byEmail !== settings.channels.email || inApp !== settings.channels.inApp;
-    useUnsavedChangesWarning(dirty, { title: "通知方法の変更を破棄して移動しますか" });
+    useUnsavedChangesWarning(dirty, { title: "通知方法の変更を破棄して移動する" });
 
     const toggle = async (key: EventKey, value: boolean) => {
         const previous = settings;
@@ -318,9 +318,9 @@ function NotificationsForm({ settings }: { settings: NotificationSettings }) {
         setQueryData<NotificationSettings>(NOTIFICATIONS_KEY, () => next);
         try {
             await saveNotificationSettings(next);
-        } catch (err) {
+        } catch {
             setQueryData<NotificationSettings>(NOTIFICATIONS_KEY, () => previous);
-            toast({ type: "error", title: "通知の設定を変更できませんでした", description: (err as Error).message });
+            toast({ type: "error", title: "通知の設定を変更できませんでした", description: "時間をおいて、もう一度切り替えてください。" });
         }
     };
 
@@ -328,7 +328,7 @@ function NotificationsForm({ settings }: { settings: NotificationSettings }) {
         e.preventDefault();
         if (saveChannels.pending) return;
         if (!byEmail && !inApp) {
-            setChannelError("通知方法を 1 つ以上選んでください");
+            setChannelError("通知方法を一つ以上選んでください");
             firstChannelRef.current?.focus();
             return;
         }
@@ -337,8 +337,8 @@ function NotificationsForm({ settings }: { settings: NotificationSettings }) {
             const result = await saveChannels.run({ ...settings, channels: { email: byEmail, inApp } });
             setQueryData<NotificationSettings>(NOTIFICATIONS_KEY, () => result);
             toast({ type: "success", title: "通知方法を保存しました" });
-        } catch (err) {
-            toast({ type: "error", title: "通知方法を保存できませんでした", description: (err as Error).message });
+        } catch {
+            toast({ type: "error", title: "通知方法を保存できませんでした", description: "時間をおいて、もう一度保存してください。" });
         }
     };
 
@@ -361,14 +361,14 @@ function NotificationsForm({ settings }: { settings: NotificationSettings }) {
                 </FormSection>
                 <Divider />
                 <form noValidate onSubmit={onSubmit}>
-                    <FormSection layout="settings" title="通知方法" description="通知を受け取る方法を選びます。">
-                        <FormField label="受け取る方法" as="fieldset" requirement="required" supportText="複数選べます。" errorText={channelError}>
+                    <FormSection layout="settings" title="通知方法" description="通知を受け取る方法を選びます">
+                        <FormField label="受け取る方法" as="fieldset" requirement="required" supportText="複数選べます" errorText={channelError}>
                             <div className="flex flex-col">
                                 <Checkbox ref={firstChannelRef} name="channel" value="email" checked={byEmail} onChange={(e) => setByEmail(e.target.checked)}>
                                     メール
                                 </Checkbox>
                                 <Checkbox name="channel" value="in-app" checked={inApp} onChange={(e) => setInApp(e.target.checked)}>
-                                    システム内（画面右上のお知らせ）
+                                    システム内（ヘッダーの「お知らせ」）
                                 </Checkbox>
                             </div>
                         </FormField>
@@ -403,7 +403,7 @@ function DisplayTab() {
     const [locale, setLocale] = useState(settings.locale);
     const [timeZone, setTimeZone] = useState(settings.timeZone);
     const dirty = draftLayout !== layout || locale !== settings.locale || timeZone !== settings.timeZone;
-    useUnsavedChangesWarning(dirty, { title: "表示の変更を破棄して移動しますか" });
+    useUnsavedChangesWarning(dirty, { title: "表示の変更を破棄して移動する" });
 
     const onSubmit = (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -417,8 +417,8 @@ function DisplayTab() {
             <Card>
                 <CardBody>
                     <form noValidate onSubmit={onSubmit}>
-                        <FormSection layout="settings" title="表示" description="画面のレイアウトと日時の表示形式を選びます。この端末のブラウザに保存されます。">
-                            <FormField label="画面レイアウト" as="fieldset" supportText="メニューの項目が少ない場合は上部ナビゲーション型も使えます。">
+                        <FormSection layout="settings" title="表示" description="画面のレイアウトと日時の表示形式を選びます。選んだ内容は、この端末のブラウザーに保存します。">
+                            <FormField label="画面レイアウト" as="fieldset" supportText="メニューの項目が少ない場合は上部ナビゲーション型も使えます">
                                 <RadioGroup name="layout" value={draftLayout} onChange={(v) => setDraftLayout(v as LayoutKind)} options={LAYOUT_OPTIONS} />
                             </FormField>
                             <FormField label="日付の形式" as="fieldset">
@@ -434,7 +434,7 @@ function DisplayTab() {
                             </FormField>
                             <Panel padding="sm" aria-live="polite">
                                 <p className="m-0 text-std-16N-170 text-text">
-                                    表示例: <span className="nums font-bold text-text-strong">{formatDateTime(SAMPLE_DATETIME, { locale, timeZone })}</span>
+                                    表示の例は<span className="nums font-bold text-text-strong">{formatDateTime(SAMPLE_DATETIME, { locale, timeZone })}</span>です
                                 </p>
                             </Panel>
                             <ActionPanel label="表示の操作" primary={<Button type="submit">保存する</Button>} />
@@ -459,7 +459,7 @@ function MockApiOptions() {
         <Card as="section">
             <CardHeader
                 title="動作の確認（見本用）"
-                description="通信の失敗や遅延を起こして、エラーの表示や再読み込み、読み込み中の表示を確かめられます。ブラウザのタブを閉じると元に戻ります。"
+                description="通信の失敗や遅延を起こして、エラーの表示や読み込み中の表示を確かめられます。ブラウザーのタブを閉じると元に戻ります。"
             />
             <CardBody>
                 <ul className="m-0 flex list-none flex-col gap-2 p-0">
@@ -474,7 +474,7 @@ function MockApiOptions() {
                     <li>
                         <Switch
                             className="flex w-full max-w-sm justify-between"
-                            label="通信を遅くする（3 秒）"
+                            label="通信を遅くする（3秒）"
                             checked={options.slow}
                             onChange={(slow) => update({ ...options, slow })}
                         />
@@ -492,17 +492,17 @@ function MockApiOptions() {
 function ScreenExamples() {
     return (
         <Card as="section">
-            <CardHeader title="画面例" description="ナビゲーションに出ない、テンプレートに含まれる画面です。" />
+            <CardHeader title="画面例" description="ナビゲーションに出ない、テンプレートに含まれる画面です" />
             <CardBody>
                 <ul className="m-0 flex list-disc flex-col gap-2 pl-6 text-std-16N-170">
                     <li>
                         <Link to="/login">ログイン画面</Link>
                     </li>
                     <li>
-                        <Link to="/example/not-found">404 画面（ページが見つかりません）</Link>
+                        <Link to="/example/not-found">404画面（ページが見つかりません）</Link>
                     </li>
                     <li>
-                        <Link to="/error/500">500 画面（システムエラー）</Link>
+                        <Link to="/error/500">500画面（システムエラー）</Link>
                     </li>
                 </ul>
             </CardBody>

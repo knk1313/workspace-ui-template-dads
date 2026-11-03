@@ -32,7 +32,7 @@ function renderLayout(path = "/") {
 }
 
 describe("TopNavLayout", () => {
-    it("デスクトップではヘッダーに水平メニューを出し、現在地に aria-current を付ける", () => {
+    it("デスクトップではヘッダーに水平メニューを出し、現在地にaria-currentを付ける", () => {
         restore = mockViewport(1280);
         renderLayout("/documents");
         const nav = screen.getByRole("navigation", { name: "メインナビゲーション" });

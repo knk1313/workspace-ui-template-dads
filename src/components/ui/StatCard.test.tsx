@@ -6,7 +6,7 @@ import { expectNoA11yViolations } from "@/test/axe";
 import { StatCard } from "./StatCard";
 
 describe("StatCard", () => {
-    it("section にラベルで名前が付き、値・単位・注記を描画する", () => {
+    it("sectionにラベルで名前が付き、値・単位・注記を描画する", () => {
         render(<StatCard label="今月の申請件数" value="1,234" unit="件" note="2026年10月末時点" />);
         const section = screen.getByRole("region", { name: "今月の申請件数" });
         expect(section).toBeInTheDocument();
@@ -17,31 +17,31 @@ describe("StatCard", () => {
 
     it("増減はアイコン + 符号 + 色で示し、スクリーンリーダーには言葉で伝える", () => {
         const { rerender } = render(<StatCard label="A" value="10" delta={{ value: "+12.3%", trend: "up", label: "前月比" }} />);
-        const up = screen.getByText("前月比 12.3% 増加");
+        const up = screen.getByText("前月比12.3%増加");
         expect(up).toHaveClass("sr-only");
         expect(up.parentElement).toHaveClass("text-trend-up");
         expect(screen.getByText("+12.3%")).toHaveAttribute("aria-hidden", "true");
         expect(up.parentElement?.querySelector("svg.lucide-arrow-up")).toBeInTheDocument();
 
-        rerender(<StatCard label="A" value="10" delta={{ value: "-5 件", trend: "down", label: "前週比" }} />);
-        const down = screen.getByText("前週比 5 件 減少");
+        rerender(<StatCard label="A" value="10" delta={{ value: "-5件", trend: "down", label: "前週比" }} />);
+        const down = screen.getByText("前週比5件減少");
         expect(down.parentElement).toHaveClass("text-trend-down");
         expect(down.parentElement?.querySelector("svg.lucide-arrow-down")).toBeInTheDocument();
 
         rerender(<StatCard label="A" value="10" delta={{ value: "±0", trend: "flat", label: "前月比" }} />);
-        expect(screen.getByText("前月比 0 横ばい")).toBeInTheDocument();
+        expect(screen.getByText("前月比0横ばい")).toBeInTheDocument();
         expect(screen.getByRole("region").querySelector("svg.lucide-minus")).toBeInTheDocument();
     });
 
-    it("highlight でキーカラーの面になり、増減の色は白のまま（アイコンと符号で伝える）", () => {
+    it("highlightでキーカラーの面になり、増減の色は白のまま（アイコンと符号で伝える）", () => {
         render(<StatCard label="A" value="10" highlight delta={{ value: "+1", trend: "up" }} icon={FileText} />);
         const section = screen.getByRole("region");
         expect(section).toHaveClass("bg-surface-highlight", "text-on-highlight");
-        expect(screen.getByText("1 増加").parentElement).toHaveClass("text-on-highlight");
-        expect(screen.getByText("1 増加").parentElement).not.toHaveClass("text-trend-up");
+        expect(screen.getByText("1増加").parentElement).toHaveClass("text-on-highlight");
+        expect(screen.getByText("1増加").parentElement).not.toHaveClass("text-trend-up");
     });
 
-    it("href でラベルがリンクになり、カード全体に領域が広がる", () => {
+    it("hrefでラベルがリンクになり、カード全体に領域が広がる", () => {
         render(
             <MemoryRouter>
                 <StatCard label="未処理の申請" value="12" href="/applications?status=pending" />

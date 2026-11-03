@@ -12,11 +12,11 @@ const PAGES = [
     { path: "/settings", h1: "設定" },
     { path: "/login", h1: "ログイン" },
     { path: "/no-such-page", h1: "ページが見つかりません" },
-    { path: "/error/500", h1: "システムエラーが発生しました" },
+    { path: "/error/500", h1: "ページを表示できません" },
 ] as const;
 
 for (const p of PAGES) {
-    test(`${p.path} を表示でき、axe の違反がなく、横にはみ出さない`, async ({ page }) => {
+    test(`${p.path}を表示でき、axeの違反がなく、横にはみ出さない`, async ({ page }) => {
         await page.goto(p.path);
         const h1 = page.getByRole("heading", { level: 1 });
         await expect(h1).toBeVisible();
@@ -50,7 +50,7 @@ test("ナビゲーションで各画面へ移動でき、現在地が示され�
     }
 });
 
-test("最初の Tab で「本文へスキップ」が現れ、本文へ移動できる", async ({ page }) => {
+test("最初のTabで「本文へスキップ」が現れ、本文へ移動できる", async ({ page }) => {
     await page.goto("/applications");
     await page.keyboard.press("Tab");
     const skip = page.getByRole("link", { name: "本文へスキップ" });
@@ -60,7 +60,7 @@ test("最初の Tab で「本文へスキップ」が現れ、本文へ移動で
     await expect(page).toHaveURL(/#main$/);
 });
 
-test("フォーカスインジケーターは DADS の黒 4px アウトラインになる", async ({ page }) => {
+test("フォーカスインジケーターはDADSの黒4pxアウトラインになる", async ({ page }) => {
     await page.goto("/login");
     await page.getByLabel("メールアドレス").focus();
     await page.keyboard.press("Tab");
@@ -72,7 +72,7 @@ test("フォーカスインジケーターは DADS の黒 4px アウトライン
     expect(outline).toEqual({ width: "4px", style: "solid", color: "rgb(0, 0, 0)" });
 });
 
-test("モバイル幅ではハンバーガーメニューのドロワーが開閉でき、Esc で閉じてボタンへ戻る", async ({ page }) => {
+test("モバイル幅ではハンバーガーメニューのドロワーが開閉でき、Escで閉じてボタンへ戻る", async ({ page }) => {
     test.skip(!isMobile(page), "モバイル幅だけ");
     await page.goto("/");
     const menu = page.getByRole("button", { name: "メニュー", exact: true });

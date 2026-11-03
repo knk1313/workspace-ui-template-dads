@@ -24,26 +24,26 @@ afterEach(() => {
 });
 
 describe("DashboardPage", () => {
-    it("h1 と期間・データの更新時点を表示する", async () => {
+    it("h1と期間・データの更新時点を表示する", async () => {
         await renderLoaded("/");
         expect(screen.getByRole("heading", { level: 1, name: "ダッシュボード" })).toBeInTheDocument();
-        expect(screen.getByText(/対象期間: 今月/)).toBeInTheDocument();
-        expect(screen.getByText(/2026年11月1日 9:00 時点/)).toBeInTheDocument();
+        expect(screen.getByText(/対象期間：今月/)).toBeInTheDocument();
+        expect(screen.getByText(/2026年11月1日9:00時点/)).toBeInTheDocument();
     });
 
     it("期間を切り替えると見出しの期間表示が変わる", async () => {
         const { user } = await renderLoaded("/");
         await user.selectOptions(screen.getByLabelText("表示期間"), "lastMonth");
-        expect(screen.getByText(/対象期間: 先月（2026年9月1日〜9月30日）/)).toBeInTheDocument();
+        expect(screen.getByText(/対象期間：先月（2026年9月1日〜9月30日）/)).toBeInTheDocument();
     });
 
-    it("CSV のダウンロードはサンプルである旨をトーストで知らせる", async () => {
+    it("CSVのダウンロードは見本である旨をトーストで知らせる", async () => {
         const { user } = await renderLoaded("/");
-        await user.click(screen.getByRole("button", { name: "CSV をダウンロード" }));
-        expect(await screen.findByText(/サンプルのため/)).toBeInTheDocument();
+        await user.click(screen.getByRole("button", { name: "CSVをダウンロード" }));
+        expect(await screen.findByText(/見本のため/)).toBeInTheDocument();
     });
 
-    it("KPI を 4 件表示し、左上の 1 件目だけを強調する", async () => {
+    it("KPIを4件表示し、左上の1件目だけを強調する", async () => {
         await renderLoaded("/");
         const kpi = screen.getByRole("region", { name: "主な指標" });
         const cards = within(kpi).getAllByRole("region");
@@ -51,10 +51,10 @@ describe("DashboardPage", () => {
         expect(cards[0]).toHaveAccessibleName("今月の受付件数");
         expect(cards[0]).toHaveClass("bg-surface-highlight");
         cards.slice(1).forEach((card) => expect(card).not.toHaveClass("bg-surface-highlight"));
-        expect(within(cards[0]).getByText("前月比 8.2% 増加")).toBeInTheDocument();
+        expect(within(cards[0]).getByText("前月比8.2%増加")).toBeInTheDocument();
     });
 
-    it("グラフは role=img と要約の aria-label を持つ", async () => {
+    it("グラフはrole=imgと要約のaria-labelを持つ", async () => {
         await renderLoaded("/");
         const charts = screen.getAllByRole("img").filter((el) => el.tagName.toLowerCase() === "svg");
         expect(charts).toHaveLength(3);
@@ -64,11 +64,11 @@ describe("DashboardPage", () => {
         }
     });
 
-    it("データテーブルを表示に切り替えると同じデータの表が出る", async () => {
+    it("数値の表を表示に切り替えると同じデータの表が出る", async () => {
         const { user } = await renderLoaded("/");
         const figure = screen.getByRole("heading", { level: 2, name: /受付件数の月次推移/ }).closest("figure");
         expect(figure).not.toBeNull();
-        const toggle = within(figure as HTMLElement).getByRole("button", { name: "データテーブルを表示" });
+        const toggle = within(figure as HTMLElement).getByRole("button", { name: "数値の表を表示" });
         await user.click(toggle);
         expect(toggle).toHaveAttribute("aria-expanded", "true");
         const table = within(figure as HTMLElement).getByRole("table", { name: /受付件数の月次推移/ });
@@ -92,14 +92,14 @@ describe("DashboardPage", () => {
         expect(within(section).getByRole("link", { name: "申請一覧へ" })).toHaveAttribute("href", "/applications");
     });
 
-    it("最近のアクティビティを表示する", async () => {
+    it("最近の操作を表示する", async () => {
         await renderLoaded("/");
-        const section = screen.getByRole("region", { name: "最近のアクティビティ" });
+        const section = screen.getByRole("region", { name: "最近の操作" });
         expect(within(section).getAllByRole("listitem").length).toBeGreaterThan(0);
         expect(within(section).getByRole("link", { name: /R08-001012/ })).toHaveAttribute("href", "/applications/app-005");
     });
 
-    it("axe の違反がない", async () => {
+    it("axeの違反がない", async () => {
         const { container } = await renderLoaded("/");
         await expectNoA11yViolations(container);
     });

@@ -36,7 +36,7 @@ const PERIODS: { value: Period; label: string; range: string }[] = [
 
 // グラフのメタ情報。PageHeader の DATA_SOURCE と同じ時点を指す。
 const CHART_SOURCE = "申請管理システム（架空データ）";
-const CHART_UPDATED_AT = "2026年11月1日 9:00";
+const CHART_UPDATED_AT = "2026年11月1日9:00";
 const MONTHLY_TARGET = 1200;
 
 // 状態の意味に合わせてチップの色を決める（色だけに頼らず、ラベルの文言で状態を伝える）。
@@ -141,7 +141,7 @@ export default function DashboardPage() {
         <div className="flex flex-col gap-8">
             <PageHeader
                 title="ダッシュボード"
-                description={`対象期間: ${current.label}（${current.range}）`}
+                description={`対象期間：${current.label}（${current.range}）`}
                 meta={DATA_SOURCE}
                 actions={
                     <>
@@ -155,9 +155,9 @@ export default function DashboardPage() {
                         <Button
                             variant="outline"
                             leadIcon={Download}
-                            onClick={() => toast({ title: "サンプルのため CSV はダウンロードされません", description: "実装時は集計結果を CSV で出力してください。", type: "info" })}
+                            onClick={() => toast({ title: "見本のため、CSVはダウンロードしません", description: "実装するときは、集計結果をCSVで出力してください", type: "info" })}
                         >
-                            CSV をダウンロード
+                            CSVをダウンロード
                         </Button>
                     </>
                 }
@@ -181,15 +181,15 @@ export default function DashboardPage() {
                         as="h2"
                         title="受付件数の月次推移"
                         unit="件"
-                        description={`直近 12 か月と前年同月の比較。灰色の破線は月間目標です。`}
+                        description="直近12か月と前年同月を比べます。「月間目標」の線とも比べられます。"
                         data={MONTHLY_RECEIVED}
                         xKey="label"
                         xAxisLabel="月"
                         series={[
-                            { key: "current", name: "直近 12 か月" },
+                            { key: "current", name: "直近12か月" },
                             { key: "previous", name: "前年同月" },
                         ]}
-                        referenceLine={{ y: MONTHLY_TARGET, label: `月間目標（${yen.format(MONTHLY_TARGET)} 件）` }}
+                        referenceLine={{ y: MONTHLY_TARGET, label: `月間目標（${yen.format(MONTHLY_TARGET)}件）` }}
                         source={CHART_SOURCE}
                         note="2025年11月〜2026年10月の各月末時点。下書きを除く。"
                         updatedAt={CHART_UPDATED_AT}
@@ -236,10 +236,10 @@ export default function DashboardPage() {
             </div>
 
             {/* 右下が最も詳細な一覧。表は 5 列あり、サイドバー付きの 1280px 幅で 2/3 にすると更新日時が切れるため、
-                アクティビティを右に並べるのは 2xl（1536px）以上にし、それ未満では表の下に置く。 */}
+                アクティビティを右に並べるのは2xl（1536px）以上にし、それ未満では表の下に置く。 */}
             <div className="grid grid-cols-1 gap-4 2xl:grid-cols-3">
                 <Card as="section" className="2xl:col-span-2">
-                    <CardHeader title="最近の申請" description={`更新日の新しい順に ${RECENT_COUNT} 件`} />
+                    <CardHeader title="最近の申請" description={`更新日の新しい順に${RECENT_COUNT}件を表示しています`} />
                     <CardBody>
                         {applications.error && !applications.data ? (
                             <LoadError subject="最近の申請" error={applications.error} onRetry={applications.reload} />
@@ -262,14 +262,14 @@ export default function DashboardPage() {
                     </CardFooter>
                 </Card>
                 <Card as="section">
-                    <CardHeader title="最近のアクティビティ" />
+                    <CardHeader title="最近の操作" />
                     <CardBody>
                         {recentActivity.error && !recentActivity.data ? (
-                            <LoadError subject="アクティビティ" error={recentActivity.error} onRetry={recentActivity.reload} />
+                            <LoadError subject="最近の操作" error={recentActivity.error} onRetry={recentActivity.reload} />
                         ) : recentActivity.isLoading ? (
                             <div aria-busy="true" className="flex flex-col gap-6">
                                 <p role="status" className="sr-only">
-                                    アクティビティを読み込んでいます
+                                    最近の操作を読み込んでいます
                                 </p>
                                 {Array.from({ length: 4 }, (_, i) => (
                                     <div key={i} className="flex gap-3">

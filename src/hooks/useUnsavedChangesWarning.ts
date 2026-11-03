@@ -15,7 +15,7 @@ export type UnsavedChangesOptions = {
     message?: string;
 };
 
-export function useUnsavedChangesWarning(when: boolean, { title = "入力内容を破棄して移動しますか", message = "入力した内容は保存されていません。" }: UnsavedChangesOptions = {}) {
+export function useUnsavedChangesWarning(when: boolean, { title = "入力内容を破棄して移動する", message = "移動すると、入力した内容は消えます。消えた内容は元に戻せません。" }: UnsavedChangesOptions = {}) {
     const { confirm } = useConfirm();
     const allowed = useRef(false);
     const whenRef = useRef(when);

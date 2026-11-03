@@ -126,7 +126,7 @@ function EditApplicationForm() {
             <ErrorPage
                 status={404}
                 title="申請が見つかりません"
-                description="指定された申請は存在しないか、削除された可能性があります。申請一覧から探し直してください。"
+                description="この申請は削除されたか、受付番号が違います。申請一覧から探し直してください。"
                 actions={<ButtonLink to="/applications">申請一覧へ戻る</ButtonLink>}
             />
         );
@@ -183,7 +183,7 @@ function ApplicationForm({ mode, application }: { mode: "create" | "edit"; appli
 
     const dirty = step !== "complete" && isDirty(values, initial);
     const { allowNavigation } = useUnsavedChangesWarning(dirty, {
-        title: isEdit ? "編集内容を破棄して移動しますか" : "入力内容を破棄して移動しますか",
+        title: isEdit ? "編集内容を破棄して移動する" : "入力内容を破棄して移動する",
     });
 
     const submit = async () => {
@@ -210,7 +210,7 @@ function ApplicationForm({ mode, application }: { mode: "create" | "edit"; appli
     };
 
     const saveDraft = () => {
-        toast({ type: "success", title: "下書きを保存しました", description: "入力途中の内容を保存しました（見本のため、実際には保存されません）。" });
+        toast({ type: "success", title: "下書きを保存しました", description: "入力途中の内容を保存しました。見本のため、実際には保存しません。" });
     };
 
     const backPath = isEdit && application ? `/applications/${application.id}` : "/applications";
@@ -243,7 +243,7 @@ function ApplicationForm({ mode, application }: { mode: "create" | "edit"; appli
         <div className="flex flex-col gap-8">
             <PageHeader
                 title={isEdit ? "申請を編集" : "新規申請"}
-                description={isEdit && application ? `${application.number}「${application.title}」` : "必要事項を入力し、確認画面で内容を確かめてから申請してください。"}
+                description={isEdit && application ? `${application.number}「${application.title}」` : "必要事項を入力し、確認の画面で内容を確かめてから申請してください。"}
                 breadcrumbs={breadcrumbs}
             />
             <StepNavigation steps={steps} current={currentStep} orientation={isWide ? "horizontal" : "vertical"} />
@@ -285,7 +285,7 @@ function ApplicationForm({ mode, application }: { mode: "create" | "edit"; appli
                     <div className="flex flex-col gap-2">
                         <StepHeading>入力内容の確認</StepHeading>
                         <p className="m-0 text-16 leading-170 tracking-2 text-text">
-                            内容に誤りがなければ「{isEdit ? "更新する" : "申請する"}」を押してください。直す場合は「修正する」で入力画面に戻ります。
+                            内容に誤りがなければ「{isEdit ? "更新する" : "申請する"}」を押してください。直す場合は「修正する」で入力の画面に戻ります。
                         </p>
                     </div>
                     {submitError && (
@@ -293,7 +293,7 @@ function ApplicationForm({ mode, application }: { mode: "create" | "edit"; appli
                             id={SUBMIT_ERROR_ID}
                             type="error"
                             title={isEdit ? "更新できませんでした" : "申請できませんでした"}
-                            description={`${submitError}入力した内容は残っています。`}
+                            description="入力した内容は残っています。時間をおいて、もう一度「申請する」を押してください。"
                             live
                         />
                     )}

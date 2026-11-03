@@ -16,7 +16,7 @@ function record(application: Application, action: string, type: ActivityItem["ty
         id: `local-${db.activity.length + 1}-${Date.now()}`,
         actor: CURRENT_USER.name,
         action,
-        target: `${application.number} ${application.title}`,
+        target: `${application.number}「${application.title}」`,
         applicationId: application.id,
         at: new Date().toISOString(),
         type,
@@ -121,7 +121,7 @@ export function approveApplication(id: string): Promise<Application> {
 export function returnApplication(id: string, reason: string): Promise<Application> {
     return mockRequest(() => {
         db.returnReasons[id] = reason;
-        return changeStatus(id, "returned", "差戻しました", "return");
+        return changeStatus(id, "returned", "差し戻しました", "return");
     });
 }
 

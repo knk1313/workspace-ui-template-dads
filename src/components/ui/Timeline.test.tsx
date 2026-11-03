@@ -4,25 +4,25 @@ import { expectNoA11yViolations } from "@/test/axe";
 import { Timeline, type TimelineItem } from "./Timeline";
 
 const items: TimelineItem[] = [
-    { id: "1", title: "受付", description: "申請を受け付けました", date: "2026年10月1日", dateTime: "2026-10-01", status: "done" },
+    { id: "1", title: "受付", description: "申請の受付完了", date: "2026年10月1日", dateTime: "2026-10-01", status: "done" },
     { id: "2", title: "審査中", description: "担当者が内容を確認しています", date: "2026年10月3日", dateTime: "2026-10-03", status: "current" },
     { id: "3", title: "承認", status: "upcoming" },
     { id: "4", title: "完了", status: "upcoming" },
 ];
 
 describe("Timeline", () => {
-    it("ol / li で描画し、タイトル・説明・日付を表示する", () => {
+    it("ol / liで描画し、タイトル・説明・日付を表示する", () => {
         render(<Timeline items={items} />);
         expect(screen.getByRole("list").tagName).toBe("OL");
         const entries = screen.getAllByRole("listitem");
         expect(entries).toHaveLength(4);
-        expect(screen.getByText("申請を受け付けました")).toBeInTheDocument();
+        expect(screen.getByText("申請の受付完了")).toBeInTheDocument();
         const time = entries[0].querySelector("time");
         expect(time).toHaveAttribute("datetime", "2026-10-01");
         expect(time).toHaveTextContent("2026年10月1日");
     });
 
-    it("status に応じたマーカーと aria-current、スクリーンリーダー向けの状態テキスト", () => {
+    it("statusに応じたマーカーとaria-current、スクリーンリーダー向けの状態テキスト", () => {
         render(<Timeline items={items} />);
         const entries = screen.getAllByRole("listitem");
         // done: 塗り + チェック

@@ -6,7 +6,7 @@ import { ActionPanel } from "./ActionPanel";
 import { Button } from "./Button";
 
 describe("ActionPanel", () => {
-    it("DOM 順 = 見た目の順はキャンセル → セカンダリー → プライマリーで、確定側は右に寄せる", () => {
+    it("DOM順 = 見た目の順はキャンセル → セカンダリー → プライマリーで、確定側は右に寄せる", () => {
         render(
             <ActionPanel
                 primary={<Button>保存する</Button>}
@@ -28,7 +28,7 @@ describe("ActionPanel", () => {
         expect(screen.getByText("保存する").closest("button")?.parentElement).toHaveClass("ml-auto", "justify-end");
     });
 
-    it("Tab 順は見た目の順（キャンセル → セカンダリー → プライマリー）", async () => {
+    it("Tab順は見た目の順（キャンセル → セカンダリー → プライマリー）", async () => {
         const user = userEvent.setup();
         const onSave = vi.fn();
         render(<ActionPanel primary={<Button onClick={onSave}>保存する</Button>} secondary={<Button variant="outline">下書き保存</Button>} cancel={<Button variant="text">キャンセル</Button>} />);
@@ -42,7 +42,7 @@ describe("ActionPanel", () => {
         expect(onSave).toHaveBeenCalledTimes(1);
     });
 
-    it("プライマリーだけでも描画でき、sticky と label を反映する", () => {
+    it("プライマリーだけでも描画でき、stickyとlabelを反映する", () => {
         render(<ActionPanel primary={<Button>次へ</Button>} sticky label="フォームの操作" className="px-4" />);
         const panel = screen.getByRole("group", { name: "フォームの操作" });
         expect(panel).toHaveClass("sticky", "bottom-0", "border-t", "bg-surface", "px-4");

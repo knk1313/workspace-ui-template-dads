@@ -89,7 +89,7 @@ export function Textarea({
         <div className={cn(block ? "w-full" : "w-fit max-w-full")}>
             {textarea}
             <p id={counterId} className={cn("m-0 mt-2 text-16 leading-none tracking-2 nums", exceeded ? "text-error" : "text-text-muted")}>
-                {count} / {counterMax} 文字{exceeded && `（${count - counterMax} 文字超過）`}
+                {count} / {counterMax}文字{exceeded && `（${count - counterMax}文字超過）`}
             </p>
         </div>
     );

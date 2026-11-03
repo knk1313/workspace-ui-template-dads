@@ -35,16 +35,16 @@ function bodyRowCount(): number {
 }
 
 describe("ApplicationListPage", () => {
-    it("見出し・新規申請ボタンを表示し、読み込み中のあとに 20 件ずつ表示する", async () => {
+    it("見出し・新規申請ボタンを表示し、読み込み中のあとに20件ずつ表示する", async () => {
         renderApp("/applications");
         expect(screen.getByRole("heading", { level: 1, name: "申請一覧" })).toBeInTheDocument();
         expect(screen.getByRole("link", { name: "新規申請" })).toHaveAttribute("href", "/applications/new");
         expect(screen.getAllByText("読み込み中").length).toBeGreaterThan(0);
 
         await waitForLoaded();
-        expect(screen.getByText(`全 ${APPLICATIONS.length} 件中 1〜20 件`)).toBeInTheDocument();
+        expect(screen.getByText(`全${APPLICATIONS.length}件中1〜20件`)).toBeInTheDocument();
         expect(bodyRowCount()).toBe(20);
-        expect(screen.getByText((_, el) => el?.tagName === "P" && el.textContent === `全 ${APPLICATIONS.length} 件`)).toBeInTheDocument();
+        expect(screen.getByText((_, el) => el?.tagName === "P" && el.textContent === `全${APPLICATIONS.length}件`)).toBeInTheDocument();
     });
 
     it("キーワード検索で行が絞り込まれ、条件がチップで表示される", async () => {
@@ -54,10 +54,10 @@ describe("ApplicationListPage", () => {
 
         expect(rowHeaders()).toEqual([target.number]);
         const chips = screen.getByRole("list", { name: "適用中の条件" });
-        expect(within(chips).getByText(`キーワード: ${target.number}`)).toBeInTheDocument();
+        expect(within(chips).getByText(`キーワード：${target.number}`)).toBeInTheDocument();
 
         // チップを外すと全件に戻る
-        await user.click(within(chips).getByRole("button", { name: `キーワード: ${target.number} を削除` }));
+        await user.click(within(chips).getByRole("button", { name: `キーワード：${target.number}を削除` }));
         expect(bodyRowCount()).toBe(20);
     });
 
@@ -73,11 +73,11 @@ describe("ApplicationListPage", () => {
         expect(rowHeaders()[0]).toBe(numbers[numbers.length - 1]);
     });
 
-    it("ページ送りで次の 20 件を表示する", async () => {
+    it("ページ送りで次の20件を表示する", async () => {
         const { user } = await renderList();
         const firstPage = rowHeaders();
-        await user.click(screen.getByRole("button", { name: "2 ページ目" }));
-        expect(screen.getByText(`全 ${APPLICATIONS.length} 件中 21〜40 件`)).toBeInTheDocument();
+        await user.click(screen.getByRole("button", { name: "2ページ目" }));
+        expect(screen.getByText(`全${APPLICATIONS.length}件中21〜40件`)).toBeInTheDocument();
         expect(rowHeaders()).not.toEqual(firstPage);
     });
 
@@ -85,30 +85,30 @@ describe("ApplicationListPage", () => {
         const { user } = await renderList();
         await user.click(screen.getByRole("checkbox", { name: "すべての行を選択" }));
         const bulk = screen.getByRole("region", { name: "選択中の項目の操作" });
-        expect(within(bulk).getByText("20 件選択中")).toBeInTheDocument();
+        expect(within(bulk).getByText("20件選択中")).toBeInTheDocument();
 
         await user.click(within(bulk).getByRole("button", { name: "削除" }));
         expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
-        expect(await screen.findByText("20 件の申請を削除しました")).toBeInTheDocument();
-        expect(screen.getByText(`全 ${APPLICATIONS.length - 20} 件中 1〜20 件`)).toBeInTheDocument();
+        expect(await screen.findByText("20件の申請を削除しました")).toBeInTheDocument();
+        expect(screen.getByText(`全${APPLICATIONS.length - 20}件中1〜20件`)).toBeInTheDocument();
         expect(screen.queryByRole("region", { name: "選択中の項目の操作" })).not.toBeInTheDocument();
         // 消えた行にあったフォーカスは「元に戻す」へ移る
         expect(screen.getByRole("button", { name: "元に戻す" })).toHaveFocus();
 
         await user.click(screen.getByRole("button", { name: "元に戻す" }));
-        expect(await screen.findByText("20 件の申請の削除を取り消しました")).toBeInTheDocument();
-        expect(await screen.findByText(`全 ${APPLICATIONS.length} 件中 1〜20 件`)).toBeInTheDocument();
+        expect(await screen.findByText("20件の申請を元に戻しました")).toBeInTheDocument();
+        expect(await screen.findByText(`全${APPLICATIONS.length}件中1〜20件`)).toBeInTheDocument();
     });
 
     it("一括で担当者を変更できる", async () => {
         const { user } = await renderList();
         const first = rowHeaders()[0];
-        await user.click(screen.getByRole("checkbox", { name: new RegExp(`^${first} `) }));
+        await user.click(screen.getByRole("checkbox", { name: new RegExp(`^${first}「`) }));
         await user.click(screen.getByRole("button", { name: "担当者を変更" }));
         const dialog = screen.getByRole("dialog", { name: "担当者を変更" });
         await user.selectOptions(within(dialog).getByLabelText("新しい担当者"), "田中 健太");
         await user.click(within(dialog).getByRole("button", { name: "変更する" }));
-        expect(screen.getByText("1 件の担当者を 田中 健太 に変更しました")).toBeInTheDocument();
+        expect(screen.getByText("1件の担当者を田中 健太に変更しました")).toBeInTheDocument();
         const row = screen.getByRole("link", { name: first }).closest("tr")!;
         expect(within(row).getByText("田中 健太")).toBeInTheDocument();
     });
@@ -117,7 +117,7 @@ describe("ApplicationListPage", () => {
         const { user } = await renderList();
         await search(user, "該当しないキーワード");
 
-        expect(screen.getByRole("heading", { name: "条件に一致する申請はありません" })).toBeInTheDocument();
+        expect(screen.getByRole("heading", { name: "条件に合う申請はありません" })).toBeInTheDocument();
         await user.click(within(screen.getByRole("table")).getByRole("button", { name: "条件をクリア" }));
         expect(bodyRowCount()).toBe(20);
         expect(screen.getByRole("searchbox")).toHaveValue("");
@@ -126,16 +126,16 @@ describe("ApplicationListPage", () => {
     it("行のメニューから詳細を開き、パンくずで絞り込み条件を保ったまま戻れる", async () => {
         const target = APPLICATIONS.find((a) => a.category === "subsidy")!;
         const { user } = await renderList(`/applications?category=subsidy&sort=number:asc`);
-        expect(within(screen.getByRole("list", { name: "適用中の条件" })).getByText("種別: 補助金")).toBeInTheDocument();
+        expect(within(screen.getByRole("list", { name: "適用中の条件" })).getByText("種別：補助金")).toBeInTheDocument();
         expect(rowHeaders()[0]).toBe(target.number);
 
-        await user.click(screen.getByRole("button", { name: `${target.number} の操作` }));
+        await user.click(screen.getByRole("button", { name: `${target.number}の操作` }));
         await user.click(screen.getByRole("menuitem", { name: "詳細を見る" }));
         expect(screen.getByRole("heading", { level: 1, name: target.title })).toBeInTheDocument();
 
         await user.click(within(screen.getByRole("navigation", { name: "パンくずリスト" })).getByRole("link", { name: "申請一覧" }));
         await waitForLoaded();
-        expect(within(screen.getByRole("list", { name: "適用中の条件" })).getByText("種別: 補助金")).toBeInTheDocument();
+        expect(within(screen.getByRole("list", { name: "適用中の条件" })).getByText("種別：補助金")).toBeInTheDocument();
         expect(rowHeaders()[0]).toBe(target.number);
     });
 
@@ -146,11 +146,11 @@ describe("ApplicationListPage", () => {
         const drawer = screen.getByRole("dialog", { name: "絞り込み" });
         await user.selectOptions(within(drawer).getByLabelText("状態"), "approved");
         const count = APPLICATIONS.filter((a) => a.status === "approved").length;
-        await user.click(within(drawer).getByRole("button", { name: `${count} 件を表示` }));
+        await user.click(within(drawer).getByRole("button", { name: `${count}件を表示` }));
 
         expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
         expect(screen.getByRole("button", { name: "絞り込み（1）" })).toBeInTheDocument();
-        expect(screen.getByText("状態: 承認")).toBeInTheDocument();
+        expect(screen.getByText("状態：承認")).toBeInTheDocument();
     });
 
     it("アクセシビリティ違反がない（モバイル幅）", async () => {
@@ -183,12 +183,12 @@ describe("ApplicationListPage", () => {
         expect(screen.queryByRole("heading", { name: "申請の一覧を読み込めませんでした" })).not.toBeInTheDocument();
     });
 
-    it("削除は画面を移っても保たれる（ダミー API に反映される）", async () => {
+    it("削除は画面を移っても保たれる（ダミーAPIに反映される）", async () => {
         const { user, router } = await renderList();
         const first = rowHeaders()[0];
-        await user.click(screen.getByRole("button", { name: `${first} の操作` }));
+        await user.click(screen.getByRole("button", { name: `${first}の操作` }));
         await user.click(screen.getByRole("menuitem", { name: "削除" }));
-        expect(await screen.findByText(`${first} を削除しました`)).toBeInTheDocument();
+        expect(await screen.findByText(`${first}を削除しました`)).toBeInTheDocument();
         await router.navigate("/");
         await router.navigate("/applications");
         await waitForLoaded();

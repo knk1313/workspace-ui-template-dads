@@ -31,9 +31,9 @@ describe("validateApplicationForm", () => {
         expect(fields({ ...VALID, title: "　 ", applicant: "  " })).toEqual(["title", "applicant"]);
     });
 
-    it("件名は 40 文字まで", () => {
+    it("件名は40文字まで", () => {
         expect(fields({ ...VALID, title: "あ".repeat(40) })).toEqual([]);
-        expect(messageOf({ ...VALID, title: "あ".repeat(41) }, "title")).toContain("40 文字以内");
+        expect(messageOf({ ...VALID, title: "あ".repeat(41) }, "title")).toContain("40文字以内");
     });
 
     it("申請額は補助金・許認可のときだけ必須", () => {
@@ -44,7 +44,7 @@ describe("validateApplicationForm", () => {
 
     it("申請額が数字でなければエラー", () => {
         expect(messageOf({ ...VALID, amount: "百万円" }, "amount")).toContain("数字だけ");
-        expect(messageOf({ ...VALID, amount: "0" }, "amount")).toContain("1 円以上");
+        expect(messageOf({ ...VALID, amount: "0" }, "amount")).toContain("1円以上");
         expect(messageOf({ ...VALID, amount: "1-000" }, "amount")).toContain("数字だけ");
     });
 
@@ -72,9 +72,9 @@ describe("validateApplicationForm", () => {
         expect(messageOf({ ...VALID, attachments: [xlsx] }, "attachments")).toContain("「資料.xlsx」を削除");
     });
 
-    it("メモは 400 文字まで", () => {
+    it("メモは400文字まで", () => {
         expect(fields({ ...VALID, memo: "あ".repeat(400) })).toEqual([]);
-        expect(messageOf({ ...VALID, memo: "あ".repeat(402) }, "memo")).toContain("2 文字超過");
+        expect(messageOf({ ...VALID, memo: "あ".repeat(402) }, "memo")).toContain("2文字超過");
     });
 
     it("同意のチェックが必須", () => {
@@ -90,7 +90,7 @@ describe("normalizeAmount", () => {
         expect(normalizeAmount(" 50 000 ")).toBe(50000);
     });
 
-    it("空欄は null、数字以外は NaN", () => {
+    it("空欄はnull、数字以外はNaN", () => {
         expect(normalizeAmount("")).toBeNull();
         expect(normalizeAmount("  ")).toBeNull();
         expect(normalizeAmount("12.5")).toBeNaN();
@@ -98,7 +98,7 @@ describe("normalizeAmount", () => {
     });
 
     it("確認画面向けに桁区切りで表示する", () => {
-        expect(formatAmount("１２０００００")).toBe("1,200,000 円");
+        expect(formatAmount("１２０００００")).toBe("1,200,000円");
         expect(formatAmount("")).toBeUndefined();
     });
 });

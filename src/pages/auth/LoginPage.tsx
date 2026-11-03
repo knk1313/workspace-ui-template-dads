@@ -82,8 +82,8 @@ export default function LoginPage() {
                             <NotificationBanner
                                 type="error"
                                 headingRef={bannerRef}
-                                title="メールアドレスまたはパスワードが正しくありません"
-                                description="入力内容を確かめて、もう一度ログインしてください。"
+                                title="メールアドレスかパスワードが違います"
+                                description="入力した内容を確かめて、もう一度ログインしてください"
                             />
                         )}
 

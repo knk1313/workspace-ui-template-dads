@@ -16,7 +16,7 @@ function Reader({ queryKey, fetcher }: { queryKey: string; fetcher: () => Promis
 }
 
 describe("useQuery", () => {
-    it("読み込み中 → データの順に表示し、同じキーの 2 つ目の呼び出しは通信をまとめる", async () => {
+    it("読み込み中 → データの順に表示し、同じキーの2つ目の呼び出しは通信をまとめる", async () => {
         const fetcher = vi.fn(async () => "A");
         render(
             <>
@@ -42,7 +42,7 @@ describe("useQuery", () => {
         expect(fetcher).toHaveBeenCalledTimes(2);
     });
 
-    it("fetcher を毎回作り直しても、描き直すたびに通信はしない", async () => {
+    it("fetcherを毎回作り直しても、描き直すたびに通信はしない", async () => {
         const calls = vi.fn();
         const { rerender } = render(<Reader queryKey="k" fetcher={async () => (calls(), "A")} />);
         await screen.findByText("data: A");
@@ -51,7 +51,7 @@ describe("useQuery", () => {
         expect(calls).toHaveBeenCalledTimes(1);
     });
 
-    it("失敗すると error を返し、reload でやり直せる", async () => {
+    it("失敗するとerrorを返し、reloadでやり直せる", async () => {
         const fetcher = vi.fn().mockRejectedValueOnce(new Error("通信に失敗しました")).mockResolvedValue("B");
         render(<Reader queryKey="k" fetcher={fetcher} />);
         expect(await screen.findByText("error: 通信に失敗しました")).toBeInTheDocument();
@@ -59,7 +59,7 @@ describe("useQuery", () => {
         expect(await screen.findByText("data: B")).toBeInTheDocument();
     });
 
-    it("invalidate すると、表示中のキーを読み込み直す（前の結果は表示したまま）", async () => {
+    it("invalidateすると、表示中のキーを読み込み直す（前の結果は表示したまま）", async () => {
         let value = "A";
         const fetcher = vi.fn(async () => value);
         render(<Reader queryKey="items/1" fetcher={fetcher} />);
@@ -80,7 +80,7 @@ describe("useQuery", () => {
         expect(await screen.findByText("error: 失敗")).toBeInTheDocument();
     });
 
-    it("setQueryData で結果を書き換えられる（楽観的な更新）", async () => {
+    it("setQueryDataで結果を書き換えられる（楽観的な更新）", async () => {
         render(<Reader queryKey="k" fetcher={async () => "A"} />);
         await screen.findByText("data: A");
         act(() => setQueryData<string>("k", (prev) => `${prev}+`));
@@ -98,7 +98,7 @@ describe("useMutation", () => {
         );
     }
 
-    it("実行中は pending になり、終わると（失敗しても）戻る", async () => {
+    it("実行中はpendingになり、終わると（失敗しても）戻る", async () => {
         let resolve!: () => void;
         const fn = vi.fn(() => new Promise<void>((r) => (resolve = r)));
         render(<Saver fn={fn} />);

@@ -265,7 +265,7 @@ export function DataTable<T>({
         <div className={cn("flex flex-col gap-4", className)} aria-busy={loading || undefined}>
             {selectable && selectedIds.length > 0 && (
                 <div role="region" aria-label="選択中の項目の操作" className={cn("flex flex-wrap items-center gap-x-4 gap-y-2 rounded-8 bg-primary-surface px-4 py-2 text-16 text-text", flush && "mx-6")}>
-                    <p className="m-0 font-bold nums">{selectedIds.length} 件選択中</p>
+                    <p className="m-0 font-bold nums">{selectedIds.length}件選択中</p>
                     <Button variant="text" size="sm" onClick={() => setSelectedIds([])}>
                         選択を解除
                     </Button>
@@ -384,7 +384,7 @@ export function DataTable<T>({
                                     {selectable && (
                                         <TableCell className="w-10 px-2!">
                                             <TableCellLine>
-                                                <Checkbox size="sm" aria-label={`${resolveLabel(row)} を選択`} checked={selected} onChange={() => toggleRow(rowId)} />
+                                                <Checkbox size="sm" aria-label={`${resolveLabel(row)}を選択`} checked={selected} onChange={() => toggleRow(rowId)} />
                                             </TableCellLine>
                                         </TableCell>
                                     )}
@@ -415,7 +415,7 @@ export function DataTable<T>({
             {pageSize && (
                 <div className={cn("flex flex-wrap items-center justify-between gap-4", flush && "px-6")}>
                     <p className="m-0 text-16 text-text-muted nums">
-                        全 {total} 件中 {rangeStart}〜{rangeEnd} 件
+                        全{total}件中{rangeStart}〜{rangeEnd}件
                     </p>
                     {totalPages > 1 && <Pagination page={currentPage} totalPages={totalPages} onChange={setPage} size="md" />}
                 </div>

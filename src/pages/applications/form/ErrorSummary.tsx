@@ -19,10 +19,10 @@ export function ErrorSummary({ errors }: ErrorSummaryProps) {
         <NotificationBanner
             type="error"
             id={ERROR_SUMMARY_ID}
-            title={`入力内容に ${errors.length} 件の誤りがあります`}
+            title={`入力内容に${errors.length}件の誤りがあります`}
             description={
                 <>
-                    <p className="m-0">次の項目を修正してから、もう一度「確認へ進む」を押してください。</p>
+                    <p className="m-0">次の項目を直してから、もう一度「確認へ進む」を押してください</p>
                     <ul className="m-0 mt-2 flex list-disc flex-col gap-1 pl-6">
                         {errors.map((e) => (
                             <li key={e.field}>
@@ -35,7 +35,7 @@ export function ErrorSummary({ errors }: ErrorSummaryProps) {
                                         focusField(e.field);
                                     }}
                                 >
-                                    {FIELD_LABELS[e.field]}: {e.message}
+                                    {FIELD_LABELS[e.field]}：{e.message}
                                 </a>
                             </li>
                         ))}

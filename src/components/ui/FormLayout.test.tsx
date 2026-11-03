@@ -6,7 +6,7 @@ import { FormLayout, FormSection } from "./FormLayout";
 import { Input } from "./Input";
 
 describe("FormLayout / FormSection", () => {
-    it("FormLayout は columns / gap に応じたクラスを付ける", () => {
+    it("FormLayoutはcolumns / gapに応じたクラスを付ける", () => {
         const { rerender } = render(
             <FormLayout>
                 <p>A</p>
@@ -23,7 +23,7 @@ describe("FormLayout / FormSection", () => {
         expect(screen.getByText("A").parentElement).toHaveClass("md:grid-cols-2", "gap-8", "mt-4");
     });
 
-    it("FormSection は見出し付きの section になり、説明を表示する", () => {
+    it("FormSectionは見出し付きのsectionになり、説明を表示する", () => {
         render(
             <FormSection title="基本情報" description="氏名と連絡先を入力してください" headingLevel={3}>
                 <FormField label="氏名">
@@ -38,7 +38,7 @@ describe("FormLayout / FormSection", () => {
         expect(section).not.toHaveClass("md:grid-cols-3");
     });
 
-    it("layout=settings で md 以上は見出し 1/3・項目 2/3 のグリッドになる", () => {
+    it("layout=settingsでmd以上は見出し1/3・項目2/3のグリッドになる", () => {
         render(
             <FormSection title="通知" layout="settings" id="notify">
                 <p>内容</p>

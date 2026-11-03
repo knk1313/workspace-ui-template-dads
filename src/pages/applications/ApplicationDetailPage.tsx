@@ -66,7 +66,7 @@ export default function ApplicationDetailPage() {
             <ErrorPage
                 status={404}
                 title="申請が見つかりません"
-                description="指定された申請は存在しないか、削除された可能性があります。受付番号を確かめて、申請一覧から探してください。"
+                description="この申請は削除されたか、受付番号が違います。申請一覧から探し直してください。"
                 actions={<ButtonLink to={listHref}>申請一覧へ戻る</ButtonLink>}
             />
         );
@@ -79,17 +79,17 @@ export default function ApplicationDetailPage() {
     // 承認は申請者への通知を伴い、取り消せないため確認を取る（削除は「元に戻す」で取り消せるので確認しない）
     async function approve() {
         const ok = await confirm({
-            title: "この申請を承認しますか",
-            message: `${app!.number}「${app!.title}」を承認し、申請者に通知します。`,
+            title: "この申請を承認する",
+            message: `${app!.number}「${app!.title}」を承認し、申請者に通知します`,
             confirmLabel: "承認する",
         });
         if (!ok) return;
         try {
             await approveApplication(id);
             setNotice({ id, type: "approved" });
-            toast({ type: "success", title: `${app!.number} を承認しました` });
+            toast({ type: "success", title: `${app!.number}を承認しました` });
         } catch (e) {
-            toast({ type: "error", title: `${app!.number} を承認できませんでした`, description: (e as Error).message });
+            toast({ type: "error", title: `${app!.number}を承認できませんでした`, description: (e as Error).message });
         } finally {
             invalidateApplications();
         }
@@ -100,11 +100,11 @@ export default function ApplicationDetailPage() {
             await returnMutation.run(id, reason);
             setNotice({ id, type: "returned" });
             setReturnOpen(false);
-            toast({ type: "success", title: `${app!.number} を差し戻しました` });
+            toast({ type: "success", title: `${app!.number}を差し戻しました` });
             invalidateApplications();
         } catch (e) {
             // ダイアログは閉じずに残し、入力した理由を失わずにやり直せるようにする
-            toast({ type: "error", title: `${app!.number} を差し戻せませんでした`, description: (e as Error).message });
+            toast({ type: "error", title: `${app!.number}を差し戻せませんでした`, description: (e as Error).message });
         }
     }
 
@@ -116,19 +116,19 @@ export default function ApplicationDetailPage() {
             navigate(listHref);
             toast({
                 type: "success",
-                title: `${number} を削除しました`,
+                title: `${number}を削除しました`,
                 action: {
                     label: "元に戻す",
                     focus: true,
                     onClick: () =>
                         void restoreApplications(deleted)
-                            .then(() => toast({ type: "success", title: `${number} の削除を取り消しました` }))
-                            .catch((e: Error) => toast({ type: "error", title: `${number} を元に戻せませんでした`, description: e.message }))
+                            .then(() => toast({ type: "success", title: `${number}を元に戻しました` }))
+                            .catch((e: Error) => toast({ type: "error", title: `${number}を元に戻せませんでした`, description: e.message }))
                             .finally(() => invalidateApplications()),
                 },
             });
-        } catch (e) {
-            toast({ type: "error", title: `${number} を削除できませんでした`, description: (e as Error).message });
+        } catch {
+            toast({ type: "error", title: `${number}を削除できませんでした`, description: "時間をおいて、もう一度削除してください。" });
         }
     }
 
@@ -144,10 +144,10 @@ export default function ApplicationDetailPage() {
                 breadcrumbs={[{ label: "ホーム", href: "/" }, { label: "申請一覧", href: listHref }, { label: app.number }]}
                 meta={
                     <span className="flex flex-wrap items-center gap-x-4 gap-y-2">
-                        <span className="nums">受付番号 {app.number}</span>
+                        <span className="nums">受付番号{app.number}</span>
                         <ApplicationStatusChip status={app.status} />
                         <span>
-                            更新 <time dateTime={app.updatedAt}>{formatDateTime(app.updatedAt)}</time>
+                            更新<time dateTime={app.updatedAt}>{formatDateTime(app.updatedAt)}</time>
                         </span>
                     </span>
                 }
@@ -173,7 +173,7 @@ export default function ApplicationDetailPage() {
                 <NotificationBanner
                     type="success"
                     title="申請を承認しました"
-                    description="申請者に承認の通知を送りました（表示例のため、実際には送信されません）。"
+                    description="申請者に承認の通知を送りました。見本のため、実際には送りません。"
                     live
                     onClose={() => setNotice(null)}
                 />
@@ -185,11 +185,11 @@ export default function ApplicationDetailPage() {
                     description={
                         returnReason ? (
                             <>
-                                <span className="font-bold">差戻しの理由: </span>
+                                <span className="font-bold">差戻しの理由：</span>
                                 {returnReason}
                             </>
                         ) : (
-                            "申請者による修正と再提出を待っています。再提出されると状態が「受付済み」に戻ります。"
+                            "申請者が直して出し直すのを待っています。出し直すと、状態が「受付済み」に戻ります。"
                         )
                     }
                     live={justReturned}

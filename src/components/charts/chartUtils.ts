@@ -89,7 +89,7 @@ export function toSafeId(id: string): string {
 /** 系列数を 5 に制限する。超えていたら開発時に警告する。 */
 export function limitSeries<T>(series: readonly T[]): T[] {
     if (series.length > MAX_SERIES) {
-        console.warn(`グラフの系列は最大 ${MAX_SERIES} 色です。${series.length} 系列のうち先頭 ${MAX_SERIES} 系列だけを描画します。`);
+        console.warn(`グラフの系列は最大${MAX_SERIES}色です。${series.length}系列のうち先頭${MAX_SERIES}系列だけを描画します。`);
     }
     return series.slice(0, MAX_SERIES);
 }
@@ -131,9 +131,9 @@ export function buildTrendSummary({ title, data, series, xKey, unit }: SummaryIn
     const last = data[data.length - 1];
     const parts = series.map((s) => {
         const value = numberAt(last, s.key);
-        return `${s.name} の推移、最新値 ${formatNumber(value, unit)}（${String(last[xKey])}）`;
+        return `${s.name}の推移、最新値${formatNumber(value, unit)}（${String(last[xKey])}）`;
     });
-    return `${title}。${data.length} 時点。${parts.join("。")}。`;
+    return `${title}。${data.length}時点。${parts.join("。")}。`;
 }
 
 /**
@@ -150,10 +150,10 @@ export function buildCompareSummary({ title, data, series, xKey, unit }: Summary
             if (max === undefined || v > (numberAt(max, s.key) ?? -Infinity)) max = d;
             if (min === undefined || v < (numberAt(min, s.key) ?? Infinity)) min = d;
         }
-        if (!max || !min) return `${s.name} はデータがありません`;
-        return `${s.name} は ${String(max[xKey])} が最大 ${formatNumber(numberAt(max, s.key), unit)}、${String(min[xKey])} が最小 ${formatNumber(numberAt(min, s.key), unit)}`;
+        if (!max || !min) return `${s.name}はデータがありません`;
+        return `${s.name}は${String(max[xKey])}が最大${formatNumber(numberAt(max, s.key), unit)}、${String(min[xKey])}が最小${formatNumber(numberAt(min, s.key), unit)}`;
     });
-    return `${title}。${data.length} 項目。${parts.join("。")}。`;
+    return `${title}。${data.length}項目。${parts.join("。")}。`;
 }
 
 /**
@@ -162,6 +162,14 @@ export function buildCompareSummary({ title, data, series, xKey, unit }: Summary
 export function buildShareSummary(title: string, items: readonly { name: string; value: number }[], unit?: string): string {
     const total = items.reduce((sum, d) => sum + d.value, 0);
     if (items.length === 0 || total === 0) return `${title}。データがありません。`;
-    const parts = items.map((d) => `${d.name} ${formatNumber(d.value, unit)}（${formatPercent(d.value / total)}）`);
-    return `${title}。合計 ${formatNumber(total, unit)}。${parts.join("、")}。`;
+    const parts = items.map((d) => `${joinNameValue(d.name, formatNumber(d.value, unit))}（${formatPercent(d.value / total)}）`);
+    return `${title}。合計${formatNumber(total, unit)}。${parts.join("、")}。`;
+}
+
+/**
+ * 名前と数値をつなぐ。和文の名前は空白を入れずにつなぎ（「承認600件」）、英数字で終わる名前は空白で区切る（「A 3件」）。
+ * 全角と半角の間には空白を入れない、という表記の方針（docs/ui-text.md）に合わせる。
+ */
+export function joinNameValue(name: string, value: string): string {
+    return /[0-9A-Za-z]$/.test(name) ? `${name} ${value}` : `${name}${value}`;
 }

@@ -48,7 +48,7 @@ describe("Table", () => {
         expect(screen.getByRole("cell", { name: "山田 太郎" })).toHaveClass("text-left");
     });
 
-    it("size=dense でセルの余白と行高を詰める", () => {
+    it("size=denseでセルの余白と行高を詰める", () => {
         const { rerender } = render(
             <Table>
                 <TableBody>
@@ -73,7 +73,7 @@ describe("Table", () => {
         expect(screen.getByRole("table")).toHaveClass("leading-130");
     });
 
-    it("striped / hoverHighlight / selectable では罫線を濃くし、行にストライプ・ホバー・選択の背景を付ける", () => {
+    it("striped / hoverHighlight / selectableでは罫線を濃くし、行にストライプ・ホバー・選択の背景を付ける", () => {
         renderTable({ striped: true, hoverHighlight: true });
         expect(screen.getByRole("cell", { name: "12,000" })).toHaveClass("border-border-table");
         const rows = screen.getAllByRole("row");
@@ -83,7 +83,7 @@ describe("Table", () => {
         expect(rows[2]).toHaveClass("bg-surface-selected");
     });
 
-    it("横スクロールの外枠と fullWidth / stickyHeader", () => {
+    it("横スクロールの外枠とfullWidth / stickyHeader", () => {
         const { rerender } = renderTable();
         const table = screen.getByRole("table");
         expect(table.parentElement).toHaveClass("overflow-x-auto", "max-md:scroll-shadow-x");

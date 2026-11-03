@@ -4,11 +4,11 @@ import { expectNoA11yViolations } from "@/test/axe";
 import { renderApp } from "@/test/renderApp";
 
 describe("ServerErrorPage", () => {
-    it("/error/500 でシステムエラーの画面を表示する", () => {
+    it("/error/500でシステムエラーの画面を表示する", () => {
         renderApp("/error/500");
-        expect(screen.getByRole("heading", { level: 1, name: "システムエラーが発生しました" })).toBeInTheDocument();
+        expect(screen.getByRole("heading", { level: 1, name: "ページを表示できません" })).toBeInTheDocument();
         expect(screen.getByText("500")).toBeInTheDocument();
-        expect(screen.getByText(/しばらく時間をおいてから/)).toBeInTheDocument();
+        expect(screen.getByText(/時間をおいて/)).toBeInTheDocument();
         expect(screen.getByText(/ヘルプデスク/)).toBeInTheDocument();
         expect(screen.getByRole("button", { name: "再読み込み" })).toBeInTheDocument();
         expect(screen.getByRole("link", { name: "ホームへ戻る" })).toHaveAttribute("href", "/");

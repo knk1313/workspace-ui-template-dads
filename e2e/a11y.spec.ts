@@ -17,10 +17,10 @@ async function open(page: Page, path: string) {
     await waitForLoaded(page);
 }
 
-test.describe("400% 拡大（320px 幅）", () => {
+test.describe("400%拡大（320px幅）", () => {
     test.use({ viewport: { width: 320, height: 256 } });
     for (const path of PAGES) {
-        test(`${path} が横にはみ出さない`, async ({ page }) => {
+        test(`${path}が横にはみ出さない`, async ({ page }) => {
             await open(page, path);
             await expectNoHorizontalOverflow(page);
         });
@@ -55,12 +55,12 @@ for (const path of PAGES) {
 }
 
 for (const path of PAGES) {
-    test(`${path}: h1 が 1 つで、見出しのレベルが飛ばず、main が 1 つある`, async ({ page }) => {
+    test(`${path}: h1が1つで、見出しのレベルが飛ばず、mainが1つある`, async ({ page }) => {
         await open(page, path);
         const levels = await page.evaluate(() =>
             [...document.querySelectorAll("h1, h2, h3, h4, h5, h6")].filter((h) => h.checkVisibility()).map((h) => Number(h.tagName[1])),
         );
-        expect(levels.filter((l) => l === 1), "h1 の数").toHaveLength(1);
+        expect(levels.filter((l) => l === 1), "h1の数").toHaveLength(1);
         const skipped = levels.flatMap((level, i) => (i > 0 && level > levels[i - 1] + 1 ? [`h${levels[i - 1]} → h${level}`] : []));
         expect(skipped, "見出しのレベルが飛んでいる箇所").toEqual([]);
         await expect(page.getByRole("main")).toHaveCount(1);
@@ -80,9 +80,9 @@ test.describe("強制カラーモード", () => {
         expect(await track("申請が届いたとき")).not.toBe(await track("週次のまとめ"));
     });
 
-    test("チェックボックス・ラジオボタンは OS の標準の部品で描き、選択状態が分かる", async ({ page }) => {
+    test("チェックボックス・ラジオボタンはOSの標準の部品で描き、選択状態が分かる", async ({ page }) => {
         await open(page, "/applications/new");
-        for (const el of [page.getByRole("radio", { name: "補助金" }), page.getByRole("checkbox", { name: "記載内容に誤りがないことを確認しました" })]) {
+        for (const el of [page.getByRole("radio", { name: "補助金" }), page.getByRole("checkbox", { name: "記載内容に誤りがないことを確かめた" })]) {
             expect(await el.evaluate((e) => getComputedStyle(e).appearance)).toBe("auto");
         }
     });
@@ -111,7 +111,7 @@ async function tabTo(page: Page, target: Locator, max = 60) {
         await page.keyboard.press("Tab");
         if (await target.evaluate((el) => el === document.activeElement)) return;
     }
-    throw new Error(`Tab で ${target} まで移動できなかった`);
+    throw new Error(`Tabで${target}まで移動できなかった`);
 }
 
 test("キーボードだけで新規申請を完了できる", async ({ page }) => {
@@ -138,7 +138,7 @@ test("キーボードだけで新規申請を完了できる", async ({ page }) 
     await page.keyboard.press("Space");
     await (await chooser).setFiles({ name: "申請書.pdf", mimeType: "application/pdf", buffer: Buffer.from("%PDF-1.4") });
 
-    await tabTo(page, page.getByRole("checkbox", { name: "記載内容に誤りがないことを確認しました" }));
+    await tabTo(page, page.getByRole("checkbox", { name: "記載内容に誤りがないことを確かめた" }));
     await page.keyboard.press("Space");
     await tabTo(page, page.getByRole("button", { name: "確認へ進む" }));
     await page.keyboard.press("Enter");
@@ -146,5 +146,5 @@ test("キーボードだけで新規申請を完了できる", async ({ page }) 
     await expect(page.getByRole("heading", { level: 2, name: "入力内容の確認" })).toBeFocused();
     await tabTo(page, page.getByRole("button", { name: "申請する" }));
     await page.keyboard.press("Enter");
-    await expect(page.getByText("申請を受け付けました")).toBeFocused();
+    await expect(page.getByText("申請の受付完了")).toBeFocused();
 });

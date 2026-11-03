@@ -33,7 +33,7 @@ describe("CommandPalette", () => {
         expect(screen.queryByRole("dialog")).toBeNull();
     });
 
-    it("dialog + combobox + listbox / group / option の構造を持つ", () => {
+    it("dialog + combobox + listbox / group / optionの構造を持つ", () => {
         render(<CommandPalette open onClose={() => {}} items={makeItems()} />);
         expect(screen.getByRole("dialog", { name: "コマンドパレット" })).toHaveAttribute("aria-modal", "true");
         const input = screen.getByRole("combobox", { name: "ページやコマンドを検索" });
@@ -47,7 +47,7 @@ describe("CommandPalette", () => {
         expect(input).toHaveAttribute("aria-activedescendant", screen.getAllByRole("option")[0].id);
     });
 
-    it("入力で絞り込み（keywords も対象）、該当なしのメッセージを出す", async () => {
+    it("入力で絞り込み（keywordsも対象）、該当なしのメッセージを出す", async () => {
         const user = userEvent.setup();
         render(<CommandPalette open onClose={() => {}} items={makeItems()} />);
         const input = screen.getByRole("combobox");
@@ -57,10 +57,10 @@ describe("CommandPalette", () => {
         await user.clear(input);
         await user.type(input, "存在しない");
         expect(screen.queryByRole("option")).toBeNull();
-        expect(screen.getByText("該当する項目がありません")).toBeInTheDocument();
+        expect(screen.getByText("一致する画面と申請はありません。別の言葉で検索してください。")).toBeInTheDocument();
     });
 
-    it("↓ ↑ で候補を移動し、Enter で実行して閉じる", async () => {
+    it("↓ ↑ で候補を移動し、Enterで実行して閉じる", async () => {
         const user = userEvent.setup();
         const onSelect = vi.fn();
         const onClose = vi.fn();
@@ -85,7 +85,7 @@ describe("CommandPalette", () => {
         expect(onSelect).toHaveBeenCalledWith("settings");
     });
 
-    it("Ctrl+K で開き、Esc で閉じてフォーカスを戻す", async () => {
+    it("Ctrl+Kで開き、Escで閉じてフォーカスを戻す", async () => {
         const user = userEvent.setup();
         render(<Harness items={makeItems()} />);
         const trigger = screen.getByRole("button", { name: "検索" });
@@ -98,7 +98,7 @@ describe("CommandPalette", () => {
         expect(trigger).toHaveFocus();
     });
 
-    it("Meta+K でも開き、Tab はダイアログ内に閉じ込める", async () => {
+    it("Meta+Kでも開き、Tabはダイアログ内に閉じ込める", async () => {
         const user = userEvent.setup();
         render(<Harness items={makeItems()} />);
         await user.keyboard("{Meta>}k{/Meta}");

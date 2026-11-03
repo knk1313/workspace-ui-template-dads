@@ -11,7 +11,7 @@ const LayoutPreferenceContext = createContext<LayoutPreferenceValue | null>(null
 
 export function useLayoutPreference(): LayoutPreferenceValue {
     const ctx = useContext(LayoutPreferenceContext);
-    if (!ctx) throw new Error("useLayoutPreference は LayoutPreferenceProvider の内側で使ってください");
+    if (!ctx) throw new Error("useLayoutPreferenceはLayoutPreferenceProviderの内側で使ってください");
     return ctx;
 }
 

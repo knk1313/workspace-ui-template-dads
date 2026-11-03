@@ -8,7 +8,7 @@ test.describe("申請の作成フォーム", () => {
         await page.goto("/applications/new");
         await page.getByRole("button", { name: "確認へ進む" }).click();
 
-        const summaryHeading = page.getByRole("heading", { name: /入力内容に \d+ 件の誤りがあります/ });
+        const summaryHeading = page.getByRole("heading", { name: /入力内容に\d+件の誤りがあります/ });
         await expect(summaryHeading).toBeVisible();
         await expect(summaryHeading).toBeFocused();
 
@@ -17,7 +17,7 @@ test.describe("申請の作成フォーム", () => {
         await expectNoAxeViolations(page, "作成フォーム（エラー）");
 
         // エラー一覧のリンクで該当項目へ移動できる
-        await page.getByRole("link", { name: /^メールアドレス: / }).click();
+        await page.getByRole("link", { name: /^メールアドレス：/ }).click();
         await expect(page.getByLabel(/^メールアドレス/)).toBeFocused();
     });
 
@@ -30,7 +30,7 @@ test.describe("申請の作成フォーム", () => {
         await page.getByLabel(/^メールアドレス/).fill("yamada@example.jp");
         await page.getByLabel(/^希望日/).fill("2099-12-01");
         await page.getByLabel(/^添付ファイル/).setInputFiles({ name: "申請書.pdf", mimeType: "application/pdf", buffer: Buffer.from("%PDF-1.4") });
-        await page.getByRole("checkbox", { name: "記載内容に誤りがないことを確認しました" }).check();
+        await page.getByRole("checkbox", { name: "記載内容に誤りがないことを確かめた" }).check();
         await page.getByRole("button", { name: "確認へ進む" }).click();
 
         await expect(page.getByRole("heading", { name: /確認/ }).first()).toBeVisible();
@@ -38,7 +38,7 @@ test.describe("申請の作成フォーム", () => {
         await expectNoAxeViolations(page, "作成フォーム（確認）");
 
         await page.getByRole("button", { name: "申請する" }).click();
-        await expect(page.getByRole("heading", { name: /申請を受け付けました|完了/ }).first()).toBeVisible();
+        await expect(page.getByRole("heading", { name: /申請の受付完了|完了/ }).first()).toBeVisible();
         await expectNoAxeViolations(page, "作成フォーム（完了）");
     });
 });
@@ -57,7 +57,7 @@ test.describe("ログイン", () => {
         await page.getByLabel("メールアドレス").fill("fail@example.go.jp");
         await page.getByLabel("パスワード", { exact: true }).fill("password");
         await page.getByRole("button", { name: "ログイン" }).click();
-        await expect(page.getByRole("heading", { name: "メールアドレスまたはパスワードが正しくありません" })).toBeVisible();
+        await expect(page.getByRole("heading", { name: "メールアドレスかパスワードが違います" })).toBeVisible();
 
         await page.getByLabel("メールアドレス").fill("sato@example.go.jp");
         await page.getByRole("button", { name: "ログイン" }).click();

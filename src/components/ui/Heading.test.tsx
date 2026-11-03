@@ -5,14 +5,14 @@ import { expectNoA11yViolations } from "@/test/axe";
 import { Heading } from "./Heading";
 
 describe("Heading", () => {
-    it("level に応じた見出し要素と既定サイズで描画する", () => {
+    it("levelに応じた見出し要素と既定サイズで描画する", () => {
         const { rerender } = render(<Heading level={1}>ページ</Heading>);
         expect(screen.getByRole("heading", { level: 1, name: "ページ" })).toHaveClass("text-std-32B-150");
         rerender(<Heading level={3}>節</Heading>);
         expect(screen.getByRole("heading", { level: 3 })).toHaveClass("text-std-20B-150");
     });
 
-    it("size はレベルと独立に指定できる", () => {
+    it("sizeはレベルと独立に指定できる", () => {
         render(
             <Heading level={2} size={36}>
                 大見出し
@@ -21,9 +21,9 @@ describe("Heading", () => {
         expect(screen.getByRole("heading", { level: 2 })).toHaveClass("text-std-36B-140");
     });
 
-    it("shoulder / subtitle は hgroup の p になり、見出し要素にならない", () => {
+    it("shoulder / subtitleはhgroupのpになり、見出し要素にならない", () => {
         render(
-            <Heading level={2} shoulder="第 1 章" subtitle="概要">
+            <Heading level={2} shoulder="第1章" subtitle="概要">
                 見出し
             </Heading>,
         );
@@ -32,11 +32,11 @@ describe("Heading", () => {
         expect(group.tagName).toBe("HGROUP");
         expect(group).toHaveClass("text-std-24B-150");
         expect(screen.getAllByRole("heading")).toHaveLength(1);
-        expect(screen.getByText("第 1 章").tagName).toBe("P");
+        expect(screen.getByText("第1章").tagName).toBe("P");
         expect(screen.getByText("概要").tagName).toBe("P");
     });
 
-    it("chip / rule / icon の装飾を付ける", () => {
+    it("chip / rule / iconの装飾を付ける", () => {
         render(
             <Heading level={2} chip rule={4} icon={Settings}>
                 設定
@@ -47,7 +47,7 @@ describe("Heading", () => {
         expect(heading.querySelector("svg")).toHaveAttribute("aria-hidden", "true");
     });
 
-    it("className と id を受け取る", () => {
+    it("classNameとidを受け取る", () => {
         render(
             <Heading level={2} id="sec" className="mt-8">
                 A

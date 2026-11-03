@@ -20,15 +20,15 @@ export function ApplicationFormComplete({ receiptNumber, email, onRestart }: App
                 title={
                     // ステップが変わったらこの見出しへフォーカスを移す（NotificationBanner は見出しに id を渡せないため中身に付ける）
                     <span id={COMPLETE_HEADING_ID} tabIndex={-1} className="focus-visible:focus-ring">
-                        申請を受け付けました
+                        申請の受付完了
                     </span>
                 }
                 description={
                     <>
                         <p className="m-0">
-                            受付番号は <strong className="nums">{receiptNumber}</strong> です。お問い合わせの際にお伝えください。
+                            受付番号は<strong className="nums">{receiptNumber}</strong>です。問い合わせるときに伝えてください。
                         </p>
-                        <p className="m-0">審査の結果は {email} にお知らせします（架空の画面のため、実際には送信されません）。</p>
+                        <p className="m-0">審査の結果は{email}にお知らせします。見本のため、実際には送りません。</p>
                     </>
                 }
             />

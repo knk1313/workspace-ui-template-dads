@@ -32,7 +32,7 @@ export function LoadError({ error, onRetry, subject, stale = false, className }:
         <NotificationBanner
             type="error"
             title={subject ? `${subject}を読み込めませんでした` : "読み込めませんでした"}
-            description={stale ? `${error.message}表示しているのは、前に読み込んだ内容です。` : error.message}
+            description={stale ? "前に読み込んだ内容を表示しています。時間をおいて「再読み込み」を押してください。" : error.message}
             live
             className={className}
             actions={

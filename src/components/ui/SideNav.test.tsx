@@ -34,7 +34,7 @@ function renderNav(path: string, props: Partial<React.ComponentProps<typeof Side
 }
 
 describe("SideNav", () => {
-    it("nav + セクション見出し + リンクを描画し、現在地に aria-current=page を付ける", () => {
+    it("nav + セクション見出し + リンクを描画し、現在地にaria-current=pageを付ける", () => {
         renderNav("/settings");
         expect(screen.getByRole("navigation", { name: "メインナビゲーション" })).toBeInTheDocument();
         expect(screen.getByText("ワークスペース")).toHaveClass("text-14", "font-bold", "text-text-muted");
@@ -69,7 +69,7 @@ describe("SideNav", () => {
         expect(screen.getByRole("button", { name: "申請" })).toHaveAttribute("aria-expanded", "false");
     });
 
-    it("Tab と Enter でキーボード操作できる", async () => {
+    it("TabとEnterでキーボード操作できる", async () => {
         const user = userEvent.setup();
         renderNav("/");
         await user.tab();
@@ -85,7 +85,7 @@ describe("SideNav", () => {
         expect(toggle).toHaveAttribute("aria-expanded", "true");
     });
 
-    it("collapsed ではラベルを sr-only にし、title を付け、開閉ボタンを出さない", () => {
+    it("collapsedではラベルをsr-onlyにし、titleを付け、開閉ボタンを出さない", () => {
         renderNav("/", { collapsed: true });
         const link = screen.getByRole("link", { name: "ダッシュボード" });
         expect(link).toHaveAttribute("title", "ダッシュボード");
@@ -95,7 +95,7 @@ describe("SideNav", () => {
         expect(screen.getByText("ナビゲーション")).toHaveClass("sr-only");
     });
 
-    it("onNavigate は項目を選んだときに呼ばれる", async () => {
+    it("onNavigateは項目を選んだときに呼ばれる", async () => {
         const user = userEvent.setup();
         const onNavigate = vi.fn();
         renderNav("/", { onNavigate });

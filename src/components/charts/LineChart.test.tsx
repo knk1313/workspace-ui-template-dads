@@ -16,16 +16,16 @@ const series = [
 const size = { width: 600, height: 240 };
 
 describe("LineChart", () => {
-    it("SVG に role=img と要約の aria-label を付け、タイトルと単位を表示する", () => {
+    it("SVGにrole=imgと要約のaria-labelを付け、タイトルと単位を表示する", () => {
         render(<LineChart title="申請件数の月次推移" unit="件" data={data} xKey="month" series={series} size={size} />);
         const img = screen.getByRole("img");
         expect(img.tagName).toBe("svg");
         expect(img).toHaveAttribute("aria-label", expect.stringContaining("申請件数の月次推移"));
-        expect(img).toHaveAttribute("aria-label", expect.stringContaining("申請 の推移、最新値 1,180件（6月）"));
-        expect(screen.getByRole("heading", { level: 3, name: /申請件数の月次推移/ })).toHaveTextContent("単位: 件");
+        expect(img).toHaveAttribute("aria-label", expect.stringContaining("申請の推移、最新値1,180件（6月）"));
+        expect(screen.getByRole("heading", { level: 3, name: /申請件数の月次推移/ })).toHaveTextContent("単位：件");
     });
 
-    it("summary を渡すと aria-label に使う", () => {
+    it("summaryを渡すとaria-labelに使う", () => {
         render(<LineChart title="推移" data={data} xKey="month" series={series} summary="独自の要約" size={size} />);
         expect(screen.getByRole("img")).toHaveAttribute("aria-label", "独自の要約");
     });
@@ -45,7 +45,7 @@ describe("LineChart", () => {
         expect(lines[1]).toHaveAttribute("stroke-dasharray", "8 4");
     });
 
-    it("showDots=false でデータ点を描かない", () => {
+    it("showDots=falseでデータ点を描かない", () => {
         const { container } = render(<LineChart title="推移" data={data} xKey="month" series={series} showDots={false} size={size} />);
         expect(container.querySelectorAll("[data-dot]")).toHaveLength(0);
     });
@@ -57,23 +57,23 @@ describe("LineChart", () => {
     });
 
     it("参照線のラベルを描く", () => {
-        render(<LineChart title="推移" data={data} xKey="month" series={series} referenceLine={{ y: 1300, label: "目標 1,300 件" }} size={size} />);
-        expect(screen.getByText("目標 1,300 件")).toBeInTheDocument();
+        render(<LineChart title="推移" data={data} xKey="month" series={series} referenceLine={{ y: 1300, label: "目標1,300件" }} size={size} />);
+        expect(screen.getByText("目標1,300件")).toBeInTheDocument();
     });
 
     it("データテーブルをトグルで表示する（caption・見出し・数値）", async () => {
         const user = userEvent.setup();
         render(<LineChart title="申請件数の月次推移" unit="件" data={data} xKey="month" series={series} size={size} />);
-        const toggle = screen.getByRole("button", { name: "データテーブルを表示" });
+        const toggle = screen.getByRole("button", { name: "数値の表を表示" });
         expect(toggle).toHaveAttribute("aria-expanded", "false");
         expect(screen.queryByRole("table")).not.toBeInTheDocument();
         await user.click(toggle);
-        expect(screen.getByRole("button", { name: "データテーブルを閉じる" })).toHaveAttribute("aria-expanded", "true");
+        expect(screen.getByRole("button", { name: "数値の表を閉じる" })).toHaveAttribute("aria-expanded", "true");
         const table = screen.getByRole("table", { name: /申請件数の月次推移/ });
         expect(within(table).getByRole("columnheader", { name: "申請" })).toBeInTheDocument();
         expect(within(table).getByRole("rowheader", { name: "5月" })).toBeInTheDocument();
         expect(within(table).getByRole("cell", { name: "1,350件" })).toBeInTheDocument();
-        await user.click(screen.getByRole("button", { name: "データテーブルを閉じる" }));
+        await user.click(screen.getByRole("button", { name: "数値の表を閉じる" }));
         expect(screen.queryByRole("table")).not.toBeInTheDocument();
     });
 
@@ -84,7 +84,7 @@ describe("LineChart", () => {
         expect(screen.getByText("2026-10-31")).toBeInTheDocument();
     });
 
-    it("6 系列以上は 5 系列に制限する", () => {
+    it("6系列以上は5系列に制限する", () => {
         const many = Array.from({ length: 6 }, (_, i) => ({ key: `s${i}`, name: `系列${i}` }));
         const rows = data.map((d) => ({ ...d, s0: 1, s1: 2, s2: 3, s3: 4, s4: 5, s5: 6 }));
         const { container } = render(<LineChart title="推移" data={rows} xKey="month" series={many} size={size} />);
@@ -97,7 +97,7 @@ describe("LineChart", () => {
             <LineChart title="申請件数の月次推移" unit="件" data={data} xKey="month" series={series} referenceLine={{ y: 1300, label: "目標" }} source="出典" updatedAt="2026-10-31" size={size} />,
         );
         await expectNoA11yViolations(container);
-        await user.click(screen.getByRole("button", { name: "データテーブルを表示" }));
+        await user.click(screen.getByRole("button", { name: "数値の表を表示" }));
         await expectNoA11yViolations(container);
     });
 });

@@ -38,7 +38,7 @@ describe("ApplicationDetailPage", () => {
         expect(attachmentsTab).toHaveAttribute("aria-selected", "true");
         expect(attachmentsTab).toHaveFocus();
         const panel = screen.getByRole("tabpanel", { name: /^添付ファイル/ });
-        expect(within(panel).getByRole("button", { name: `${reviewing.attachments[0].name} をダウンロード` })).toBeInTheDocument();
+        expect(within(panel).getByRole("button", { name: `${reviewing.attachments[0].name}をダウンロード` })).toBeInTheDocument();
 
         await user.keyboard("{ArrowRight}");
         expect(screen.getByRole("tab", { name: "履歴" })).toHaveAttribute("aria-selected", "true");
@@ -48,17 +48,17 @@ describe("ApplicationDetailPage", () => {
     it("承認すると確認のあとに状態が変わり、成功のバナーを表示する", async () => {
         const { user } = await renderDetail(`/applications/${reviewing.id}`);
         await user.click(screen.getByRole("button", { name: "承認する" }));
-        const dialog = screen.getByRole("dialog", { name: "この申請を承認しますか" });
+        const dialog = screen.getByRole("dialog", { name: "この申請を承認する" });
         await user.click(within(dialog).getByRole("button", { name: "承認する" }));
 
         expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
         expect(screen.getByRole("heading", { name: "申請を承認しました" })).toBeInTheDocument();
-        expect(screen.getByText(`${reviewing.number} を承認しました`)).toBeInTheDocument();
+        expect(screen.getByText(`${reviewing.number}を承認しました`)).toBeInTheDocument();
         // 決定済みになったので承認ボタンは出さない
         expect(screen.queryByRole("button", { name: "承認する" })).not.toBeInTheDocument();
     });
 
-    it("差戻しダイアログ: 開くと見出しにフォーカスし、未入力で送るとエラー、Esc で閉じてトリガーへ戻る", async () => {
+    it("差戻しダイアログ：開くと見出しにフォーカスし、未入力で送るとエラー、Escで閉じてトリガーへ戻る", async () => {
         const { user } = await renderDetail(`/applications/${reviewing.id}`);
         const trigger = screen.getByRole("button", { name: "その他の操作" });
         await user.click(trigger);
@@ -95,7 +95,7 @@ describe("ApplicationDetailPage", () => {
         expect(screen.getByRole("heading", { name: "この申請は差し戻されています" })).toBeInTheDocument();
     });
 
-    it("存在しない id では 404 を表示する", async () => {
+    it("存在しないidでは404を表示する", async () => {
         const { user } = await renderDetail("/applications/app-999");
         expect(screen.getByText("404")).toBeInTheDocument();
         expect(screen.getByRole("heading", { level: 1, name: "申請が見つかりません" })).toBeInTheDocument();

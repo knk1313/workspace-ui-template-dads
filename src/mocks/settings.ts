@@ -28,7 +28,7 @@ export const LOGIN_FAILURE_EMAIL = "fail@example.go.jp";
 
 /** 500 エラー画面に出す問い合わせ先（架空）。 */
 export const SUPPORT_CONTACT = {
-    name: "申請管理システム ヘルプデスク",
+    name: "申請管理システムのヘルプデスク",
     phone: "0120-000-000",
-    hours: "平日 9時〜17時",
+    hours: "平日9時〜17時",
 };

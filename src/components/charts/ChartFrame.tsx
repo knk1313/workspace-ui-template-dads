@@ -62,7 +62,7 @@ export function ChartDataTable({ caption, rowHeader, columns, rows, unit, classN
             <table className="w-full border-collapse text-14 text-text">
                 <caption className="py-2 text-left font-bold">
                     {caption}
-                    {unit && <span className="ml-2 font-normal text-text-muted">（単位: {unit}）</span>}
+                    {unit && <span className="ml-2 font-normal text-text-muted">（単位：{unit}）</span>}
                 </caption>
                 <thead>
                     <tr className="border-b-2 border-border-emphasis bg-surface-strong">
@@ -150,7 +150,7 @@ export function ChartFrame({
                 <div className="flex flex-wrap items-start justify-between gap-2">
                     <Heading className="text-std-16B-170">
                         {title}
-                        {unit && <span className="ml-2 font-normal text-text-muted">（単位: {unit}）</span>}
+                        {unit && <span className="ml-2 font-normal text-text-muted">（単位：{unit}）</span>}
                     </Heading>
                     {actions && <div className="flex shrink-0 items-center gap-2">{actions}</div>}
                 </div>
@@ -163,19 +163,19 @@ export function ChartFrame({
                 <dl className="flex flex-wrap gap-x-4 gap-y-0.5 text-14 text-text-muted">
                     {source && (
                         <div className="flex gap-1">
-                            <dt className="shrink-0 whitespace-nowrap">出典:</dt>
+                            <dt className="shrink-0 whitespace-nowrap">出典：</dt>
                             <dd>{source}</dd>
                         </div>
                     )}
                     {note && (
                         <div className="flex gap-1">
-                            <dt className="shrink-0 whitespace-nowrap">注記:</dt>
+                            <dt className="shrink-0 whitespace-nowrap">注記：</dt>
                             <dd>{note}</dd>
                         </div>
                     )}
                     {updatedAt && (
                         <div className="flex gap-1">
-                            <dt className="shrink-0 whitespace-nowrap">更新日:</dt>
+                            <dt className="shrink-0 whitespace-nowrap">更新日：</dt>
                             <dd>{updatedAt}</dd>
                         </div>
                     )}
@@ -184,7 +184,7 @@ export function ChartFrame({
             {table && (
                 <div className="flex flex-col items-start gap-1">
                     <Button variant="text" size="sm" aria-expanded={tableOpen} aria-controls={tableId} onClick={() => setTableOpen((v) => !v)}>
-                        {tableOpen ? "データテーブルを閉じる" : "データテーブルを表示"}
+                        {tableOpen ? "数値の表を閉じる" : "数値の表を表示"}
                     </Button>
                     <div id={tableId} className="w-full" hidden={!tableOpen}>
                         {tableOpen && table}

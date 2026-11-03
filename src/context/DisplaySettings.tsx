@@ -4,9 +4,9 @@ import { formatDateTime, type DateDisplay } from "@/lib/format";
 
 // 設定画面の選択肢。
 export const LOCALE_OPTIONS = [
-    { value: "ja-JP", label: "日本（年/月/日 24時間）" },
-    { value: "en-US", label: "米国（月/日/年 12時間）" },
-    { value: "en-GB", label: "英国（日/月/年 24時間）" },
+    { value: "ja-JP", label: "日本（年/月/日24時間）" },
+    { value: "en-US", label: "米国（月/日/年12時間）" },
+    { value: "en-GB", label: "英国（日/月/年24時間）" },
 ] as const;
 
 export const TIME_ZONE_OPTIONS = ["Asia/Tokyo", "UTC", "America/New_York", "Europe/London"] as const;
@@ -24,7 +24,7 @@ const DisplaySettingsContext = createContext<DisplaySettingsValue | null>(null);
 
 export function useDisplaySettings(): DisplaySettingsValue {
     const ctx = useContext(DisplaySettingsContext);
-    if (!ctx) throw new Error("useDisplaySettings は DisplaySettingsProvider の内側で使ってください");
+    if (!ctx) throw new Error("useDisplaySettingsはDisplaySettingsProviderの内側で使ってください");
     return ctx;
 }
 

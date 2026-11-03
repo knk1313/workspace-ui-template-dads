@@ -5,7 +5,7 @@ import { Skeleton, SkeletonTable } from "./Skeleton";
 import { Spinner } from "./Spinner";
 
 describe("Skeleton", () => {
-    it("text は行数分のバーを描画し、aria-hidden になる", () => {
+    it("textは行数分のバーを描画し、aria-hiddenになる", () => {
         const { container } = render(<Skeleton lines={3} />);
         const root = container.firstElementChild!;
         expect(root).toHaveAttribute("aria-hidden", "true");
@@ -14,7 +14,7 @@ describe("Skeleton", () => {
         expect(root.children[2]).toHaveClass("w-2/3");
     });
 
-    it("rect / circle は 1 つの要素で、幅・高さは className で指定する", () => {
+    it("rect / circleは1つの要素で、幅・高さはclassNameで指定する", () => {
         const { container, rerender } = render(<Skeleton variant="rect" className="h-40 w-full" />);
         expect(container.firstElementChild).toHaveClass("rounded-8", "h-40", "w-full", "animate-pulse");
         expect(container.firstElementChild).toHaveAttribute("aria-hidden", "true");
@@ -22,7 +22,7 @@ describe("Skeleton", () => {
         expect(container.firstElementChild).toHaveClass("rounded-full", "size-12");
     });
 
-    it("SkeletonTable は行数 × 列数のセルを描画する", () => {
+    it("SkeletonTableは行数 × 列数のセルを描画する", () => {
         const { container } = render(<SkeletonTable rows={3} columns={5} />);
         const root = container.firstElementChild!;
         expect(root).toHaveAttribute("aria-hidden", "true");
@@ -31,7 +31,7 @@ describe("Skeleton", () => {
         expect(root.children[1].children).toHaveLength(5);
     });
 
-    it("親に aria-busy を付けて使ってもアクセシビリティ違反がない", async () => {
+    it("親にaria-busyを付けて使ってもアクセシビリティ違反がない", async () => {
         const { container } = render(
             <section aria-label="書類一覧" aria-busy="true">
                 <Spinner label="書類を読み込み中" />

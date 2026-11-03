@@ -12,7 +12,7 @@ const items = [
 ];
 
 describe("Tabs", () => {
-    it("tablist / tab / tabpanel のロールと関連付けを持つ", () => {
+    it("tablist / tab / tabpanelのロールと関連付けを持つ", () => {
         render(<Tabs label="申請の詳細" items={items} />);
         expect(screen.getByRole("tablist", { name: "申請の詳細" })).toBeInTheDocument();
         const tabs = screen.getAllByRole("tab");
@@ -31,7 +31,7 @@ describe("Tabs", () => {
         expect(screen.getByRole("tablist")).toHaveClass("border-b", "border-border");
     });
 
-    it("クリックで切り替え、onChange を呼ぶ", async () => {
+    it("クリックで切り替え、onChangeを呼ぶ", async () => {
         const user = userEvent.setup();
         const onChange = vi.fn();
         render(<Tabs label="詳細" items={items} onChange={onChange} />);
@@ -40,7 +40,7 @@ describe("Tabs", () => {
         expect(screen.getByRole("tabpanel")).toHaveTextContent("履歴の内容");
     });
 
-    it("← → / Home / End で移動して自動選択する（端で折り返す）", async () => {
+    it("← → / Home / Endで移動して自動選択する（端で折り返す）", async () => {
         const user = userEvent.setup();
         render(<Tabs label="詳細" items={items} />);
         await user.tab();
@@ -58,7 +58,7 @@ describe("Tabs", () => {
         expect(screen.getByRole("tab", { name: "概要" })).toHaveAttribute("aria-selected", "true");
     });
 
-    it("Tab でタブリストからパネルへ移動する", async () => {
+    it("Tabでタブリストからパネルへ移動する", async () => {
         const user = userEvent.setup();
         render(<Tabs label="詳細" items={items} />);
         await user.tab();
@@ -66,7 +66,7 @@ describe("Tabs", () => {
         expect(screen.getByRole("tabpanel")).toHaveFocus();
     });
 
-    it("activation=manual では矢印でフォーカスだけ動き、Enter で選択する", async () => {
+    it("activation=manualでは矢印でフォーカスだけ動き、Enterで選択する", async () => {
         const user = userEvent.setup();
         render(<Tabs label="詳細" items={items} activation="manual" />);
         await user.tab();
@@ -78,7 +78,7 @@ describe("Tabs", () => {
         expect(history).toHaveAttribute("aria-selected", "true");
     });
 
-    it("合成 API と制御モードで使える", async () => {
+    it("合成APIと制御モードで使える", async () => {
         const user = userEvent.setup();
         function Controlled() {
             const [value, setValue] = useState("b");
@@ -88,15 +88,15 @@ describe("Tabs", () => {
                         <Tab value="a">A</Tab>
                         <Tab value="b">B</Tab>
                     </TabList>
-                    <TabPanel value="a">パネル A</TabPanel>
-                    <TabPanel value="b">パネル B</TabPanel>
+                    <TabPanel value="a">パネルA</TabPanel>
+                    <TabPanel value="b">パネルB</TabPanel>
                 </Tabs>
             );
         }
         render(<Controlled />);
-        expect(screen.getByRole("tabpanel")).toHaveTextContent("パネル B");
+        expect(screen.getByRole("tabpanel")).toHaveTextContent("パネルB");
         await user.click(screen.getByRole("tab", { name: "A" }));
-        expect(screen.getByRole("tabpanel")).toHaveTextContent("パネル A");
+        expect(screen.getByRole("tabpanel")).toHaveTextContent("パネルA");
     });
 
     it("アクセシビリティ違反がない", async () => {

@@ -50,7 +50,7 @@ export function ApplicationFormFields({ values, errors, onChange, minDate }: App
                     id={fieldId("title")}
                     label="件名"
                     requirement="required"
-                    supportText={`申請の内容が分かる名前を ${TITLE_MAX} 文字以内で入力してください。`}
+                    supportText={`申請の内容が分かる名前を${TITLE_MAX}文字以内で入力してください`}
                     errorText={errorOf("title")}
                 >
                     <Input name="title" value={values.title} onChange={(e) => onChange("title", e.target.value)} />
@@ -67,7 +67,7 @@ export function ApplicationFormFields({ values, errors, onChange, minDate }: App
                     id={fieldId("amount")}
                     label="申請額（円）"
                     requirement={amountRequired ? "required" : "optional"}
-                    supportText="補助金・許認可の申請では必須です。円単位の数字で入力してください（全角数字やカンマ区切りでも入力できます）。"
+                    supportText="補助金と許認可の申請では必須です。円単位の数字で入力してください（全角数字やカンマ区切りでも入力できます）。"
                     errorText={errorOf("amount")}
                 >
                     <Input
@@ -88,7 +88,7 @@ export function ApplicationFormFields({ values, errors, onChange, minDate }: App
                         id={fieldId("applicant")}
                         label="氏名"
                         requirement="required"
-                        supportText="姓と名の間に空白を入れてください。"
+                        supportText="姓と名の間に空白を入れてください"
                         errorText={errorOf("applicant")}
                     >
                         <Input name="applicant" autoComplete="name" value={values.applicant} onChange={(e) => onChange("applicant", e.target.value)} />
@@ -111,7 +111,7 @@ export function ApplicationFormFields({ values, errors, onChange, minDate }: App
                         id={fieldId("email")}
                         label="メールアドレス"
                         requirement="required"
-                        supportText="審査の結果をお知らせします。"
+                        supportText="審査の結果をお知らせします"
                         errorText={errorOf("email")}
                     >
                         <Input
@@ -127,7 +127,7 @@ export function ApplicationFormFields({ values, errors, onChange, minDate }: App
                         id={fieldId("phone")}
                         label="電話番号"
                         requirement="optional"
-                        supportText="市外局番から、数字とハイフンで入力してください。"
+                        supportText="市外局番から、数字とハイフンで入力してください"
                         errorText={errorOf("phone")}
                     >
                         <Input name="phone" type="tel" inputMode="tel" autoComplete="tel" value={values.phone} onChange={(e) => onChange("phone", e.target.value)} />
@@ -141,7 +141,7 @@ export function ApplicationFormFields({ values, errors, onChange, minDate }: App
                         id={fieldId("desiredDate")}
                         label="希望日"
                         requirement="required"
-                        supportText="今日以降の日付を西暦で入力してください（例: 2026-12-01）。"
+                        supportText="今日以降の日付を西暦で入力してください（例：2026-12-01）"
                         errorText={errorOf("desiredDate")}
                     >
                         <DatePicker name="desiredDate" value={values.desiredDate} min={minDate} onChange={(v) => onChange("desiredDate", v)} />
@@ -150,7 +150,7 @@ export function ApplicationFormFields({ values, errors, onChange, minDate }: App
                         id={fieldId("assignee")}
                         label="担当者"
                         requirement="optional"
-                        supportText="名前の一部を入力すると候補を絞り込めます。"
+                        supportText="名前の一部を入力すると候補を絞り込めます"
                         errorText={errorOf("assignee")}
                     >
                         <Combobox name="assignee" options={ASSIGNEE_OPTIONS} value={values.assignee} onChange={(v) => onChange("assignee", v)} />
@@ -165,7 +165,7 @@ export function ApplicationFormFields({ values, errors, onChange, minDate }: App
                         aria-describedby={priorityHelpId}
                     />
                     <p id={priorityHelpId} className="m-0 text-16 leading-170 tracking-2 text-text-muted">
-                        期限が迫っている申請は、オンにすると審査の順番を早めます。
+                        期限が迫っている申請は、オンにすると審査の順番を早めます
                     </p>
                 </div>
             </FormSection>
@@ -175,7 +175,7 @@ export function ApplicationFormFields({ values, errors, onChange, minDate }: App
                     id={fieldId("attachments")}
                     label="添付ファイル"
                     requirement={attachmentRequired ? "required" : "optional"}
-                    supportText="PDF・JPEG・PNG 形式、1 ファイル 10 MB まで。補助金の申請では申請書（PDF）が必須です。"
+                    supportText="PDF、JPEG、PNGの形式で、1ファイル10 MBまでです。補助金の申請では、申請書（PDF）が必須です。"
                     errorText={errorOf("attachments")}
                 >
                     <FileUpload
@@ -190,14 +190,14 @@ export function ApplicationFormFields({ values, errors, onChange, minDate }: App
                     id={fieldId("memo")}
                     label="メモ"
                     requirement="optional"
-                    supportText={`審査担当者への補足を ${MEMO_MAX} 文字以内で入力してください。`}
+                    supportText={`審査の担当者への補足を${MEMO_MAX}文字以内で入力してください`}
                     errorText={errorOf("memo")}
                 >
                     <Textarea name="memo" rows={5} counterMax={MEMO_MAX} value={values.memo} onChange={(e) => onChange("memo", e.target.value)} />
                 </FormField>
                 <FormField id={fieldId("agreed")} label="確認事項" as="fieldset" requirement="required" errorText={errorOf("agreed")}>
                     <Checkbox id={fieldId("agreed")} name="agreed" checked={values.agreed} onChange={(e) => onChange("agreed", e.target.checked)}>
-                        記載内容に誤りがないことを確認しました
+                        記載内容に誤りがないことを確かめた
                     </Checkbox>
                 </FormField>
             </FormSection>

@@ -6,7 +6,7 @@ import { Button } from "./Button";
 import { GridList, GridListItem } from "./GridList";
 
 describe("GridList", () => {
-    it("ul role=list とカードの li を描画する", () => {
+    it("ul role=listとカードのliを描画する", () => {
         render(
             <GridList>
                 <GridListItem title="住民票の写し" description="交付申請" meta="証明書" />
@@ -22,7 +22,7 @@ describe("GridList", () => {
         expect(screen.getByText("証明書")).toBeInTheDocument();
     });
 
-    it("columns で最大列数を変える", () => {
+    it("columnsで最大列数を変える", () => {
         const { rerender } = render(
             <GridList columns={2}>
                 <GridListItem title="A" />
@@ -45,7 +45,7 @@ describe("GridList", () => {
         expect(screen.getByRole("list")).not.toHaveClass("sm:grid-cols-2");
     });
 
-    it("href でタイトルがリンクになり、actions は擬似要素の上に乗る", () => {
+    it("hrefでタイトルがリンクになり、actionsは擬似要素の上に乗る", () => {
         render(
             <MemoryRouter>
                 <GridList>

@@ -17,7 +17,7 @@ async function fillValidForm(user: User) {
     await user.type(screen.getByLabelText(/^希望日/), "2099/12/01");
     await user.tab();
     await user.upload(screen.getByLabelText(/^添付ファイル/), new File(["%PDF"], "申請書.pdf", { type: "application/pdf" }));
-    await user.click(screen.getByRole("checkbox", { name: "記載内容に誤りがないことを確認しました" }));
+    await user.click(screen.getByRole("checkbox", { name: "記載内容に誤りがないことを確かめた" }));
 }
 
 describe("ApplicationFormPage（新規）", () => {
@@ -28,7 +28,7 @@ describe("ApplicationFormPage（新規）", () => {
         expect(within(breadcrumb).getByRole("link", { name: "申請一覧" })).toHaveAttribute("href", "/applications");
         const steps = screen.getByRole("navigation", { name: "手続きの流れ" });
         expect(within(steps).getAllByRole("listitem")).toHaveLength(3);
-        expect(screen.getByLabelText(/^件名/)).toHaveAccessibleDescription(/40 文字以内/);
+        expect(screen.getByLabelText(/^件名/)).toHaveAccessibleDescription(/40文字以内/);
         expect(screen.getByLabelText(/^申請額/)).toHaveAttribute("inputmode", "numeric");
         expect(screen.getByLabelText(/^メールアドレス/)).toHaveAttribute("autocomplete", "email");
         expect(screen.getByLabelText(/^電話番号/)).toHaveAttribute("inputmode", "tel");
@@ -44,9 +44,9 @@ describe("ApplicationFormPage（新規）", () => {
         const { user, container } = renderApp("/applications/new");
         await user.click(screen.getByRole("button", { name: "確認へ進む" }));
 
-        const heading = screen.getByRole("heading", { level: 2, name: "入力内容に 6 件の誤りがあります" });
+        const heading = screen.getByRole("heading", { level: 2, name: "入力内容に6件の誤りがあります" });
         expect(heading).toBeInTheDocument();
-        expect(document.activeElement).toBe(screen.getByText("入力内容に 6 件の誤りがあります"));
+        expect(document.activeElement).toBe(screen.getByText("入力内容に6件の誤りがあります"));
 
         const title = screen.getByLabelText(/^件名/);
         expect(title).toHaveAttribute("aria-invalid", "true");
@@ -64,14 +64,14 @@ describe("ApplicationFormPage（新規）", () => {
         const { user } = renderApp("/applications/new");
         await user.click(screen.getByRole("button", { name: "確認へ進む" }));
 
-        await user.click(screen.getByRole("link", { name: /^メールアドレス: / }));
+        await user.click(screen.getByRole("link", { name: /^メールアドレス：/ }));
         expect(document.activeElement).toBe(screen.getByLabelText(/^メールアドレス/));
 
-        await user.click(screen.getByRole("link", { name: /^種別: / }));
+        await user.click(screen.getByRole("link", { name: /^種別：/ }));
         expect(document.activeElement).toBe(screen.getByRole("radio", { name: "補助金" }));
 
-        await user.click(screen.getByRole("link", { name: /^確認事項: / }));
-        expect(document.activeElement).toBe(screen.getByRole("checkbox", { name: "記載内容に誤りがないことを確認しました" }));
+        await user.click(screen.getByRole("link", { name: /^確認事項：/ }));
+        expect(document.activeElement).toBe(screen.getByRole("checkbox", { name: "記載内容に誤りがないことを確かめた" }));
     });
 
     it("修正して再送信するとエラーが消え、入力値は保持される", async () => {
@@ -98,7 +98,7 @@ describe("ApplicationFormPage（新規）", () => {
 
         const confirmHeading = screen.getByRole("heading", { level: 2, name: "入力内容の確認" });
         expect(document.activeElement).toBe(confirmHeading);
-        expect(screen.getByText("1,200,000 円")).toBeInTheDocument();
+        expect(screen.getByText("1,200,000円")).toBeInTheDocument();
         expect(screen.getByText(/^2099年12月1日（.）$/)).toBeInTheDocument();
         expect(screen.getByText("申請書.pdf")).toBeInTheDocument();
         expect(screen.getByRole("navigation", { name: "手続きの流れ" }).querySelector('[aria-current="step"]')).toHaveTextContent("確認");
@@ -111,7 +111,7 @@ describe("ApplicationFormPage（新規）", () => {
         await user.click(screen.getByRole("button", { name: "確認へ進む" }));
 
         await user.click(screen.getByRole("button", { name: "申請する" }));
-        await waitFor(() => expect(document.activeElement).toBe(screen.getByText("申請を受け付けました")));
+        await waitFor(() => expect(document.activeElement).toBe(screen.getByText("申請の受付完了")));
         expect(screen.getByText(/^R08-\d{6}$/)).toBeInTheDocument();
         expect(screen.getByRole("link", { name: "申請一覧へ" })).toHaveAttribute("href", "/applications");
         await expectNoA11yViolations(container);
@@ -133,7 +133,7 @@ describe("ApplicationFormPage（新規）", () => {
         await user.type(screen.getByLabelText(/^件名/), "公園使用許可申請");
         await user.click(screen.getByRole("button", { name: "キャンセル" }));
 
-        const dialog = await screen.findByRole("dialog", { name: "入力内容を破棄して移動しますか" });
+        const dialog = await screen.findByRole("dialog", { name: "入力内容を破棄して移動する" });
         await user.click(within(dialog).getByRole("button", { name: "入力を続ける" }));
         expect(screen.getByLabelText(/^件名/)).toHaveValue("公園使用許可申請");
 
@@ -146,7 +146,7 @@ describe("ApplicationFormPage（新規）", () => {
         const { user, router } = renderApp("/applications/new");
         await user.type(screen.getByLabelText(/^件名/), "公園使用許可申請");
         await user.click(within(screen.getByRole("navigation", { name: "パンくずリスト" })).getByRole("link", { name: "ホーム" }));
-        const dialog = await screen.findByRole("dialog", { name: "入力内容を破棄して移動しますか" });
+        const dialog = await screen.findByRole("dialog", { name: "入力内容を破棄して移動する" });
         await user.click(within(dialog).getByRole("button", { name: "破棄して移動" }));
         await waitFor(() => expect(router.state.location.pathname).toBe("/"));
     });
@@ -162,7 +162,7 @@ describe("ApplicationFormPage（新規）", () => {
 
         setMockOptions({ fail: false, slow: false });
         await user.click(screen.getByRole("button", { name: "申請する" }));
-        expect(await screen.findByText("申請を受け付けました")).toBeInTheDocument();
+        expect(await screen.findByText("申請の受付完了")).toBeInTheDocument();
     });
 
     it("未入力のキャンセルは確認なしで一覧へ戻る", async () => {
@@ -194,7 +194,7 @@ describe("ApplicationFormPage（編集）", () => {
 
     it("確認後に「更新する」で詳細画面へ戻ってトーストを出す", async () => {
         const { user } = renderApp(`/applications/${app.id}/edit`);
-        await user.click(await screen.findByRole("checkbox", { name: "記載内容に誤りがないことを確認しました" }));
+        await user.click(await screen.findByRole("checkbox", { name: "記載内容に誤りがないことを確かめた" }));
         await user.click(screen.getByRole("button", { name: "確認へ進む" }));
         await user.click(screen.getByRole("button", { name: "更新する" }));
         expect(await screen.findByText("申請内容を更新しました")).toBeInTheDocument();
@@ -202,7 +202,7 @@ describe("ApplicationFormPage（編集）", () => {
         await waitFor(() => expect(screen.queryByRole("heading", { level: 1, name: "申請を編集" })).not.toBeInTheDocument());
     });
 
-    it("存在しない id は 404 を表示する", async () => {
+    it("存在しないidは404を表示する", async () => {
         const { container } = renderApp("/applications/app-999/edit");
         expect(await screen.findByRole("heading", { level: 1, name: "申請が見つかりません" })).toBeInTheDocument();
         expect(screen.getByRole("link", { name: "申請一覧へ戻る" })).toHaveAttribute("href", "/applications");

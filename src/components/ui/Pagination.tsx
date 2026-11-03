@@ -94,7 +94,7 @@ export function Pagination({ page, totalPages, onChange, siblingCount = 1, size 
                 </li>
                 {showCounter ? (
                     <li className="min-w-15 text-center whitespace-nowrap text-text-strong nums">
-                        <span aria-current="page">{current}</span> / {total} ページ
+                        <span aria-current="page">{current}</span> / {total}ページ
                     </li>
                 ) : (
                     getPageItems(current, total, siblingCount).map((item) =>
@@ -103,7 +103,7 @@ export function Pagination({ page, totalPages, onChange, siblingCount = 1, size 
                                 <button
                                     type="button"
                                     aria-current={item === current ? "page" : undefined}
-                                    aria-label={`${item} ページ目`}
+                                    aria-label={`${item}ページ目`}
                                     className={cn(
                                         "inline-flex items-center justify-center rounded-full p-0 nums focus-visible:focus-ring",
                                         PAGE_SIZE[size],

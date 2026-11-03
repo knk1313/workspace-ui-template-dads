@@ -31,7 +31,7 @@ function Controlled({ onChange, initial = "" }: { onChange?: (v: string) => void
 }
 
 describe("Combobox", () => {
-    it("APG の属性で描画する（combobox / listbox / option）", () => {
+    it("APGの属性で描画する（combobox / listbox / option）", () => {
         render(<Controlled />);
         const input = screen.getByRole("combobox", { name: "市区町村" });
         expect(input).toHaveAttribute("aria-expanded", "false");
@@ -68,7 +68,7 @@ describe("Combobox", () => {
         expect(screen.getByText("該当する選択肢がありません")).toBeInTheDocument();
     });
 
-    it("↓↑ で候補を移動し（aria-activedescendant）、Enter で確定、Esc で閉じる", async () => {
+    it("↓↑ で候補を移動し（aria-activedescendant）、Enterで確定、Escで閉じる", async () => {
         const user = userEvent.setup();
         const onChange = vi.fn();
         render(<Controlled onChange={onChange} />);

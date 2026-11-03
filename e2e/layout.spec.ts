@@ -7,7 +7,7 @@ import { findMisalignments, findObscuredFocus } from "./layout";
 const PAGES = ["/", "/applications", "/applications/app-001", "/applications/new", "/settings", "/settings?tab=notifications", "/settings?tab=display", "/login", "/no-such-page"];
 
 for (const path of PAGES) {
-    test(`${path}: アイコンや部品が隣の文字の 1 行目と上下中央でそろっている`, async ({ page }) => {
+    test(`${path}: アイコンや部品が隣の文字の1行目と上下中央でそろっている`, async ({ page }) => {
         await page.goto(path);
         await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
         // 読み込み中の表示が終わるのを待つ
@@ -32,7 +32,7 @@ test("開いた状態の部品（メニュー、ダイアログ、エラー表�
 });
 
 for (const path of ["/", "/applications", "/applications/new", "/settings"]) {
-    test(`${path}: Tab で移動したフォーカスが固定ヘッダーの下に隠れない`, async ({ page }) => {
+    test(`${path}: Tabで移動したフォーカスが固定ヘッダーの下に隠れない`, async ({ page }) => {
         await page.goto(path);
         await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
         expect(await findObscuredFocus(page, 40, "Tab"), "Tab").toEqual([]);

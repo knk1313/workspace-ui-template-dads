@@ -13,11 +13,11 @@ describe("ChipTag", () => {
         expect(screen.queryByRole("button")).not.toBeInTheDocument();
     });
 
-    it("onRemove で削除ボタンが付き、クリックとキーボードで呼ばれる。44px のタップ領域を持つ", async () => {
+    it("onRemoveで削除ボタンが付き、クリックとキーボードで呼ばれる。44pxのタップ領域を持つ", async () => {
         const user = userEvent.setup();
         const onRemove = vi.fn();
         render(<ChipTag label="東京都" onRemove={onRemove} />);
-        const button = screen.getByRole("button", { name: "東京都 を削除" });
+        const button = screen.getByRole("button", { name: "東京都を削除" });
         expect(button).toHaveClass("tap-area", "after:w-target", "focus-visible:focus-ring");
         expect(button.querySelector("svg")).toHaveAttribute("aria-hidden", "true");
         await user.tab();
@@ -28,17 +28,17 @@ describe("ChipTag", () => {
         expect(onRemove).toHaveBeenCalledTimes(2);
     });
 
-    it("href でラベルがリンクになる", () => {
+    it("hrefでラベルがリンクになる", () => {
         render(
             <MemoryRouter>
                 <ChipTag label="証明書" href="/search?category=certificate" onRemove={() => {}} />
             </MemoryRouter>,
         );
         expect(screen.getByRole("link", { name: "証明書" })).toHaveAttribute("href", "/search?category=certificate");
-        expect(screen.getByRole("button", { name: "証明書 を削除" })).toBeInTheDocument();
+        expect(screen.getByRole("button", { name: "証明書を削除" })).toBeInTheDocument();
     });
 
-    it("leading でアバターやアイコンを先頭に置ける", () => {
+    it("leadingでアバターやアイコンを先頭に置ける", () => {
         render(<ChipTag label="山田 太郎" leading={<span data-testid="avatar">山</span>} onRemove={() => {}} />);
         expect(screen.getByTestId("avatar")).toBeInTheDocument();
         expect(screen.getByText("山田 太郎").parentElement).toHaveClass("pl-1");

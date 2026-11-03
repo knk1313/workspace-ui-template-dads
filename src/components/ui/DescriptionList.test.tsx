@@ -10,7 +10,7 @@ const items = [
 ];
 
 describe("DescriptionList", () => {
-    it("items から dl / dt / dd を描画し、dt は太字、dd はモバイルで左 32px", () => {
+    it("itemsからdl / dt / ddを描画し、dtは太字、ddはモバイルで左32px", () => {
         render(<DescriptionList items={items} />);
         const term = screen.getByText("申請番号");
         expect(term.tagName).toBe("DT");
@@ -32,7 +32,7 @@ describe("DescriptionList", () => {
         expect(screen.getByText("総務部").tagName).toBe("DD");
     });
 
-    it("columns=2 で md 以上 2 列、divided で項目間に罫線", () => {
+    it("columns=2でmd以上2列、dividedで項目間に罫線", () => {
         const { rerender } = render(<DescriptionList items={items} columns={2} />);
         expect(screen.getByText("申請番号").closest("dl")).toHaveClass("md:grid-cols-2");
         rerender(<DescriptionList items={items} divided />);

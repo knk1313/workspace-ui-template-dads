@@ -88,7 +88,7 @@ export async function findObscuredFocus(page: Page, steps: number, key: "Tab" | 
                 const hit = document.elementFromPoint(x, y);
                 return !!hit && (el === hit || el.contains(hit) || hit.contains(el));
             });
-            return visibleSomewhere ? null : `${el.tagName.toLowerCase()} 「${(el.getAttribute("aria-label") ?? el.textContent ?? "").trim().slice(0, 20)}」`;
+            return visibleSomewhere ? null : `${el.tagName.toLowerCase()}「${(el.getAttribute("aria-label") ?? el.textContent ?? "").trim().slice(0, 20)}」`;
         });
         if (result) obscured.push(result);
     }

@@ -5,7 +5,7 @@ import { expectNoA11yViolations } from "@/test/axe";
 import { ChipLabel, StatusChip } from "./ChipLabel";
 
 describe("ChipLabel", () => {
-    it("テキストを描画し、既定は outlined / gray", () => {
+    it("テキストを描画し、既定はoutlined / gray", () => {
         render(<ChipLabel>受付中</ChipLabel>);
         const chip = screen.getByText("受付中").parentElement!;
         expect(chip).toHaveAttribute("data-style", "outlined");
@@ -13,7 +13,7 @@ describe("ChipLabel", () => {
         expect(chip).toHaveClass("min-h-8", "rounded-8", "text-16", "leading-none", "tracking-2", "border", "bg-surface", "border-solid-gray-700", "text-solid-gray-800", "px-1.75", "py-0.75");
     });
 
-    it("style ごとに DADS の色（非テキスト / 背景 / 文字 / 濃い文字）を割り当てる", () => {
+    it("styleごとにDADSの色（非テキスト / 背景 / 文字 / 濃い文字）を割り当てる", () => {
         const { rerender } = render(
             <ChipLabel style="text" color="blue">
                 A
@@ -52,7 +52,7 @@ describe("ChipLabel", () => {
         expect(chip()).toHaveClass("border-light-blue-800", "bg-light-blue-50", "text-light-blue-900");
     });
 
-    it("icon は装飾として描画し、filled-1 では非テキスト色にする", () => {
+    it("iconは装飾として描画し、filled-1では非テキスト色にする", () => {
         render(
             <ChipLabel style="filled-1" color="green" icon={Clock}>
                 審査中
@@ -64,7 +64,7 @@ describe("ChipLabel", () => {
         expect(screen.getByText("審査中").parentElement).toHaveTextContent("審査中");
     });
 
-    it("StatusChip は意味に応じた色を割り当て、既定は filled-1", () => {
+    it("StatusChipは意味に応じた色を割り当て、既定はfilled-1", () => {
         const { rerender } = render(<StatusChip status="success">完了</StatusChip>);
         const chip = () => screen.getByText(/./).closest("[data-status]")!;
         expect(chip()).toHaveAttribute("data-color", "green");
@@ -84,7 +84,7 @@ describe("ChipLabel", () => {
         expect(chip()).toHaveAttribute("data-style", "outlined");
     });
 
-    it("className で拡張できる", () => {
+    it("classNameで拡張できる", () => {
         render(<ChipLabel className="ml-2">A</ChipLabel>);
         expect(screen.getByText("A").parentElement).toHaveClass("ml-2", "rounded-8");
     });

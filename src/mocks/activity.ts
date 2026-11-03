@@ -3,12 +3,12 @@
 import type { ActivityItem, HistoryItem } from "@/api/types";
 
 export const RECENT_ACTIVITY: ActivityItem[] = [
-    { id: "act-1", actor: "鈴木 一郎", action: "承認しました", target: "R08-001012 中小企業デジタル化支援補助金", applicationId: "app-005", at: "2026-10-31T08:40:00Z", type: "approve" },
-    { id: "act-2", actor: "佐藤 花子", action: "担当者を変更しました", target: "R08-001003 道路占用許可申請", applicationId: "app-002", at: "2026-10-31T08:05:00Z", type: "assign" },
-    { id: "act-3", actor: "高橋 美咲", action: "差戻しました", target: "R08-001021 屋外広告物設置許可申請", applicationId: "app-008", at: "2026-10-31T07:30:00Z", type: "return" },
-    { id: "act-4", actor: "田中 健太", action: "コメントを追加しました", target: "R08-001030 納税証明書交付申請", applicationId: "app-011", at: "2026-10-30T10:15:00Z", type: "comment" },
-    { id: "act-5", actor: "佐藤 花子", action: "新しい申請を受け付けました", target: "R08-001189 事業所開設届", applicationId: "app-064", at: "2026-10-30T09:50:00Z", type: "create" },
-    { id: "act-6", actor: "鈴木 一郎", action: "審査を開始しました", target: "R08-001045 給水装置工事届", applicationId: "app-016", at: "2026-10-30T09:10:00Z", type: "update" },
+    { id: "act-1", actor: "鈴木 一郎", action: "承認しました", target: "R08-001012「中小企業デジタル化支援補助金」", applicationId: "app-005", at: "2026-10-31T08:40:00Z", type: "approve" },
+    { id: "act-2", actor: "佐藤 花子", action: "担当者を変更しました", target: "R08-001003「道路占用許可申請」", applicationId: "app-002", at: "2026-10-31T08:05:00Z", type: "assign" },
+    { id: "act-3", actor: "高橋 美咲", action: "差し戻しました", target: "R08-001021「屋外広告物設置許可申請」", applicationId: "app-008", at: "2026-10-31T07:30:00Z", type: "return" },
+    { id: "act-4", actor: "田中 健太", action: "コメントを追加しました", target: "R08-001030「納税証明書交付申請」", applicationId: "app-011", at: "2026-10-30T10:15:00Z", type: "comment" },
+    { id: "act-5", actor: "佐藤 花子", action: "新しい申請を受け付けました", target: "R08-001189「事業所開設届」", applicationId: "app-064", at: "2026-10-30T09:50:00Z", type: "create" },
+    { id: "act-6", actor: "鈴木 一郎", action: "審査を開始しました", target: "R08-001045「給水装置工事届」", applicationId: "app-016", at: "2026-10-30T09:10:00Z", type: "update" },
 ];
 
 export function historyFor(status: string): HistoryItem[] {
