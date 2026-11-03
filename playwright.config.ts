@@ -4,6 +4,8 @@ import { defineConfig, devices } from "@playwright/test";
 // `npm run test:e2e`。初回は `npm run test:e2e:install` で Chromium を入れる。
 export default defineConfig({
     testDir: "./e2e",
+    // 見た目の回帰テストは Linux コンテナで別に実行する（playwright.visual.config.ts）
+    testIgnore: "visual/**",
     fullyParallel: true,
     forbidOnly: !!process.env.CI,
     retries: process.env.CI ? 2 : 0,

@@ -12,11 +12,13 @@
     "build": "tsc -b && vite build",
     "preview": "vite preview",
     "typecheck": "tsc -b",
-    "lint": "eslint . && node scripts/check-design-tokens.mjs",
+    "lint": "eslint . && node scripts/check-design-tokens.mjs && node scripts/check-playwright-image.mjs",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "test:e2e:install": "playwright install chromium",
+    "test:visual": "scripts/visual.sh",
+    "test:visual:update": "scripts/visual.sh --update-snapshots",
     "check": "npm run typecheck && npm run lint && npm run test"
   },
   "dependencies": {

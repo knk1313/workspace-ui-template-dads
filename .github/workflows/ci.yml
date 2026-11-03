@@ -31,3 +31,23 @@ jobs:
       - run: npx playwright install --with-deps chromium
       # 主要ページの表示・操作・axe（desktop / mobile の 2 幅）
       - run: npm run test:e2e
+
+  visual:
+    runs-on: ubuntu-latest
+    # 基準画像を撮ったのと同じイメージで実行する（scripts/visual.sh と同じ版。@playwright/test を上げたら合わせて上げる）
+    container:
+      image: mcr.microsoft.com/playwright:v1.64.1-noble
+      options: --ipc=host
+    env:
+      HOME: /root
+    steps:
+      - uses: actions/checkout@v5
+      - run: npm ci
+      # 主要な画面と開いた状態のスクリーンショットを基準画像と比べる
+      - run: npx playwright test -c playwright.visual.config.ts
+      - if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: visual-diff
+          path: test-results/
+          retention-days: 7
