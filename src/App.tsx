@@ -4,6 +4,7 @@ import { ConfirmProvider } from "@/components/ui/ConfirmDialog";
 import { ToastProvider } from "@/components/ui/Toast";
 import { DisplaySettingsProvider } from "@/context/DisplaySettings";
 import { LayoutPreferenceProvider } from "@/context/LayoutPreference";
+import { UnsavedChangesProvider } from "@/hooks/useUnsavedChangesWarning";
 import { routes } from "@/routes";
 
 // アプリ全体の Provider とルーティング。
@@ -25,7 +26,10 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
 function Root() {
     return (
         <AppProviders>
-            <Outlet />
+            {/* 入力途中で画面を離れるときの確認。ルーターに一つだけ置く（useUnsavedChangesWarning） */}
+            <UnsavedChangesProvider>
+                <Outlet />
+            </UnsavedChangesProvider>
         </AppProviders>
     );
 }

@@ -1,6 +1,7 @@
-import { screen, within } from "@testing-library/react";
+import { act, screen, within } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
 import { setMockOptions } from "@/api/mock";
+import { clearQueryCache } from "@/api/query";
 import { STORAGE_KEY } from "@/context/DisplaySettings";
 import { LAYOUT_STORAGE_KEY } from "@/context/LayoutPreference";
 import { mockViewport } from "@/layouts/testUtils";
@@ -108,8 +109,20 @@ describe("SettingsPage", () => {
     it("「動作の確認」で通信を失敗させると、読み込めなかった画面にエラーと「再読み込み」が出る", async () => {
         const { user, router } = await renderLoaded("/settings?tab=display");
         await user.click(screen.getByRole("switch", { name: "通信を失敗させる" }));
-        await router.navigate("/applications");
-        expect(await screen.findByRole("heading", { name: "申請の一覧を読み込めませんでした" })).toBeInTheDocument();
-        expect(screen.getByRole("button", { name: "再読み込み" })).toBeInTheDocument();
+        // 読み込んだ結果を消してから開き直すと、読み込みが失敗する
+        clearQueryCache();
+        await act(() => router.navigate("/no-such-page"));
+        await act(() => router.navigate("/settings"));
+        expect(await screen.findByRole("heading", { name: "プロフィールを読み込めませんでした" })).toBeInTheDocument();
+        expect(screen.getAllByRole("button", { name: "再読み込み" }).length).toBeGreaterThan(0);
+    });
+
+    it("プロフィールを変えたまま画面を離れると確認を出す（タブが複数のフォームを持っていても働く）", async () => {
+        const { user } = await renderLoaded("/settings");
+        await user.type(screen.getByRole("textbox", { name: /表示名/ }), "（変更）");
+        await user.click(within(screen.getByRole("navigation", { name: "パンくずリスト" })).getByRole("link", { name: "ホーム" }));
+        const dialog = await screen.findByRole("dialog", { name: "プロフィールの変更を破棄して移動する" });
+        await user.click(within(dialog).getByRole("button", { name: "入力を続ける" }));
+        expect(screen.getByRole("heading", { level: 1, name: "設定" })).toBeInTheDocument();
     });
 });
