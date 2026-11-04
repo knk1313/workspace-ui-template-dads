@@ -72,3 +72,46 @@ test("モバイル幅ではハンバーガーメニューのドロワーが開�
     await expect(drawer).toBeHidden();
     await expect(menu).toBeFocused();
 });
+
+test.describe("ダークモード", () => {
+    test.use({ colorScheme: "dark" });
+
+    for (const p of PAGES) {
+        test(`${p.path}をダークモードで表示でき、axeの違反がない`, async ({ page }) => {
+            await page.goto(p.path);
+            await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+            await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+            await expectNoAxeViolations(page, `${p.path}（ダーク）`);
+        });
+    }
+
+    test("フォーカスインジケーターは、暗い地で見える黄色の4pxアウトラインになる", async ({ page }) => {
+        await page.goto("/login");
+        await page.getByLabel("メールアドレス").focus();
+        await page.keyboard.press("Tab");
+        const outline = await page.evaluate(() => {
+            const s = getComputedStyle(document.activeElement as HTMLElement);
+            return { width: s.outlineWidth, style: s.outlineStyle, color: s.outlineColor };
+        });
+        expect(outline).toEqual({ width: "4px", style: "solid", color: "rgb(255, 212, 61)" });
+    });
+});
+
+test("設定で選んだ配色は、OSの設定より優先され、再読み込みしても残る", async ({ page }) => {
+    await page.emulateMedia({ colorScheme: "light" });
+    await page.goto("/settings?tab=display");
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+    await page.getByRole("radio", { name: "ダーク（暗い配色）" }).check();
+    // 保存するまでは変わらない
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+    await page.getByRole("button", { name: "保存する" }).click();
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+    await page.reload();
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+    // 「OSの設定に合わせる」に戻すと、OS の配色（ここではライト）に従う
+    await page.getByRole("radio", { name: "OSの設定に合わせる" }).check();
+    await page.getByRole("button", { name: "保存する" }).click();
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+    await page.emulateMedia({ colorScheme: "dark" });
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+});

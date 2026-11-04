@@ -35,6 +35,17 @@ test("ヘッダーのメニュー", async ({ page }) => {
     }
 });
 
+test.describe("ダークモード", () => {
+    test.use({ colorScheme: "dark" });
+
+    for (const p of PAGES) {
+        test(`${p.name}（ダーク）`, async ({ page }) => {
+            await open(page, p.path);
+            await expect(page).toHaveScreenshot(`dark-${p.name}.png`, { fullPage: true });
+        });
+    }
+});
+
 test.describe("強制カラーモード（Windowsのハイコントラストなど）", () => {
     test.beforeEach(async ({ page }) => {
         await page.emulateMedia({ forcedColors: "active" });
