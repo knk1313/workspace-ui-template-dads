@@ -39,7 +39,7 @@
 - **見本のデータ**：メールアドレスの例を`example.jp`に、電話番号を`000-0000-`で始まる番号にしました。
 - **パッケージ名**：`package.json`の名前を`workspace-ui-template-dads`にしました。
 - **CIの速さ**：単体テストとE2Eを分けて並行に実行し、Playwrightのブラウザーとnpmのキャッシュを持つようにしました。CIの全体の時間は、約150秒から約110秒になりました。
-- **依存パッケージ**：ESLintを10に、開発用の依存のminimatchを脆弱性の直った11に上げました（minimatchは`package.json`の`overrides`で指定）。
+- **依存パッケージ**：ESLintを10に上げました。開発用の依存のminimatchは、`package.json`の`overrides`で、脆弱性の直った11に上げました。
 
 ### 直したこと
 
