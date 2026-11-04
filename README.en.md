@@ -26,6 +26,7 @@ All data and text on screen are fictional samples. No real API or backend is inc
   - token contrast tests (WCAG 2.2 AA);
   - Playwright E2E at desktop and mobile widths: axe, alignment of icons and controls, focus not hidden under the sticky header, 400% zoom reflow, text spacing, forced colours, and a keyboard-only flow;
   - visual regression tests run in the official Playwright Docker image.
+- **Dark mode**: users choose light, dark or the OS setting on the settings screen. DADS defines no dark palette, so the dark colours are our own choice from the DADS tokens (`src/tokens/theme-dark.css`).
 - **UI text**: wording follows the rules in [docs/ui-text.md](docs/ui-text.md) (Japanese).
 
 ## Setup

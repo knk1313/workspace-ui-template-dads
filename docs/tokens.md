@@ -6,6 +6,7 @@
 | --- | --- |
 | `primitives.css` | DADS design-tokens 2.0.1 のプリミティブ（色、フォント、文字サイズ、行高、角丸、エレベーション）。Tailwind 既定値はここで無効化 |
 | `theme.css` | セマンティック別名（面・文字・線・プライマリー・リンク・フォーカス・意味色・無効・データ可視化・寸法）と独自ユーティリティ |
+| `theme-dark.css` | ダークモードのときに、`theme.css` の色のセマンティック別名を上書きする値 |
 | `typography.css` | DADS テキストスタイル（`text-std-16N-170` など 56 種） |
 | `contrast.test.ts` | トークンの組み合わせごとのコントラスト検査（`npm test`） |
 
@@ -27,11 +28,12 @@
 | 用途 | トークン | 値 |
 | --- | --- | --- |
 | 面 | `canvas` / `surface` / `surface-muted` / `surface-strong` / `surface-hover` / `surface-selected` / `surface-highlight` / `on-highlight` / `scrim` / `scrim-light` | gray-50 / white / gray-50 / gray-100 / key-50 / key-100 / key-900 / white / opacity-600 / opacity-100 |
-| 文字 | `text` / `text-strong` / `text-muted` / `text-subtle` / `text-disabled` / `text-on-primary` / `text-inverse` | gray-800 / gray-900 / gray-600 / gray-600 / gray-420 / white / white |
+| 文字 | `text` / `text-strong` / `text-secondary` / `text-muted` / `text-subtle` / `text-disabled` / `text-on-primary` / `text-inverse` | gray-800 / gray-900 / gray-700 / gray-600 / gray-600 / gray-420 / white / white |
 | 線 | `border` / `border-on-canvas` / `border-strong` / `border-emphasis` / `border-table` / `border-disabled` | gray-420 / gray-536 / gray-600 / black / gray-500 / gray-300 |
+| 操作部品 | `control-hover` / `control-active`（ラジオボタンの円、スイッチのリング） | gray-420 / gray-600 |
 | プライマリー | `primary` / `primary-hover` / `primary-active` / `primary-strong` / `primary-surface` / `primary-surface-hover` / `primary-outline-hover` / `primary-outline-active` | key-900 / 1000 / 1200 / 1100 / 50 / 100 / 200 / 300 |
 | リンク | `link` / `link-hover` / `link-active` / `link-visited` | blue-1000 / blue-900 / orange-900 / magenta-900 |
-| フォーカス | `focus` / `focus-ring` | black / yellow-300（変更禁止） |
+| フォーカス | `focus` / `focus-ring` / `focus-fill` | black / yellow-300 / yellow-300（変更禁止） |
 | 意味色 | `success` / `success-surface` / `success-hover`、`error` / `error-hover` / `error-active` / `error-surface` / `error-outline-hover`、`warning` / `warning-hover` / `warning-chip` / `warning-surface`、`info` / `info-surface`、`neutral` / `neutral-surface` | green-800 / green-50 / green-1000、red-900 / red-1000 / red-1200 / red-50 / red-200、yellow-1000 / yellow-1100 / yellow-400 / yellow-50、key-900 / key-50、gray-536 / gray-50 |
 | 無効 | `disabled` / `disabled-surface` / `on-disabled` | gray-300 / gray-50 / gray-50 |
 | データ可視化 | `chart-1`〜`chart-5`、`chart-seq-1`〜`chart-seq-5`、`chart-positive` / `chart-negative`、`trend-up` / `trend-down`、`chart-grid` / `chart-axis` / `chart-reference` / `chart-neutral` | blue-900 / yellow-800 / blue-600 / gray-600 / blue-1200、blue-1200 / 900 / 600 / 400 / 200、blue-600 / red-600、blue-800 / red-900、gray-200 / 600 / 800 / 400 |
@@ -39,6 +41,15 @@
 `text-subtle`・`error`・`warning`・`link-active` は、地（canvas）の上でも 4.5:1 を満たすよう DADS より 1 段濃くしている（`docs/decisions.md` D-17）。
 
 コントラスト: テキストは背景に対して 4.5:1、非テキストは 3:1 を `src/tokens/contrast.test.ts` で検査している。disabled、`chart-seq-4` / `-5`、フォーカスリングの黄色単体、`warning-chip` は要件の対象外（理由はテスト内のコメント参照）。
+
+### ダークモード
+
+`<html data-theme="dark">` のとき、`theme-dark.css` が色のセマンティック別名を上書きする。値は DADS のプリミティブから選んだ独自の配色で、DADS の規定ではない（`docs/decisions.md` D-31）。
+
+- 部品では、セマンティック別名（`bg-surface`、`text-text-muted` など）を使えば、ダークモードにも自動で対応する
+- プリミティブを直接使う部品（チップラベル）は、`dark:bg-blue-1200` のように `dark:` を付けてダークモードの色を書く
+- ダークモードの値も、ライトと同じ組み合わせで `contrast.test.ts` が検査する。チップラベルの色相ごとの組み合わせも検査する
+- フォーカスは、黒い線が暗い地で見えないため、黄色の 4px の線と黒の 2px の帯に入れ替える。リンクやテキストボタンの黄色の塗り（`focus-fill`）は、明るい文字が読めなくなるため、ダークモードでは塗らない
 
 ## タイポグラフィ
 
