@@ -14,7 +14,7 @@ export type SkeletonProps = {
     className?: string;
 };
 
-const BASE = "animate-pulse bg-solid-gray-100 motion-reduce:animate-none";
+const BASE = "animate-pulse bg-surface-strong motion-reduce:animate-none";
 
 export function Skeleton({ variant = "text", lines = 1, className }: SkeletonProps) {
     if (variant === "text") {

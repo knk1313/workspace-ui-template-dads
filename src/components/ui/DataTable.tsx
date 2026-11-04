@@ -107,7 +107,7 @@ const BAR_WIDTHS = ["w-4/5", "w-3/5", "w-2/3"] as const;
 const SUB_WIDTHS = ["w-full", "w-4/5", "w-11/12"] as const;
 
 function SkeletonBlock({ className }: { className?: string }) {
-    return <span data-skeleton="" className={cn("block animate-pulse rounded-4 bg-solid-gray-100 motion-reduce:animate-none", className)} />;
+    return <span data-skeleton="" className={cn("block animate-pulse rounded-4 bg-surface-strong motion-reduce:animate-none", className)} />;
 }
 
 function SkeletonLine({ width, align }: { width: string; align?: CellAlign }) {

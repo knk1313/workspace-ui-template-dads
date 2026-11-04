@@ -325,7 +325,7 @@ export function DatePicker({
                         <thead>
                             <tr>
                                 {WEEKDAYS.map((w) => (
-                                    <th key={w.short} role="columnheader" scope="col" abbr={w.long} className="size-12 p-0 text-center align-middle font-bold text-solid-gray-700">
+                                    <th key={w.short} role="columnheader" scope="col" abbr={w.long} className="size-12 p-0 text-center align-middle font-bold text-text-secondary">
                                         <span aria-hidden="true">{w.short}</span>
                                         <span className="sr-only">{w.long}</span>
                                     </th>

@@ -52,7 +52,7 @@ export function Switch({ checked, onChange, label, hideLabel = false, className,
                 <span
                     className={cn(
                         "box-border block w-14 rounded-full border-2 p-1 transition-colors",
-                        "border-border-strong bg-surface group-hover:border-border-emphasis group-hover:ring-4 group-hover:ring-solid-gray-420 group-active:ring-6 group-active:ring-solid-gray-600",
+                        "border-border-strong bg-surface group-hover:border-border-emphasis group-hover:ring-4 group-hover:ring-control-hover group-active:ring-6 group-active:ring-control-active",
                         "group-aria-checked:border-primary group-aria-checked:bg-primary-surface group-aria-checked:group-hover:border-primary-strong",
                         "group-disabled:border-border-disabled group-disabled:bg-disabled-surface group-disabled:ring-0",
                     )}

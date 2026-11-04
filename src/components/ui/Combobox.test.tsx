@@ -80,7 +80,7 @@ describe("Combobox", () => {
         expect(input).toHaveAttribute("aria-activedescendant", screen.getByRole("option", { name: "千代田区" }).id);
         await user.keyboard("{ArrowDown}{ArrowDown}");
         expect(input).toHaveAttribute("aria-activedescendant", screen.getByRole("option", { name: "港区" }).id);
-        expect(screen.getByRole("option", { name: "港区" })).toHaveClass("bg-solid-gray-50");
+        expect(screen.getByRole("option", { name: "港区" })).toHaveClass("bg-surface-muted");
         await user.keyboard("{ArrowUp}");
         expect(input).toHaveAttribute("aria-activedescendant", screen.getByRole("option", { name: "中央区" }).id);
         await user.keyboard("{Enter}");
