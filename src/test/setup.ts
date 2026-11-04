@@ -8,6 +8,7 @@ afterEach(() => {
     cleanup();
     localStorage.clear();
     sessionStorage.clear();
+    delete document.documentElement.dataset.theme;
     // ダミー API のデータと読み込み結果をテストごとに初期値へ戻す
     resetStores();
     clearQueryCache();

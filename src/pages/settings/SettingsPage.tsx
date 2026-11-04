@@ -28,6 +28,7 @@ import { Textarea } from "@/components/ui/Textarea";
 import { useToast } from "@/components/ui/Toast";
 import { LOCALE_OPTIONS, TIME_ZONE_OPTIONS, useDisplaySettings } from "@/context/DisplaySettings";
 import { useLayoutPreference, type LayoutKind } from "@/context/LayoutPreference";
+import { useThemePreference, type ThemePreference } from "@/context/ThemePreference";
 import { useUnsavedChangesWarning } from "@/hooks/useUnsavedChangesWarning";
 import { formatDateTime } from "@/lib/format";
 import { DEPARTMENTS, PROFILE, SAMPLE_DATETIME } from "@/mocks/settings";
@@ -394,20 +395,29 @@ const LAYOUT_OPTIONS: { value: LayoutKind; label: string }[] = [
     { value: "topnav", label: "上部ナビゲーション型（上にメニュー）" },
 ];
 
+const THEME_OPTIONS: { value: ThemePreference; label: string }[] = [
+    { value: "system", label: "OSの設定に合わせる" },
+    { value: "light", label: "ライト（明るい配色）" },
+    { value: "dark", label: "ダーク（暗い配色）" },
+];
+
 function DisplayTab() {
     const { toast } = useToast();
     const { layout, setLayout } = useLayoutPreference();
     const { settings, setSettings } = useDisplaySettings();
-    // 保存するまでは画面全体に反映しない（選んでいる途中でシェルが入れ替わると操作中の場所を見失うため）。
+    const { preference, setPreference } = useThemePreference();
+    // 保存するまでは画面全体に反映しない（選んでいる途中でシェルや配色が入れ替わると操作中の場所を見失うため）。
     const [draftLayout, setDraftLayout] = useState<LayoutKind>(layout);
+    const [draftTheme, setDraftTheme] = useState<ThemePreference>(preference);
     const [locale, setLocale] = useState(settings.locale);
     const [timeZone, setTimeZone] = useState(settings.timeZone);
-    const dirty = draftLayout !== layout || locale !== settings.locale || timeZone !== settings.timeZone;
+    const dirty = draftTheme !== preference || draftLayout !== layout || locale !== settings.locale || timeZone !== settings.timeZone;
     useUnsavedChangesWarning(dirty, { title: "表示の変更を破棄して移動する" });
 
     const onSubmit = (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setSettings({ locale, timeZone });
+        setPreference(draftTheme);
         setLayout(draftLayout);
         toast({ type: "success", title: "表示の設定を保存しました" });
     };
@@ -417,7 +427,10 @@ function DisplayTab() {
             <Card>
                 <CardBody>
                     <form noValidate onSubmit={onSubmit}>
-                        <FormSection layout="settings" title="表示" description="画面のレイアウトと日時の表示形式を選びます。選んだ内容は、この端末のブラウザーに保存します。">
+                        <FormSection layout="settings" title="表示" description="画面の配色、レイアウト、日時の表示形式を選びます。選んだ内容は、この端末のブラウザーに保存します。">
+                            <FormField label="配色" as="fieldset" supportText="OSの設定に合わせると、OSの配色を変えたときに画面の配色も変わります">
+                                <RadioGroup name="theme" value={draftTheme} onChange={(v) => setDraftTheme(v as ThemePreference)} options={THEME_OPTIONS} />
+                            </FormField>
                             <FormField label="画面レイアウト" as="fieldset" supportText="メニューの項目が少ない場合は上部ナビゲーション型も使えます">
                                 <RadioGroup name="layout" value={draftLayout} onChange={(v) => setDraftLayout(v as LayoutKind)} options={LAYOUT_OPTIONS} />
                             </FormField>

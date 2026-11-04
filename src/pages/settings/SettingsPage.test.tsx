@@ -4,6 +4,7 @@ import { setMockOptions } from "@/api/mock";
 import { clearQueryCache } from "@/api/query";
 import { STORAGE_KEY } from "@/context/DisplaySettings";
 import { LAYOUT_STORAGE_KEY } from "@/context/LayoutPreference";
+import { THEME_STORAGE_KEY } from "@/context/ThemePreference";
 import { mockViewport } from "@/layouts/testUtils";
 import { expectNoA11yViolations } from "@/test/axe";
 import { renderLoaded } from "@/test/renderApp";
@@ -76,6 +77,24 @@ describe("SettingsPage", () => {
         // シェルが入れ替わっても「表示」タブのまま
         expect(screen.getByRole("tab", { name: "表示" })).toHaveAttribute("aria-selected", "true");
         expect(await screen.findByText("表示の設定を保存しました")).toBeInTheDocument();
+    });
+
+    it("配色をダークにして保存すると、html の data-theme が変わり、localStorage に残る", async () => {
+        const { user } = await renderLoaded("/settings?tab=display");
+        // 既定は「OSの設定に合わせる」（テストの環境の OS はライト）
+        expect(screen.getByRole("radio", { name: "OSの設定に合わせる" })).toBeChecked();
+        expect(document.documentElement.dataset.theme).toBe("light");
+        await user.click(screen.getByRole("radio", { name: "ダーク（暗い配色）" }));
+        // 保存するまでは反映しない
+        expect(document.documentElement.dataset.theme).toBe("light");
+        await user.click(screen.getByRole("button", { name: "保存する" }));
+        expect(document.documentElement.dataset.theme).toBe("dark");
+        expect(localStorage.getItem(THEME_STORAGE_KEY)).toBe("dark");
+        // 「OSの設定に合わせる」に戻すと、保存した値を消す
+        await user.click(screen.getByRole("radio", { name: "OSの設定に合わせる" }));
+        await user.click(screen.getByRole("button", { name: "保存する" }));
+        expect(document.documentElement.dataset.theme).toBe("light");
+        expect(localStorage.getItem(THEME_STORAGE_KEY)).toBeNull();
     });
 
     it("日付の形式とタイムゾーンを保存するとlocalStorageに残る", async () => {
