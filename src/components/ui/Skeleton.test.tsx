@@ -10,7 +10,7 @@ describe("Skeleton", () => {
         const root = container.firstElementChild!;
         expect(root).toHaveAttribute("aria-hidden", "true");
         expect(root.children).toHaveLength(3);
-        expect(root.children[0]).toHaveClass("animate-pulse", "bg-solid-gray-100", "w-full");
+        expect(root.children[0]).toHaveClass("animate-pulse", "bg-surface-strong", "w-full");
         expect(root.children[2]).toHaveClass("w-2/3");
     });
 

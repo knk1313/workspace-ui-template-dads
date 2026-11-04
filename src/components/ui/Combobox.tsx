@@ -235,7 +235,7 @@ export function Combobox({
                                 className={cn(
                                     "flex min-h-11 cursor-pointer items-center px-4 py-2 text-16 leading-130 tracking-2 text-text-strong",
                                     isSelected && "bg-primary-surface-hover font-bold text-primary-hover",
-                                    isActive && "bg-solid-gray-50 underline underline-offset-3",
+                                    isActive && "bg-surface-muted underline underline-offset-3",
                                 )}
                             >
                                 {o.label}
