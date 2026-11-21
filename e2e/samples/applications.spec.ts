@@ -95,7 +95,7 @@ test.describe("申請一覧の表", () => {
 test("申請詳細：差戻しのモーダルは理由が空だとエラーを出し、入力すると警告バナーが出る", async ({ page }) => {
     await page.goto("/applications/app-001");
     await page.getByRole("button", { name: "その他の操作" }).click();
-    const item = page.getByRole("menuitem", { name: "差戻し" });
+    const item = page.getByRole("menuitem", { name: "差し戻す" });
     test.skip((await item.count()) === 0, "この申請の状態では差戻しできない");
     await item.click();
     const dialog = page.getByRole("dialog");

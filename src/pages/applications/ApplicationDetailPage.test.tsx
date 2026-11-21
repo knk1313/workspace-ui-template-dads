@@ -70,7 +70,7 @@ describe("ApplicationDetailPage", () => {
         const { user } = await renderDetail(`/applications/${reviewing.id}`);
         const trigger = screen.getByRole("button", { name: "その他の操作" });
         await user.click(trigger);
-        await user.click(screen.getByRole("menuitem", { name: "差戻し" }));
+        await user.click(screen.getByRole("menuitem", { name: "差し戻す" }));
 
         const dialog = screen.getByRole("dialog", { name: "申請を差し戻す" });
         expect(within(dialog).getByRole("heading", { name: "申請を差し戻す" })).toHaveFocus();
@@ -89,7 +89,7 @@ describe("ApplicationDetailPage", () => {
     it("理由を入力して差し戻すと、差戻しのバナーに理由を表示する", async () => {
         const { user } = await renderDetail(`/applications/${reviewing.id}`);
         await user.click(screen.getByRole("button", { name: "その他の操作" }));
-        await user.click(screen.getByRole("menuitem", { name: "差戻し" }));
+        await user.click(screen.getByRole("menuitem", { name: "差し戻す" }));
         const dialog = screen.getByRole("dialog", { name: "申請を差し戻す" });
         await user.type(within(dialog).getByRole("textbox", { name: /差戻しの理由/ }), "添付書類の押印が不足しています。");
         await user.click(within(dialog).getByRole("button", { name: "差し戻す" }));

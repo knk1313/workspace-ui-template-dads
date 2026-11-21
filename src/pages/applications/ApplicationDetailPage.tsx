@@ -139,7 +139,7 @@ export default function ApplicationDetailPage() {
     }
 
     const menuItems: DropdownMenuEntry[] = [
-        ...(RETURNABLE.includes(app.status) ? [{ label: "差戻し", icon: Undo2, onSelect: () => setReturnOpen(true) }] : []),
+        ...(RETURNABLE.includes(app.status) ? [{ label: "差し戻す", icon: Undo2, onSelect: () => setReturnOpen(true) }] : []),
         { label: "削除", icon: Trash2, danger: true, disabled: deleteMutation.pending, onSelect: remove },
     ];
 

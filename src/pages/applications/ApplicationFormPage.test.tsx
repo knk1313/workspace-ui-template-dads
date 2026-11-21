@@ -54,8 +54,8 @@ describe("ApplicationFormPage（新規）", () => {
         expect(title).toHaveAccessibleDescription(/＊件名を入力してください/);
         expect(screen.getByLabelText(/^メールアドレス/)).toHaveAttribute("aria-invalid", "true");
         expect(screen.getByLabelText(/^希望日/)).toHaveAttribute("aria-invalid", "true");
-        expect(screen.getByText("＊種別を選択してください")).toBeInTheDocument();
-        expect(screen.getByText(/^＊内容を確認のうえ/)).toBeInTheDocument();
+        expect(screen.getByText("＊種別を選んでください")).toBeInTheDocument();
+        expect(screen.getByText(/^＊記載内容を確かめてから/)).toBeInTheDocument();
         // 任意項目にはエラーを出さない
         expect(screen.getByLabelText(/^所属/)).not.toHaveAttribute("aria-invalid");
         await expectNoA11yViolations(container);
@@ -82,14 +82,14 @@ describe("ApplicationFormPage（新規）", () => {
         await user.click(screen.getByRole("button", { name: "確認へ進む" }));
         expect(screen.getByLabelText(/^件名/)).toHaveValue("道路占用許可申請");
         expect(screen.getByLabelText(/^件名/)).not.toHaveAttribute("aria-invalid");
-        expect(screen.getByLabelText(/^メールアドレス/)).toHaveAccessibleDescription(/@ とドメインを含めて/);
+        expect(screen.getByLabelText(/^メールアドレス/)).toHaveAccessibleDescription(/@とドメインを含めて/);
 
         // 補助金を選ぶと申請額と添付ファイルも必須になる
         await user.click(screen.getByRole("radio", { name: "補助金" }));
         await user.click(screen.getByRole("button", { name: "確認へ進む" }));
         expect(screen.getByText(/＊補助金・許認可の申請では申請額/)).toBeInTheDocument();
         expect(screen.getByText(/＊補助金の申請では申請書/)).toBeInTheDocument();
-        expect(screen.queryByText("＊種別を選択してください")).not.toBeInTheDocument();
+        expect(screen.queryByText("＊種別を選んでください")).not.toBeInTheDocument();
     });
 
     it("正しく入力すると確認画面 → 申請 → 完了画面に進む", async () => {

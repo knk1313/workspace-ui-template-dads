@@ -152,7 +152,7 @@ function ProfileForm({ initial }: { initial: Profile }) {
         const next: ProfileErrors = { image: errors.image };
         if (!name.trim()) next.name = "表示名を入力してください";
         if (!email.trim()) next.email = "メールアドレスを入力してください";
-        else if (!EMAIL_PATTERN.test(email.trim())) next.email = "メールアドレスを「name@example.jp」の形式で入力してください";
+        else if (!EMAIL_PATTERN.test(email.trim())) next.email = "メールアドレスを「name@example.jp」のように、@とドメインを含めて入力してください";
         const bioLength = Array.from(bio).length;
         if (bioLength > BIO_MAX) next.bio = `自己紹介を${BIO_MAX}文字以内にしてください（${bioLength - BIO_MAX}文字超過）`;
         setErrors(next);
