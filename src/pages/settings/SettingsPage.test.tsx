@@ -1,7 +1,7 @@
 import { act, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
 import { setMockOptions } from "@/api/mock";
-import { getNotificationSettings } from "@/api/settings";
+import { getNotificationSettings, getProfile } from "@/api/settings";
 import { clearQueryCache } from "@/api/query";
 import { STORAGE_KEY } from "@/context/DisplaySettings";
 import { LAYOUT_STORAGE_KEY } from "@/context/LayoutPreference";
@@ -37,6 +37,26 @@ describe("SettingsPage", () => {
         expect(name).toHaveAttribute("aria-invalid", "true");
         expect(name).toHaveFocus();
         expect(screen.queryByText("プロフィールを保存しました")).toBeNull();
+    });
+
+    it("自己紹介が200文字を超えていると、保存せずにエラーを出す", async () => {
+        const { user } = await renderLoaded("/settings");
+        const bio = screen.getByRole("textbox", { name: /自己紹介/ });
+        await user.clear(bio);
+        await user.click(bio);
+        await user.paste("あ".repeat(212));
+        await user.click(screen.getAllByRole("button", { name: "保存する" })[0]);
+        expect(screen.getByText("＊自己紹介を200文字以内にしてください（12文字超過）")).toBeInTheDocument();
+        expect(bio).toHaveFocus();
+        expect(screen.queryByText("プロフィールを保存しました")).toBeNull();
+    });
+
+    it("選んだプロフィール画像も保存する", async () => {
+        const { user } = await renderLoaded("/settings");
+        await user.upload(screen.getByLabelText(/プロフィール画像/), new File(["png"], "顔写真.png", { type: "image/png" }));
+        await user.click(screen.getAllByRole("button", { name: "保存する" })[0]);
+        expect(await screen.findByText("プロフィールを保存しました")).toBeInTheDocument();
+        expect((await getProfile()).imageUrl).toBeDefined();
     });
 
     it("プロフィールを保存するとトーストを出す", async () => {

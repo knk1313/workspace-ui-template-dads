@@ -14,8 +14,16 @@ export function getProfile(): Promise<Profile> {
     return mockRequest(() => db.profile);
 }
 
-export function saveProfile(profile: Profile): Promise<Profile> {
-    return mockRequest(() => (db.profile = { ...profile }));
+/**
+ * プロフィールを保存する。image を渡すと、プロフィール画像も差し替える（渡さなければ今の画像のまま）。
+ * ダミーでは、画像をブラウザーの中の URL（createObjectURL）にして持つ。再読み込みすると消える。
+ */
+export function saveProfile(profile: Omit<Profile, "imageUrl">, image?: File): Promise<Profile> {
+    return mockRequest(() => {
+        let imageUrl = db.profile.imageUrl;
+        if (image) imageUrl = typeof URL.createObjectURL === "function" ? URL.createObjectURL(image) : `mock-image:${image.name}`;
+        return (db.profile = { ...profile, imageUrl });
+    });
 }
 
 export function getNotificationSettings(): Promise<NotificationSettings> {
