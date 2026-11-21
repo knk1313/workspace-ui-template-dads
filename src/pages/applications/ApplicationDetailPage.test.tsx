@@ -1,4 +1,5 @@
-import { screen, within } from "@testing-library/react";
+import { screen, waitFor, within } from "@testing-library/react";
+import { approveApplication } from "@/api/applications";
 import { describe, expect, it } from "vitest";
 import { APPLICATIONS } from "@/mocks/applications";
 import { expectNoA11yViolations } from "@/test/axe";
@@ -56,6 +57,13 @@ describe("ApplicationDetailPage", () => {
         expect(screen.getByText(`${reviewing.number}を承認しました`)).toBeInTheDocument();
         // 決定済みになったので承認ボタンは出さない
         expect(screen.queryByRole("button", { name: "承認する" })).not.toBeInTheDocument();
+        // ボタンが消えたので、フォーカスは結果のバナーの見出しへ移す
+        await waitFor(() => expect(screen.getByRole("heading", { name: "申請を承認しました" })).toHaveFocus());
+    });
+
+    it("承認済みの申請をもう一度承認しようとすると、APIが断る", async () => {
+        await approveApplication(reviewing.id);
+        await expect(approveApplication(reviewing.id)).rejects.toThrow(/すでに承認された/);
     });
 
     it("差戻しダイアログ：開くと見出しにフォーカスし、未入力で送るとエラー、Escで閉じてトリガーへ戻る", async () => {

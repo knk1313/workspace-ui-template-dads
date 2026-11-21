@@ -14,6 +14,11 @@ export const STATUS_LABELS: Record<ApplicationStatus, string> = {
     rejected: "不承認",
 };
 
+/** 承認・差戻しができる状態（決定前）。画面のボタンの出し分けと、API の検証の両方で使う。 */
+export const DECIDABLE: ApplicationStatus[] = ["submitted", "reviewing", "returned"];
+/** 差戻しができる状態（審査の途中）。 */
+export const RETURNABLE: ApplicationStatus[] = ["submitted", "reviewing"];
+
 export const CATEGORY_LABELS: Record<ApplicationCategory, string> = {
     subsidy: "補助金",
     permit: "許認可",

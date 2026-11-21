@@ -7,7 +7,7 @@ import { CURRENT_USER } from "@/mocks/settings";
 import { defineStore } from "./db";
 import { ApiError, mockRequest } from "./mock";
 import { invalidate } from "./query";
-import type { ActivityItem, Application, ApplicationDetail, ApplicationInput, ApplicationStatus } from "./applicationTypes";
+import { DECIDABLE, RETURNABLE, type ActivityItem, type Application, type ApplicationDetail, type ApplicationInput, type ApplicationStatus } from "./applicationTypes";
 
 const db = defineStore(() => {
     const applications = generateApplications();
@@ -134,12 +134,21 @@ function changeStatus(id: string, status: ApplicationStatus, action: string, typ
     return application;
 }
 
+/** 今の状態から、その操作ができるかを確かめる（二重に送られたときや、ほかの人が先に決めたときに断る）。 */
+function assertStatus(id: string, allowed: ApplicationStatus[], message: string): void {
+    if (!allowed.includes(find(id).status)) throw new ApiError(message);
+}
+
 export function approveApplication(id: string): Promise<Application> {
-    return mockRequest(() => changeStatus(id, "approved", "承認しました", "approve"));
+    return mockRequest(() => {
+        assertStatus(id, DECIDABLE, "この申請は、すでに承認されたか、承認できない状態です。画面を読み込み直してください。");
+        return changeStatus(id, "approved", "承認しました", "approve");
+    });
 }
 
 export function returnApplication(id: string, reason: string): Promise<Application> {
     return mockRequest(() => {
+        assertStatus(id, RETURNABLE, "この申請は、すでに差し戻されたか、差し戻せない状態です。画面を読み込み直してください。");
         db.returnReasons[id] = reason;
         return changeStatus(id, "returned", "差し戻しました", "return");
     });
