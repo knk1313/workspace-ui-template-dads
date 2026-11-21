@@ -56,7 +56,8 @@ export function useModalBehavior({ open = true, onClose, containerRef, initialFo
             while (node !== document.body && node.parentElement) {
                 const parent: HTMLElement = node.parentElement;
                 for (const sibling of Array.from(parent.children)) {
-                    if (sibling === node || sibling.hasAttribute("inert") || sibling.tagName === "SCRIPT") continue;
+                    // data-modal-exempt はモーダルの上でも働かせたいもの（トーストのリージョン）
+                    if (sibling === node || sibling.hasAttribute("inert") || sibling.hasAttribute("data-modal-exempt") || sibling.tagName === "SCRIPT") continue;
                     sibling.setAttribute("inert", "");
                     inerted.push(sibling);
                 }

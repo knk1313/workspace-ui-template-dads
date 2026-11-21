@@ -1,4 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
+import { createPortal } from "react-dom";
 import { CircleAlert, CircleCheck, Info, X, type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { Button } from "./Button";
@@ -78,6 +79,19 @@ export type ToastProviderProps = { children: ReactNode };
 export function ToastProvider({ children }: ToastProviderProps) {
     const [items, setItems] = useState<ToastItem[]>([]);
     const nextId = useRef(1);
+    const regionRef = useRef<HTMLDivElement>(null);
+
+    // 画面の下端に出ているあいだ（モバイル）は、その高さを scroll-padding-bottom にする。
+    // Tab で移ったフォーカスが、自動では消えない「元に戻す」のトーストに隠れないようにするため（WCAG 2.4.11）。
+    useLayoutEffect(() => {
+        const region = regionRef.current;
+        const root = document.documentElement;
+        if (!region || items.length === 0 || getComputedStyle(region).bottom === "auto") {
+            root.style.removeProperty("scroll-padding-bottom");
+            return;
+        }
+        root.style.scrollPaddingBottom = `${region.offsetHeight + 16}px`;
+    }, [items]);
 
     const dismiss = useCallback((id: number) => {
         setItems((prev) => prev.filter((t) => t.id !== id));
@@ -93,16 +107,25 @@ export function ToastProvider({ children }: ToastProviderProps) {
     return (
         <ToastContext.Provider value={{ toast, dismiss }}>
             {children}
-            {/* リージョンは常に置いておく（追加時に aria-live が機能するように）。モバイルは下部中央、md 以上は右上。 */}
-            <div
-                role="status"
-                aria-live="polite"
-                className="pointer-events-none fixed inset-x-4 bottom-4 z-50 flex flex-col gap-2 md:inset-x-auto md:top-4 md:right-4 md:bottom-auto md:w-full md:max-w-sm"
-            >
-                {items.map((item) => (
-                    <ToastView key={item.id} item={item} dismiss={dismiss} />
-                ))}
-            </div>
+            {/*
+              リージョンは常に置いておく（追加時に aria-live が機能するように）。モバイルは下部中央、md 以上は右上。
+              body の直下に描き、モーダルが外側に付ける inert の対象から外す（data-modal-exempt）。
+              ダイアログを開いたまま出したエラーのトーストも、読み上げられ、暗幕の上に見えるようにするため。
+            */}
+            {createPortal(
+                <div
+                    ref={regionRef}
+                    role="status"
+                    aria-live="polite"
+                    data-modal-exempt=""
+                    className="pointer-events-none fixed inset-x-4 bottom-4 z-60 flex flex-col gap-2 md:inset-x-auto md:top-4 md:right-4 md:bottom-auto md:w-full md:max-w-sm"
+                >
+                    {items.map((item) => (
+                        <ToastView key={item.id} item={item} dismiss={dismiss} />
+                    ))}
+                </div>,
+                document.body,
+            )}
         </ToastContext.Provider>
     );
 }
