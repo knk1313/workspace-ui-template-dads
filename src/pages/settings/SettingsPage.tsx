@@ -31,7 +31,6 @@ import { useLayoutPreference, type LayoutKind } from "@/context/LayoutPreference
 import { useThemePreference, type ThemePreference } from "@/context/ThemePreference";
 import { useUnsavedChangesWarning } from "@/hooks/useUnsavedChangesWarning";
 import { formatDateTime } from "@/lib/format";
-import { DEPARTMENTS, SAMPLE_DATETIME } from "@/mocks/settings";
 import { usePageTitle } from "@/hooks/usePageTitle";
 
 // 設定画面。タブで「アカウント」「通知」「表示」に分け、各タブの中は設定画面型のフォーム
@@ -45,6 +44,8 @@ type TabValue = (typeof TAB_VALUES)[number];
 const IMAGE_ACCEPT = "image/png,image/jpeg";
 const IMAGE_MAX_BYTES = 2 * 1024 * 1024;
 const BIO_MAX = 200;
+/** 日付の形式の「表示の例」に使う日時（ISO 8601）。 */
+const SAMPLE_DATETIME = "2026-10-24T09:30:00Z";
 // 形式の厳密な検査はサーバー側で行う前提で、明らかな入力誤り（@ やドメインの欠落）だけを見る。
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -122,6 +123,9 @@ function AccountTab() {
 function ProfileForm({ initial }: { initial: Profile }) {
     const { toast } = useToast();
     const save = useMutation(saveProfile);
+    const departments = useQuery(settingsQueries.departments);
+    // 読み込むまでは、今の所属だけを選択肢にする（空の選択肢で今の値が消えて見えないように）
+    const departmentOptions = (departments.data ?? [initial.department]).map((d) => ({ value: d, label: d }));
     const [saved, setSaved] = useState(initial);
     const [name, setName] = useState(initial.name);
     const [email, setEmail] = useState(initial.email);
@@ -203,7 +207,7 @@ function ProfileForm({ initial }: { initial: Profile }) {
                                 block
                                 value={department}
                                 onChange={(e) => setDepartment(e.target.value)}
-                                options={DEPARTMENTS.map((d) => ({ value: d, label: d }))}
+                                options={departmentOptions}
                             />
                         </FormField>
                         <FormField label="自己紹介" requirement="optional" supportText={`担当業務などを${BIO_MAX}文字以内で書いてください`} errorText={errors.bio}>

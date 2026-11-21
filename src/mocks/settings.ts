@@ -28,15 +28,5 @@ export const NOTIFICATION_SETTINGS = {
     channels: { email: true, inApp: true },
 };
 
-/** 表示例に使う日時（ISO 8601）。 */
-export const SAMPLE_DATETIME = "2026-10-24T09:30:00Z";
-
 /** ログイン画面の検証用。このメールアドレスでログインすると認証失敗として扱う。 */
 export const LOGIN_FAILURE_EMAIL = "fail@example.jp";
-
-/** 500 エラー画面に出す問い合わせ先（架空）。 */
-export const SUPPORT_CONTACT = {
-    name: "申請管理システムのヘルプデスク",
-    phone: "000-0000-0000",
-    hours: "平日9時〜17時",
-};

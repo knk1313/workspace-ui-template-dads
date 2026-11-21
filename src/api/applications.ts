@@ -1,7 +1,8 @@
 // 申請の API（ダミー）。画面はこの関数だけを通して申請を読み書きする。
 // 実際の API に置き換えるときは、各関数の中身を fetch などに差し替える（戻り値の型は変えない）。
 
-import { RECENT_ACTIVITY } from "@/mocks/activity";
+import { RECENT_ACTIVITY, historyFor } from "@/mocks/activity";
+import { STAFF_PROFILES, findStaff } from "@/mocks/staff";
 import { generateApplications } from "@/mocks/applications";
 import { CURRENT_USER } from "@/mocks/settings";
 import { defineStore } from "./db";
@@ -20,6 +21,7 @@ import {
     type ApplicationListParams,
     type ApplicationSortKey,
     type ApplicationStatus,
+    type StaffProfile,
 } from "./applicationTypes";
 
 const db = defineStore(() => {
@@ -139,6 +141,8 @@ export function getApplication(id: string): Promise<ApplicationDetail | null> {
         if (!application) return null;
         return {
             application,
+            assigneeProfile: findStaff(application.assignee),
+            history: historyFor(application.status),
             related: db.applications.filter((a) => a.applicant === application.applicant && a.id !== id),
             activity: db.activity.filter((a) => a.applicationId === id),
             returnReason: db.returnReasons[id],
@@ -233,6 +237,11 @@ export function returnApplication(id: string, reason: string): Promise<Applicati
     });
 }
 
+/** 申請の担当者にできる職員の一覧。 */
+export function listStaff(): Promise<StaffProfile[]> {
+    return mockRequest(() => Object.values(STAFF_PROFILES));
+}
+
 /** 最近の操作履歴（新しい順）。 */
 export function listRecentActivity(limit = 6): Promise<ActivityItem[]> {
     return mockRequest(() => db.activity.slice(0, limit));
@@ -249,6 +258,8 @@ export const applicationQueries = {
     recent: (limit: number) => defineQuery(`applications/recent/${limit}`, () => listRecentApplications(limit)),
     /** 申請の詳細。 */
     detail: (id: string) => defineQuery(`applications/${id}`, () => getApplication(id)),
+    /** 担当者にできる職員の一覧。 */
+    staff: defineQuery("applications-staff", listStaff),
     /** 最近の操作履歴。ダッシュボードとヘッダーのお知らせで同じ結果を使う（件数は画面側で切る）。 */
     recentActivity: defineQuery("activity", () => listRecentActivity(6)),
 };

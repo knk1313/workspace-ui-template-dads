@@ -1,13 +1,6 @@
 // ダッシュボード用の架空データ。実在の数値とは関係ありません。
 
-export type Kpi = {
-    key: string;
-    label: string;
-    value: string;
-    unit?: string;
-    delta?: { value: string; trend: "up" | "down" | "flat"; label: string };
-    note?: string;
-};
+import type { Kpi } from "@/api/dashboard";
 
 export const KPIS: Kpi[] = [
     { key: "received", label: "今月の受付件数", value: "1,284", unit: "件", delta: { value: "+8.2%", trend: "up", label: "前月比" }, note: "2026年10月1日〜31日" },

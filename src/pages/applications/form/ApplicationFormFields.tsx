@@ -9,9 +9,9 @@ import { Input } from "@/components/ui/Input";
 import { RadioGroup } from "@/components/ui/RadioGroup";
 import { Switch } from "@/components/ui/Switch";
 import { Textarea } from "@/components/ui/Textarea";
-import { ASSIGNEES } from "@/mocks/applications";
 import { CATEGORY_LABELS, type Application, type ApplicationCategory } from "@/api/applicationTypes";
 import { formatFileSize } from "@/components/ui/FileUpload";
+import { useStaffOptions } from "../useStaffOptions";
 import { fieldId } from "./fields";
 import {
     ACCEPTED_FILE_TYPES,
@@ -38,10 +38,10 @@ export type ApplicationFormFieldsProps = {
 };
 
 const CATEGORY_OPTIONS = (Object.keys(CATEGORY_LABELS) as ApplicationCategory[]).map((value) => ({ value, label: CATEGORY_LABELS[value] }));
-const ASSIGNEE_OPTIONS = ASSIGNEES.map((name) => ({ value: name, label: name }));
 
 export function ApplicationFormFields({ values, errors, onChange, minDate, keptAttachments = [] }: ApplicationFormFieldsProps) {
     const priorityHelpId = useId();
+    const assigneeOptions = useStaffOptions();
     const errorOf = (field: FieldName) => errors.find((e) => e.field === field)?.message;
     const amountRequired = requiresAmount(values.category);
     const attachmentRequired = requiresAttachment(values.category);
@@ -156,7 +156,7 @@ export function ApplicationFormFields({ values, errors, onChange, minDate, keptA
                         supportText="名前の一部を入力すると候補を絞り込めます"
                         errorText={errorOf("assignee")}
                     >
-                        <Combobox name="assignee" options={ASSIGNEE_OPTIONS} value={values.assignee} onChange={(v) => onChange("assignee", v)} />
+                        <Combobox name="assignee" options={assigneeOptions} value={values.assignee} onChange={(v) => onChange("assignee", v)} />
                     </FormField>
                 </FormLayout>
                 <div className="flex flex-col gap-2">

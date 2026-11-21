@@ -108,9 +108,21 @@ export type ApplicationInput = Pick<
     memo?: string;
 };
 
+/** 職員（担当者）。 */
+export type StaffProfile = {
+    name: string;
+    department: string;
+    /** 内線番号。 */
+    extension: string;
+};
+
 /** 申請の詳細画面に必要な情報。 */
 export type ApplicationDetail = {
     application: Application;
+    /** 担当者の所属と連絡先。 */
+    assigneeProfile: StaffProfile;
+    /** 手続きの進み具合（受付 → 書類確認 → 審査 → 決定）。 */
+    history: HistoryItem[];
     /** 同じ申請者のほかの申請。 */
     related: Application[];
     activity: ActivityItem[];

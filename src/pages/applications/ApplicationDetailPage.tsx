@@ -80,7 +80,7 @@ export default function ApplicationDetailPage() {
         );
     }
 
-    const { related, activity: appActivity, returnReason } = detail.data!;
+    const { related, activity: appActivity, returnReason, assigneeProfile, history } = detail.data!;
     const justApproved = notice?.id === app.id && notice.type === "approved";
     const justReturned = notice?.id === app.id && notice.type === "returned";
 
@@ -211,13 +211,13 @@ export default function ApplicationDetailPage() {
                 // 申請が変わったら概要タブから見せる
                 key={app.id}
                 items={[
-                    { value: "overview", label: "概要", panel: <OverviewTab application={app} related={related} /> },
+                    { value: "overview", label: "概要", panel: <OverviewTab application={app} related={related} staff={assigneeProfile} /> },
                     {
                         value: "attachments",
                         label: `添付ファイル（${app.attachments.length}）`,
                         panel: <AttachmentsTab attachments={app.attachments} />,
                     },
-                    { value: "history", label: "履歴", panel: <HistoryTab status={app.status} activity={appActivity} /> },
+                    { value: "history", label: "履歴", panel: <HistoryTab history={history} activity={appActivity} /> },
                 ]}
             />
 

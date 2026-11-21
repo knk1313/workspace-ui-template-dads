@@ -8,8 +8,8 @@ import { FormField } from "@/components/ui/FormField";
 import { SearchBox } from "@/components/ui/SearchBox";
 import { Select } from "@/components/ui/Select";
 import { useMediaQuery } from "@/layouts/useMediaQuery";
-import { ASSIGNEES } from "@/mocks/applications";
 import { CATEGORY_LABELS, STATUS_LABELS } from "@/api/applicationTypes";
+import { useStaffOptions } from "../useStaffOptions";
 import type { ApplicationQuery, FilterKey } from "./useApplicationQuery";
 
 // 一覧の絞り込み。キーワード検索は常に表示し、種別・状態・担当者は
@@ -22,7 +22,6 @@ const MD_QUERY = "(min-width: 48rem)";
 const CATEGORY_OPTIONS = Object.entries(CATEGORY_LABELS).map(([value, label]) => ({ value, label }));
 const STATUS_OPTIONS = Object.entries(STATUS_LABELS).map(([value, label]) => ({ value, label }));
 // 選択肢が少ない（5 件以下）ため、3 つの絞り込みはすべてセレクトボックスにそろえる（DADS: 少数の選択肢はセレクト）。
-const ASSIGNEE_OPTIONS = ASSIGNEES.map((name) => ({ value: name, label: name }));
 
 type Props = {
     query: ApplicationQuery;
@@ -35,6 +34,7 @@ type Props = {
 };
 
 function FilterFields({ query, onFilterChange, idPrefix }: Pick<Props, "query" | "onFilterChange"> & { idPrefix: string }) {
+    const assigneeOptions = useStaffOptions();
     return (
         <>
             <FormField label="種別" id={`${idPrefix}-category`}>
@@ -44,7 +44,7 @@ function FilterFields({ query, onFilterChange, idPrefix }: Pick<Props, "query" |
                 <Select block placeholder="すべて" options={STATUS_OPTIONS} value={query.status} onChange={(e) => onFilterChange("status", e.target.value)} />
             </FormField>
             <FormField label="担当者" id={`${idPrefix}-assignee`}>
-                <Select block placeholder="すべて" options={ASSIGNEE_OPTIONS} value={query.assignee} onChange={(e) => onFilterChange("assignee", e.target.value)} />
+                <Select block placeholder="すべて" options={assigneeOptions} value={query.assignee} onChange={(e) => onFilterChange("assignee", e.target.value)} />
             </FormField>
         </>
     );

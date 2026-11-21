@@ -1,6 +1,6 @@
 // 設定の API（ダミー）。
 
-import { NOTIFICATION_SETTINGS, PROFILE } from "@/mocks/settings";
+import { DEPARTMENTS, NOTIFICATION_SETTINGS, PROFILE } from "@/mocks/settings";
 import { defineStore } from "./db";
 import { mockRequest } from "./mock";
 import { defineQuery } from "./query";
@@ -35,8 +35,14 @@ export function saveNotificationSettings(settings: NotificationSettings): Promis
     return mockRequest(() => (db.notifications = structuredClone(settings)));
 }
 
+/** プロフィールの「所属」に選べる部署の一覧。 */
+export function listDepartments(): Promise<string[]> {
+    return mockRequest(() => [...DEPARTMENTS]);
+}
+
 /** 画面が useQuery に渡す、読み込みのキーと関数の組。 */
 export const settingsQueries = {
+    departments: defineQuery("settings/departments", listDepartments),
     profile: defineQuery("settings/profile", getProfile),
     notifications: defineQuery("settings/notifications", getNotificationSettings),
 };

@@ -32,6 +32,7 @@ const REMOVE = [
     "src/pages/dashboard",
     "src/api/applications.ts",
     "src/api/applicationTypes.ts",
+    "src/api/dashboard.ts",
     "src/mocks/applications.ts",
     "src/mocks/activity.ts",
     "src/mocks/applicationForm.ts",

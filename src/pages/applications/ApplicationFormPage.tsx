@@ -14,8 +14,8 @@ import { StepNavigation } from "@/components/ui/StepNavigation";
 import { useToast } from "@/components/ui/Toast";
 import { useUnsavedChangesWarning } from "@/hooks/useUnsavedChangesWarning";
 import { useMediaQuery } from "@/layouts/useMediaQuery";
-import { keptAttachments, toMockFiles } from "@/mocks/applicationForm";
 import type { Application, ApplicationInput } from "@/api/applicationTypes";
+import { keptAttachments, toFormFiles } from "./form/attachments";
 import { ApplicationFormComplete, COMPLETE_HEADING_ID } from "./form/ApplicationFormComplete";
 import { ApplicationFormConfirm } from "./form/ApplicationFormConfirm";
 import { ApplicationFormFields } from "./form/ApplicationFormFields";
@@ -63,7 +63,7 @@ function initialValues(application: Application | undefined): ApplicationFormVal
         phone: application.phone,
         desiredDate: application.desiredDate,
         assignee: application.assignee,
-        attachments: toMockFiles(application.attachments),
+        attachments: toFormFiles(application.attachments),
         memo: application.memo ?? "",
         // 確認事項は編集のたびに改めて確認してもらう
         agreed: false,

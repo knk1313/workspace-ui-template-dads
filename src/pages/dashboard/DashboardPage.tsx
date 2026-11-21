@@ -20,23 +20,23 @@ import { useMediaQuery } from "@/layouts/useMediaQuery";
 import { applicationQueries } from "@/api/applications";
 import { useQuery } from "@/api/query";
 import { STATUS_LABELS, type ActivityItem, type Application, type ApplicationStatus } from "@/api/applicationTypes";
-import { DATA_SOURCE, KPIS, MONTHLY_RECEIVED, RECEIVED_BY_CATEGORY, RECEIVED_BY_CHANNEL } from "@/mocks/dashboard";
+import { dashboardQueries, type DashboardPeriod } from "@/api/dashboard";
 import { usePageTitle } from "@/hooks/usePageTitle";
 
 // ダッシュボード（ダッシュボードデザインの実践ガイドブック / docs/chart-guide.md の画面構成）。
 //   左上から右下へ「全体 → 部分」: 期間の切り替え（上部）→ KPI（左上を強調）→ 推移 → 内訳 → 最新の一覧（右下 = 最も詳細）。
 //   グラフは必ず出典・注記・更新日を付け、データテーブルに切り替えられるようにする（ChartFrame）。
 
-type Period = "thisMonth" | "lastMonth" | "thisYear";
+type Period = DashboardPeriod;
 
-// 期間の切り替えはサンプルのため見出しの期間表示だけを変える。実装時はここで集計 API を呼び直す。
+// 期間を変えると、その期間の集計を API から読み直す（見本の API は、どの期間でも今月の値を返す）。
 const PERIODS: { value: Period; label: string; range: string }[] = [
     { value: "thisMonth", label: "今月", range: "2026年10月1日〜10月31日" },
     { value: "lastMonth", label: "先月", range: "2026年9月1日〜9月30日" },
     { value: "thisYear", label: "今年度", range: "2026年4月1日〜10月31日" },
 ];
 
-// グラフのメタ情報。PageHeader の DATA_SOURCE と同じ時点を指す。
+// グラフのメタ情報。PageHeader の出典（集計の API の dataSource）と同じ時点を指す。
 const CHART_SOURCE = "申請管理システム（架空データ）";
 const CHART_UPDATED_AT = "2026年11月1日9:00";
 const MONTHLY_TARGET = 1200;
@@ -75,6 +75,8 @@ export default function DashboardPage() {
     // 狭い画面ではドーナツの外側ラベルを消し、凡例とデータテーブルで値を補う（DonutChart の showLabels の規約）。
     const roomyChart = useMediaQuery(SM_QUERY);
     const current = PERIODS.find((p) => p.value === period) ?? PERIODS[0];
+    const summary = useQuery(dashboardQueries.summary(period));
+    const data = summary.data;
 
     // 右下の一覧は「いま何が動いているか」を見るためのものなので、更新日の新しい順に絞って出す。
     // 「最近の申請」と「アクティビティ」は承認や削除で変わるので API から読む（集計値とグラフは見本の固定値）
@@ -141,7 +143,7 @@ export default function DashboardPage() {
             <PageHeader
                 title="ダッシュボード"
                 description={`対象期間：${current.label}（${current.range}）`}
-                meta={DATA_SOURCE}
+                meta={summary.data?.dataSource}
                 actions={
                     <>
                         {/* フィルターは上部に置き、影響を受ける情報をその下に並べる（ガイドブック）。 */}
@@ -167,77 +169,95 @@ export default function DashboardPage() {
                 <NotificationBanner type="info" title="見本のため、どの期間を選んでも、指標とグラフは今月（2026年10月）の値のままです" live />
             )}
 
-            <section aria-labelledby="dashboard-kpi">
-                <h2 id="dashboard-kpi" className="sr-only">
-                    主な指標
-                </h2>
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-                    {KPIS.map((kpi, i) => (
-                        // 左上（最初の 1 枚）は全体を示す指標なので強調する。
-                        <StatCard key={kpi.key} label={kpi.label} value={kpi.value} unit={kpi.unit} delta={kpi.delta} note={kpi.note} highlight={i === 0} />
-                    ))}
+            {summary.error && !data ? (
+                <LoadError subject="集計" error={summary.error} onRetry={summary.reload} />
+            ) : !data ? (
+                <div className="flex flex-col gap-4" aria-busy="true">
+                    <p role="status" className="sr-only">
+                        集計を読み込んでいます
+                    </p>
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                        {[0, 1, 2, 3].map((i) => (
+                            <Skeleton key={i} variant="rect" className="h-32" />
+                        ))}
+                    </div>
+                    <Skeleton variant="rect" className="h-80" />
                 </div>
-            </section>
+            ) : (
+                <>
+                <section aria-labelledby="dashboard-kpi">
+                    <h2 id="dashboard-kpi" className="sr-only">
+                        主な指標
+                    </h2>
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                        {data.kpis.map((kpi, i) => (
+                            // 左上（最初の 1 枚）は全体を示す指標なので強調する。
+                            <StatCard key={kpi.key} label={kpi.label} value={kpi.value} unit={kpi.unit} delta={kpi.delta} note={kpi.note} highlight={i === 0} />
+                        ))}
+                    </div>
+                </section>
 
-            <Card>
-                <CardBody>
-                    <LineChart
-                        as="h2"
-                        title="受付件数の月次推移"
-                        unit="件"
-                        description="直近12か月と前年同月を比べます。「月間目標」の線とも比べられます。"
-                        data={MONTHLY_RECEIVED}
-                        xKey="label"
-                        xAxisLabel="月"
-                        series={[
-                            { key: "current", name: "直近12か月" },
-                            { key: "previous", name: "前年同月" },
-                        ]}
-                        referenceLine={{ y: MONTHLY_TARGET, label: `月間目標（${yen.format(MONTHLY_TARGET)}件）` }}
-                        source={CHART_SOURCE}
-                        note="2025年11月〜2026年10月の各月末時点。下書きを除く。"
-                        updatedAt={CHART_UPDATED_AT}
-                    />
-                </CardBody>
-            </Card>
-
-            {/* lg（1024px）ではサイドバーの分だけ本文が狭く、2 列にするとドーナツのラベルが切れるため xl から 2 列にする。 */}
-            <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
                 <Card>
                     <CardBody>
-                        <BarChart
+                        <LineChart
                             as="h2"
-                            title="種別ごとの受付件数（今月）"
+                            title="受付件数の月次推移"
                             unit="件"
-                            layout="horizontal"
-                            sorted
-                            showValues
-                            data={RECEIVED_BY_CATEGORY}
-                            xKey="category"
-                            xAxisLabel="種別"
-                            series={[{ key: "count", name: "受付件数" }]}
+                            description="直近12か月と前年同月を比べます。「月間目標」の線とも比べられます。"
+                            data={data.monthlyReceived}
+                            xKey="label"
+                            xAxisLabel="月"
+                            series={[
+                                { key: "current", name: "直近12か月" },
+                                { key: "previous", name: "前年同月" },
+                            ]}
+                            referenceLine={{ y: MONTHLY_TARGET, label: `月間目標（${yen.format(MONTHLY_TARGET)}件）` }}
                             source={CHART_SOURCE}
-                            note="2026年10月1日〜31日の受付分。"
+                            note="2025年11月〜2026年10月の各月末時点。下書きを除く。"
                             updatedAt={CHART_UPDATED_AT}
                         />
                     </CardBody>
                 </Card>
-                <Card>
-                    <CardBody>
-                        <DonutChart
-                            as="h2"
-                            title="受付経路の構成比（今月）"
-                            unit="件"
-                            centerLabel="合計"
-                            showLabels={roomyChart}
-                            data={RECEIVED_BY_CHANNEL}
-                            source={CHART_SOURCE}
-                            note="2026年10月1日〜31日の受付分。"
-                            updatedAt={CHART_UPDATED_AT}
-                        />
-                    </CardBody>
-                </Card>
-            </div>
+
+                {/* lg（1024px）ではサイドバーの分だけ本文が狭く、2 列にするとドーナツのラベルが切れるため xl から 2 列にする。 */}
+                <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+                    <Card>
+                        <CardBody>
+                            <BarChart
+                                as="h2"
+                                title="種別ごとの受付件数（今月）"
+                                unit="件"
+                                layout="horizontal"
+                                sorted
+                                showValues
+                                data={data.receivedByCategory}
+                                xKey="category"
+                                xAxisLabel="種別"
+                                series={[{ key: "count", name: "受付件数" }]}
+                                source={CHART_SOURCE}
+                                note="2026年10月1日〜31日の受付分。"
+                                updatedAt={CHART_UPDATED_AT}
+                            />
+                        </CardBody>
+                    </Card>
+                    <Card>
+                        <CardBody>
+                            <DonutChart
+                                as="h2"
+                                title="受付経路の構成比（今月）"
+                                unit="件"
+                                centerLabel="合計"
+                                showLabels={roomyChart}
+                                data={data.receivedByChannel}
+                                source={CHART_SOURCE}
+                                note="2026年10月1日〜31日の受付分。"
+                                updatedAt={CHART_UPDATED_AT}
+                            />
+                        </CardBody>
+                    </Card>
+                </div>
+                </>
+            )}
 
             {/* 右下が最も詳細な一覧。表は 5 列あり、サイドバー付きの 1280px 幅で 2/3 にすると更新日時が切れるため、
                 アクティビティを右に並べるのは2xl（1536px）以上にし、それ未満では表の下に置く。 */}
