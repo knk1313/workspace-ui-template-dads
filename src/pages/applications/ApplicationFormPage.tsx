@@ -13,7 +13,7 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { StepNavigation } from "@/components/ui/StepNavigation";
 import { useToast } from "@/components/ui/Toast";
 import { useUnsavedChangesWarning } from "@/hooks/useUnsavedChangesWarning";
-import { useMediaQuery } from "@/layouts/useMediaQuery";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 import type { Application, ApplicationInput } from "@/api/applicationTypes";
 import { keptAttachments, toFormFiles } from "./form/attachments";
 import { ApplicationFormComplete, COMPLETE_HEADING_ID } from "./form/ApplicationFormComplete";

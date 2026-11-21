@@ -8,7 +8,7 @@ import { IconButton } from "@/components/ui/IconButton";
 import { SideNav, type SideNavSection } from "@/components/ui/SideNav";
 import { MobileDrawer } from "./MobileDrawer";
 import { Brand, HamburgerButton, ShellHeader, SkipLink } from "./ShellHeader";
-import { DESKTOP_QUERY, useMediaQuery } from "./useMediaQuery";
+import { DESKTOP_QUERY, useMediaQuery } from "@/hooks/useMediaQuery";
 
 // サイドバー型のアプリケーションシェル。
 //   ┌ ヘッダー（64px: ハンバーガー（lg 未満）/ アプリ名 / headerActions）────┐

@@ -7,7 +7,7 @@ import { Drawer } from "@/components/ui/Drawer";
 import { FormField } from "@/components/ui/FormField";
 import { SearchBox } from "@/components/ui/SearchBox";
 import { Select } from "@/components/ui/Select";
-import { useMediaQuery } from "@/layouts/useMediaQuery";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { CATEGORY_LABELS, STATUS_LABELS } from "@/api/applicationTypes";
 import { useStaffOptions } from "../useStaffOptions";
 import type { ApplicationQuery, FilterKey } from "./useApplicationQuery";

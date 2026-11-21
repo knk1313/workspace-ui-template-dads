@@ -16,7 +16,7 @@ import { StatCard } from "@/components/ui/StatCard";
 import { TableCellLine } from "@/components/ui/Table";
 import { useToast } from "@/components/ui/Toast";
 import { useDisplaySettings } from "@/context/DisplaySettings";
-import { useMediaQuery } from "@/layouts/useMediaQuery";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { applicationQueries } from "@/api/applications";
 import { useQuery } from "@/api/query";
 import { STATUS_LABELS, type ActivityItem, type Application, type ApplicationStatus } from "@/api/applicationTypes";
