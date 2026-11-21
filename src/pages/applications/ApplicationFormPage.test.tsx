@@ -260,7 +260,11 @@ describe("ApplicationFormPage（編集）", () => {
         await user.click(screen.getByRole("button", { name: "確認へ進む" }));
         await user.click(screen.getByRole("button", { name: "更新する" }));
         await waitFor(() => expect(router.state.location.pathname).toBe(`/applications/${app.id}`));
-        const detailBreadcrumb = await screen.findByRole("navigation", { name: "パンくずリスト" });
+        // 詳細画面が描かれる（編集のフォームが片付く）まで待つ
+        await screen.findByRole("heading", { level: 1, name: app.title });
+        // フォームを片付けたときの effect（離脱の確認の登録を外す）を流し切ってから、「戻る」を押す
+        await act(async () => {});
+        const detailBreadcrumb = screen.getByRole("navigation", { name: "パンくずリスト" });
         expect(within(detailBreadcrumb).getByRole("link", { name: "申請一覧" })).toHaveAttribute("href", "/applications?status=reviewing");
         // 編集の画面は履歴から外したので、「戻る」で入り直さない
         await act(() => router.navigate(-1));
