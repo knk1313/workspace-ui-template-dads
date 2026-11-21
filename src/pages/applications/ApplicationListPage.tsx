@@ -48,7 +48,7 @@ export default function ApplicationListPage() {
     const filtered = hasFilters(query);
 
     // 詳細画面のパンくず「申請一覧」から、この絞り込み状態に戻れるよう検索条件を渡す
-    const detailState = { listSearch: search ? `?${search}` : "" };
+    const detailState = useMemo(() => ({ listSearch: search ? `?${search}` : "" }), [search]);
 
     // 条件を変えたら選択を解除する（見えていない行を気付かずに一括操作しないように）
     const changeFilter = (...args: Parameters<typeof setFilter>) => {
@@ -101,62 +101,66 @@ export default function ApplicationListPage() {
         }
     }
 
-    const columns: DataTableColumn<Application>[] = [
-        {
-            // PC 幅で表が左右に収まるよう、受付番号と件名を 1 列にまとめる（ダッシュボードの「最近の申請」と同じ形）。
-            // 並べ替えは受付番号で行う。
-            key: "number",
-            header: "受付番号・件名",
-            accessor: (row) => row.number,
-            render: (row) => (
-                <span className="flex min-w-32 flex-col">
-                    <Link to={`/applications/${row.id}`} state={detailState} className="self-start whitespace-nowrap">
-                        {row.number}
-                    </Link>
-                    <span className="font-normal">{row.title}</span>
-                </span>
-            ),
-            sortable: true,
-            rowHeader: true,
-            skeleton: "lines",
-        },
-        { key: "applicant", header: "申請者", accessor: (row) => row.applicant, sortable: true, width: "w-30 whitespace-nowrap" },
-        { key: "category", header: "種別", accessor: (row) => CATEGORY_LABELS[row.category], sortable: true, width: "w-22 whitespace-nowrap" },
-        {
-            key: "status",
-            header: "状態",
-            // 表示名の五十音ではなく、手続きの進む順（下書き → 受付済み → … ）で並べる
-            accessor: (row) => STATUS_ORDER.indexOf(row.status),
-            render: (row) => (
-                <TableCellLine>
-                    <ApplicationStatusChip status={row.status} />
-                </TableCellLine>
-            ),
-            sortable: true,
-            width: "w-28 whitespace-nowrap",
-            skeleton: "chip",
-        },
-        {
-            key: "amount",
-            header: "申請額",
-            accessor: (row) => row.amount,
-            render: (row) => formatAmount(row.amount) ?? <span className="text-text-muted">なし</span>,
-            sortable: true,
-            align: "right",
-            width: "w-32 whitespace-nowrap",
-        },
-        { key: "assignee", header: "担当者", accessor: (row) => row.assignee, sortable: true, width: "w-26 whitespace-nowrap" },
-        {
-            key: "updatedAt",
-            header: "更新日時",
-            accessor: (row) => row.updatedAt,
-            // 日付と時刻の間で折り返せるようにし、列幅を日付 1 つ分に抑える
-            render: (row) => <time dateTime={row.updatedAt}>{formatDateTime(row.updatedAt)}</time>,
-            sortable: true,
-            align: "right",
-            width: "w-32",
-        },
-    ];
+    // 列の定義は描画のたびに作り直さない（DataTable は列が変わると全行を並べ替え直すため、行を選ぶたびに並べ替えが走っていた）
+    const columns = useMemo<DataTableColumn<Application>[]>(
+        () => [
+            {
+                // PC 幅で表が左右に収まるよう、受付番号と件名を 1 列にまとめる（ダッシュボードの「最近の申請」と同じ形）。
+                // 並べ替えは受付番号で行う。
+                key: "number",
+                header: "受付番号・件名",
+                accessor: (row) => row.number,
+                render: (row) => (
+                    <span className="flex min-w-32 flex-col">
+                        <Link to={`/applications/${row.id}`} state={detailState} className="self-start whitespace-nowrap">
+                            {row.number}
+                        </Link>
+                        <span className="font-normal">{row.title}</span>
+                    </span>
+                ),
+                sortable: true,
+                rowHeader: true,
+                skeleton: "lines",
+            },
+            { key: "applicant", header: "申請者", accessor: (row) => row.applicant, sortable: true, width: "w-30 whitespace-nowrap" },
+            { key: "category", header: "種別", accessor: (row) => CATEGORY_LABELS[row.category], sortable: true, width: "w-22 whitespace-nowrap" },
+            {
+                key: "status",
+                header: "状態",
+                // 表示名の五十音ではなく、手続きの進む順（下書き → 受付済み → … ）で並べる
+                accessor: (row) => STATUS_ORDER.indexOf(row.status),
+                render: (row) => (
+                    <TableCellLine>
+                        <ApplicationStatusChip status={row.status} />
+                    </TableCellLine>
+                ),
+                sortable: true,
+                width: "w-28 whitespace-nowrap",
+                skeleton: "chip",
+            },
+            {
+                key: "amount",
+                header: "申請額",
+                accessor: (row) => row.amount,
+                render: (row) => formatAmount(row.amount) ?? <span className="text-text-muted">なし</span>,
+                sortable: true,
+                align: "right",
+                width: "w-32 whitespace-nowrap",
+            },
+            { key: "assignee", header: "担当者", accessor: (row) => row.assignee, sortable: true, width: "w-26 whitespace-nowrap" },
+            {
+                key: "updatedAt",
+                header: "更新日時",
+                accessor: (row) => row.updatedAt,
+                // 日付と時刻の間で折り返せるようにし、列幅を日付 1 つ分に抑える
+                render: (row) => <time dateTime={row.updatedAt}>{formatDateTime(row.updatedAt)}</time>,
+                sortable: true,
+                align: "right",
+                width: "w-32",
+            },
+        ],
+        [detailState, formatDateTime],
+    );
 
     return (
         <div className="flex flex-col gap-6">

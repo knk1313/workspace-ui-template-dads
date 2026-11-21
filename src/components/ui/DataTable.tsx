@@ -139,13 +139,16 @@ function ColumnSkeleton({ kind, align, variant }: { kind: NonNullable<DataTableC
 const SORT_ICON: Record<SortDirection | "none", typeof ArrowUp> = { asc: ArrowUp, desc: ArrowDown, none: ArrowUpDown };
 const ARIA_SORT: Record<SortDirection, "ascending" | "descending"> = { asc: "ascending", desc: "descending" };
 
+// 照合の設定は一度だけ作って使い回す（localeCompare にロケールを渡すと、比べるたびに照合の準備をし直すため）
+const collator = new Intl.Collator("ja", { numeric: true });
+
 function compareValues(a: string | number | null | undefined, b: string | number | null | undefined): number {
     // 空値は常に末尾
     if (a == null && b == null) return 0;
     if (a == null) return 1;
     if (b == null) return -1;
     if (typeof a === "number" && typeof b === "number") return a - b;
-    return String(a).localeCompare(String(b), "ja", { numeric: true });
+    return collator.compare(String(a), String(b));
 }
 
 /** 内部状態と制御（props）を切り替える小さなヘルパー。 */

@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { CircleAlert, CircleCheck, Info, X, type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/cn";
@@ -104,8 +104,11 @@ export function ToastProvider({ children }: ToastProviderProps) {
         return id;
     }, []);
 
+    // 値を描画のたびに作り直すと、トーストが出たり消えたりするたびに useToast を使うすべての画面が描き直されるため固定する
+    const value = useMemo(() => ({ toast, dismiss }), [toast, dismiss]);
+
     return (
-        <ToastContext.Provider value={{ toast, dismiss }}>
+        <ToastContext.Provider value={value}>
             {children}
             {/*
               リージョンは常に置いておく（追加時に aria-live が機能するように）。モバイルは下部中央、md 以上は右上。

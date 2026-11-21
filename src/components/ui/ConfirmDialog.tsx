@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useRef, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useMemo, useRef, useState, type ReactNode } from "react";
 import { Button, type ButtonTone } from "./Button";
 import { ModalDialog } from "./ModalDialog";
 
@@ -50,6 +50,8 @@ export function ConfirmProvider({ children }: ConfirmProviderProps) {
     }, []);
 
     const current = queue[0];
+    // 値を描画のたびに作り直すと、useConfirm を使うすべての画面が描き直されるため固定する
+    const value = useMemo(() => ({ confirm }), [confirm]);
 
     function settle(ok: boolean) {
         if (!current) return;
@@ -58,7 +60,7 @@ export function ConfirmProvider({ children }: ConfirmProviderProps) {
     }
 
     return (
-        <ConfirmContext.Provider value={{ confirm }}>
+        <ConfirmContext.Provider value={value}>
             {children}
             {/* key で 1 件ごとに作り直し、初期フォーカスとフォーカス復帰を毎回かける。 */}
             {current && (
