@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router";
 import { Plus, SearchX, Trash2, UserRoundPen } from "lucide-react";
 import { Button, ButtonLink } from "@/components/ui/Button";
@@ -14,21 +14,21 @@ import { useToast } from "@/components/ui/Toast";
 import { useDisplaySettings } from "@/context/DisplaySettings";
 import { applicationQueries, assignApplications, deleteApplications as deleteApi, invalidateApplications, restoreApplications } from "@/api/applications";
 import { setQueryData, useMutation, useQuery } from "@/api/query";
-import { CATEGORY_LABELS, STATUS_LABELS, type Application } from "@/api/applicationTypes";
+import { CATEGORY_LABELS, type Application, type ApplicationListPage } from "@/api/applicationTypes";
 import { ApplicationFilters } from "./list/ApplicationFilters";
 import { ApplicationStatusChip } from "./list/ApplicationStatusChip";
 import { AssignDialog } from "./list/AssignDialog";
 import { formatAmount } from "./list/format";
-import { filterApplications, hasFilters, useApplicationQuery } from "./list/useApplicationQuery";
+import { hasFilters, toListParams, useApplicationQuery } from "./list/useApplicationQuery";
 import { usePageTitle } from "@/hooks/usePageTitle";
 
 // 申請一覧。検索・絞り込み（URL に保存）→ データテーブル（並べ替え・行選択・ページ送り）→ 一括操作 / 行ごとの操作。
 // データは src/api/ のダミー API から読み書きする（画面を移っても保たれ、再読み込みで元に戻る）。
+// 絞り込み・並べ替え・ページ送りは API の側で行い、画面は 1 ページ分と総数だけを受け取る（DataTable の totalCount）。
 // 削除は確認ダイアログを出さずにすぐ行い、トーストの「元に戻す」で取り消せるようにする（DADS: 確認ダイアログだけを安全対策にしない）。
 
 const PAGE_SIZE = 20;
 
-const STATUS_ORDER = Object.keys(STATUS_LABELS);
 
 export default function ApplicationListPage() {
     usePageTitle("申請一覧");
@@ -37,14 +37,24 @@ export default function ApplicationListPage() {
     const { formatDateTime } = useDisplaySettings();
     const { query, search, setFilter, clearFilters, setSort, setPage } = useApplicationQuery();
 
-    const list = useQuery(applicationQueries.all);
-    const applications = useMemo(() => list.data ?? [], [list.data]);
+    const listQuery = applicationQueries.list(toListParams(query, PAGE_SIZE));
+    const list = useQuery(listQuery);
+    // 条件やページを変えて読み込んでいる間は、前の結果を出したままにする（表がスケルトンに戻って画面が跳ねないように）
+    const [lastPage, setLastPage] = useState<ApplicationListPage | undefined>(list.data);
+    if (list.data && list.data !== lastPage) setLastPage(list.data);
+    const page = list.data ?? lastPage;
+    const rows = page?.items ?? [];
     const [selectedIds, setSelectedIds] = useState<string[]>([]);
     const [assignOpen, setAssignOpen] = useState(false);
     const assign = useMutation(assignApplications);
 
-    const rows = useMemo(() => filterApplications(applications, query), [applications, query]);
     const filtered = hasFilters(query);
+
+    // 削除などで今のページに行がなくなったら（最後のページの最後の行を消したときなど）、最後のページへ移る
+    const lastPageNumber = page ? Math.max(1, Math.ceil(page.total / PAGE_SIZE)) : 1;
+    useEffect(() => {
+        if (page && page.items.length === 0 && query.page > lastPageNumber) setPage(lastPageNumber);
+    }, [page, query.page, lastPageNumber, setPage]);
 
     // 詳細画面のパンくず「申請一覧」から、この絞り込み状態に戻れるよう検索条件を渡す
     const detailState = useMemo(() => ({ listSearch: search ? `?${search}` : "" }), [search]);
@@ -59,12 +69,14 @@ export default function ApplicationListPage() {
         clearFilters();
     };
 
-    async function deleteApplications(targets: Application[]) {
-        const ids = new Set(targets.map((t) => t.id));
-        // 「R08-001060を削除しました」「3件の申請を削除しました」
-        const label = targets.length === 1 ? targets[0].number : `${targets.length}件の申請`;
+    /** 削除する。label は「R08-001060」か「3件の申請」（トーストの「〜を削除しました」に使う）。 */
+    async function deleteApplications(targetIds: string[], label: string) {
+        const ids = new Set(targetIds);
         // 通信の結果を待たずに一覧から消し（楽観的な更新）、失敗したら読み込み直して元に戻す
-        setQueryData(applicationQueries.all, (prev) => (prev ?? []).filter((a) => !ids.has(a.id)));
+        setQueryData(listQuery, (prev = { items: [], total: 0 }) => ({
+            items: prev.items.filter((a) => !ids.has(a.id)),
+            total: prev.total - prev.items.filter((a) => ids.has(a.id)).length,
+        }));
         setSelectedIds((prev) => prev.filter((id) => !ids.has(id)));
         try {
             const deleted = await deleteApi([...ids]);
@@ -127,7 +139,7 @@ export default function ApplicationListPage() {
                 key: "status",
                 header: "状態",
                 // 表示名の五十音ではなく、手続きの進む順（下書き → 受付済み → … ）で並べる
-                accessor: (row) => STATUS_ORDER.indexOf(row.status),
+                accessor: (row) => row.status,
                 render: (row) => (
                     <TableCellLine>
                         <ApplicationStatusChip status={row.status} />
@@ -175,26 +187,27 @@ export default function ApplicationListPage() {
 
             <ApplicationFilters
                 query={query}
-                resultCount={list.data ? rows.length : undefined}
+                resultCount={page?.total}
                 loading={list.isLoading}
                 onFilterChange={changeFilter}
                 onClear={clearAll}
             />
 
-            {list.error && <LoadError subject="申請の一覧" error={list.error} onRetry={list.reload} stale={!!list.data} />}
+            {list.error && <LoadError subject="申請の一覧" error={list.error} onRetry={list.reload} stale={!!page} />}
 
             {/* 表は地（canvas）に直接置かず、白い面（カード）に載せる（docs/decisions.md D-07）。
                 一度も読み込めていないときは、空の表（「申請はまだありません」）と誤解されないよう表を出さない。 */}
-            {!(list.error && !list.data) && (
+            {!(list.error && !page) && (
                 <Card>
                     <CardBody>
                         <DataTable
                             flush
                             columns={columns}
                             rows={rows}
+                            totalCount={page?.total ?? 0}
                             getRowId={(row) => row.id}
                             getRowLabel={(row) => `${row.number}「${row.title}」`}
-                            loading={list.isLoading}
+                            loading={!page}
                             // 表の中だけを縦スクロールさせるとページのスクロールと二重になり、最終行が切れて見えるため固定ヘッダーは使わない（20 件ずつのページ送りで十分短い）。
                             sort={query.sort}
                             onSortChange={setSort}
@@ -214,7 +227,11 @@ export default function ApplicationListPage() {
                                         size="sm"
                                         tone="error"
                                         leadIcon={Trash2}
-                                        onClick={() => deleteApplications(applications.filter((a) => selectedIds.includes(a.id)))}
+                                        onClick={() => {
+                                            // 選んだ行がほかのページにあっても消せるよう、id で削除する
+                                            const single = selectedIds.length === 1 ? rows.find((r) => r.id === selectedIds[0]) : undefined;
+                                            void deleteApplications(selectedIds, single ? single.number : `${selectedIds.length}件の申請`);
+                                        }}
                                     >
                                         削除
                                     </Button>
@@ -230,7 +247,7 @@ export default function ApplicationListPage() {
                                         { label: "詳細を見る", onSelect: () => navigate(`/applications/${row.id}`, { state: detailState }) },
                                         { label: "編集", onSelect: () => navigate(`/applications/${row.id}/edit`, { state: detailState }) },
                                         "separator",
-                                        { label: "削除", danger: true, icon: Trash2, onSelect: () => deleteApplications([row]) },
+                                        { label: "削除", danger: true, icon: Trash2, onSelect: () => void deleteApplications([row.id], row.number) },
                                     ]}
                                 />
                         )}

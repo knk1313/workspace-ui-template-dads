@@ -7,7 +7,20 @@ import { CURRENT_USER } from "@/mocks/settings";
 import { defineStore } from "./db";
 import { ApiError, mockRequest } from "./mock";
 import { defineQuery, invalidate } from "./query";
-import { DECIDABLE, RETURNABLE, type ActivityItem, type Application, type ApplicationDetail, type ApplicationInput, type ApplicationStatus } from "./applicationTypes";
+import {
+    CATEGORY_LABELS,
+    DECIDABLE,
+    RETURNABLE,
+    STATUS_LABELS,
+    type ActivityItem,
+    type Application,
+    type ApplicationDetail,
+    type ApplicationInput,
+    type ApplicationListPage,
+    type ApplicationListParams,
+    type ApplicationSortKey,
+    type ApplicationStatus,
+} from "./applicationTypes";
 
 const db = defineStore(() => {
     const applications = generateApplications();
@@ -48,9 +61,70 @@ function find(id: string): Application {
     return application;
 }
 
-/** 申請の一覧（新しい順）。絞り込み・並べ替えは画面側で行う。 */
-export function listApplications(): Promise<Application[]> {
-    return mockRequest(() => db.applications);
+function normalize(text: string): string {
+    // 全角英数字を半角に寄せ、大文字小文字を区別せずに部分一致させる（受付番号を全角で入力しても見つかるように）
+    return text
+        .replace(/[Ａ-Ｚａ-ｚ０-９－]/g, (c) => (c === "－" ? "-" : String.fromCharCode(c.charCodeAt(0) - 0xfee0)))
+        .toLocaleLowerCase()
+        .trim();
+}
+
+const collator = new Intl.Collator("ja", { numeric: true });
+const STATUS_ORDER = Object.keys(STATUS_LABELS);
+
+/** 並べ替えに使う値。状態は表示名の五十音ではなく、手続きの進む順（下書き → 受付済み → …）で並べる。 */
+const SORT_VALUE: Record<ApplicationSortKey, (a: Application) => string | number> = {
+    number: (a) => a.number,
+    title: (a) => a.title,
+    applicant: (a) => a.applicant,
+    category: (a) => CATEGORY_LABELS[a.category],
+    status: (a) => STATUS_ORDER.indexOf(a.status),
+    amount: (a) => a.amount,
+    assignee: (a) => a.assignee,
+    updatedAt: (a) => a.updatedAt,
+};
+
+function compare(a: string | number, b: string | number): number {
+    return typeof a === "number" && typeof b === "number" ? a - b : collator.compare(String(a), String(b));
+}
+
+/**
+ * 申請の一覧の 1 ページ分と、条件に合う総数を返す。絞り込み・並べ替え・ページ送りはここで行う
+ * （画面に全件を送らないため。実際の API でも、検索条件をクエリパラメータで渡して同じ形で受け取る）。
+ */
+export function listApplications(params: ApplicationListParams): Promise<ApplicationListPage> {
+    return mockRequest(() => {
+        const keyword = normalize(params.q ?? "");
+        const matched = db.applications.filter(
+            (row) =>
+                (!keyword || [row.number, row.title, row.applicant].some((v) => normalize(v).includes(keyword))) &&
+                (!params.category || row.category === params.category) &&
+                (!params.status || row.status === params.status) &&
+                (!params.assignee || row.assignee === params.assignee),
+        );
+        const { sort } = params;
+        const sorted = sort
+            ? matched
+                  .map((row, index) => ({ row, index }))
+                  .sort((a, b) => compare(SORT_VALUE[sort.key](a.row), SORT_VALUE[sort.key](b.row)) * (sort.direction === "asc" ? 1 : -1) || a.index - b.index)
+                  .map(({ row }) => row)
+            : matched;
+        const start = (Math.max(1, params.page) - 1) * params.pageSize;
+        return { items: sorted.slice(start, start + params.pageSize), total: sorted.length };
+    });
+}
+
+function listKey(params: ApplicationListParams): string {
+    const sort = params.sort ? `${params.sort.key}:${params.sort.direction}` : "none";
+    return new URLSearchParams({
+        q: params.q ?? "",
+        category: params.category ?? "",
+        status: params.status ?? "",
+        assignee: params.assignee ?? "",
+        sort,
+        page: String(params.page),
+        pageSize: String(params.pageSize),
+    }).toString();
 }
 
 /** 更新日時の新しい順に、最近の申請を limit 件だけ返す（ダッシュボードとヘッダーの検索の候補）。 */
@@ -169,8 +243,8 @@ export function listRecentActivity(limit = 6): Promise<ActivityItem[]> {
  * 申請に関わるキーは "applications" で、操作履歴は "activity" で始める（invalidateApplications でまとめて読み込み直すため）。
  */
 export const applicationQueries = {
-    /** 申請の一覧（全件）。 */
-    all: defineQuery("applications", listApplications),
+    /** 申請の一覧（条件に合う 1 ページ分と総数）。 */
+    list: (params: ApplicationListParams) => defineQuery(`applications/list?${listKey(params)}`, () => listApplications(params)),
     /** 更新日時の新しい順の、最近の申請。 */
     recent: (limit: number) => defineQuery(`applications/recent/${limit}`, () => listRecentApplications(limit)),
     /** 申請の詳細。 */

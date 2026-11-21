@@ -69,6 +69,30 @@ export type HistoryItem = {
     status: "done" | "current" | "upcoming";
 };
 
+/** 一覧で並べ替えに使える列。 */
+export type ApplicationSortKey = "number" | "title" | "applicant" | "category" | "status" | "amount" | "assignee" | "updatedAt";
+
+/** 申請の一覧の検索条件。絞り込み・並べ替え・ページ送りは API の側で行う。 */
+export type ApplicationListParams = {
+    /** 受付番号・件名・申請者の部分一致（全角英数字も可）。 */
+    q?: string;
+    category?: ApplicationCategory | "";
+    status?: ApplicationStatus | "";
+    assignee?: string;
+    /** 並べ替え。null なら受付の新しい順（API の既定の順）。 */
+    sort?: { key: ApplicationSortKey; direction: "asc" | "desc" } | null;
+    /** 1 から数える。 */
+    page: number;
+    pageSize: number;
+};
+
+/** 申請の一覧の 1 ページ分。 */
+export type ApplicationListPage = {
+    items: Application[];
+    /** 条件に合う申請の総数（ページ送りの表示に使う）。 */
+    total: number;
+};
+
 /** 申請の作成・更新で送る内容。 */
 export type ApplicationInput = Pick<Application, "title" | "category" | "amount" | "applicant" | "organization" | "assignee"> & {
     attachments: Application["attachments"];
