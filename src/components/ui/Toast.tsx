@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
 import { CircleAlert, CircleCheck, Info, X, type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { Button } from "./Button";
@@ -8,7 +8,8 @@ import { Icon } from "./Icon";
 //   - 画面右上（モバイルは下部中央）に固定表示、role="status"（aria-live="polite"）のリージョン
 //   - 意味色の枠 2px、角丸 8px、elevation-3、アイコン、閉じるボタン（固定表示には必ず閉じるボタンを付ける）
 //   - 8 秒で自動消去。ホバー・フォーカス中は止める。フォーカスがあるときは Esc で閉じる。同時表示は 3 件まで
-//   - 操作（「元に戻す」など）を付けたトーストは自動で消さない（押す前に消えると、キーボードや読み上げの利用者が操作できないため。WCAG 2.2.1）
+//   - 操作（「元に戻す」など）を付けたトーストは自動で消さない（押す前に消えると、キーボードや読み上げの利用者が操作できないため。WCAG 2.2.1）。
+//     上限を超えたときも押し出さない（押し出すと、削除を取り消す手段がなくなるため）。押し出すのは操作のないものだけ
 //   - action.focus を付けると、表示と同時に操作ボタンへフォーカスを移す（操作していた要素が消えたときの移し先にする）。
 //     フォーカスがトーストの中にあるまま閉じたときは、本文（main）へフォーカスを戻す
 //   const { toast } = useToast();
@@ -59,6 +60,19 @@ const COLORS: Record<ToastType, { frame: string; icon: string }> = {
     info: { frame: "border-info", icon: "text-info" },
 };
 
+/** 上限を超えた分を、操作のないトーストから古い順に消す。操作付きのトーストは消さない。 */
+export function trimToasts<T extends { action?: unknown }>(items: T[], max = TOAST_MAX): T[] {
+    let excess = items.length - max;
+    if (excess <= 0) return items;
+    return items.filter((item) => {
+        if (excess > 0 && !item.action) {
+            excess -= 1;
+            return false;
+        }
+        return true;
+    });
+}
+
 export type ToastProviderProps = { children: ReactNode };
 
 export function ToastProvider({ children }: ToastProviderProps) {
@@ -71,8 +85,8 @@ export function ToastProvider({ children }: ToastProviderProps) {
 
     const toast = useCallback(({ title, description, type = "info", action, duration = action ? 0 : TOAST_DEFAULT_DURATION }: ToastOptions) => {
         const id = nextId.current++;
-        // 上限を超えたら古いものから消す（画面を覆い尽くさないため）。
-        setItems((prev) => [...prev, { id, title, description, type, duration, action }].slice(-TOAST_MAX));
+        // 上限を超えたら、操作のないものを古い順に消す（画面を覆い尽くさないため）。操作付きは利用者が閉じるまで残す。
+        setItems((prev) => trimToasts([...prev, { id, title, description, type, duration, action }]));
         return id;
     }, []);
 
@@ -101,6 +115,13 @@ function ToastView({ item, dismiss }: { item: ToastItem; dismiss: (id: number) =
         if (rootRef.current?.contains(document.activeElement)) document.getElementById("main")?.focus();
         dismiss(item.id);
     }, [dismiss, item.id]);
+    // 上限を超えて押し出されたときも、フォーカスがトーストの中にあれば本文へ戻す（消える前に動かす）
+    useLayoutEffect(() => {
+        const root = rootRef.current;
+        return () => {
+            if (root?.contains(document.activeElement)) document.getElementById("main")?.focus();
+        };
+    }, []);
     const focusAction = item.action?.focus ?? false;
     useEffect(() => {
         if (focusAction) actionRef.current?.focus();

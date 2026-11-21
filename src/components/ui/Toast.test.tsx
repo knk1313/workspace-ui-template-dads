@@ -135,6 +135,17 @@ describe("Toast", () => {
         expect(screen.getAllByRole("button", { name: "通知を閉じる" })).toHaveLength(3);
     });
 
+    it("操作付きのトーストは、上限を超えても押し出さず、操作のないものから消す", async () => {
+        const restore = vi.fn();
+        const { user } = setup([{ title: "削除しました", action: { label: "元に戻す", onClick: restore } }, { title: "B" }, { title: "C" }, { title: "D" }]);
+        for (const name of ["通知1", "通知2", "通知3", "通知4"]) await user.click(screen.getByRole("button", { name }));
+        expect(screen.getByText("削除しました")).toBeInTheDocument();
+        expect(screen.queryByText("B")).not.toBeInTheDocument();
+        expect(screen.getByText("D")).toBeInTheDocument();
+        await user.click(screen.getByRole("button", { name: "元に戻す" }));
+        expect(restore).toHaveBeenCalledTimes(1);
+    });
+
     it("Providerの外でuseToastを使うとエラーになる", () => {
         const spy = vi.spyOn(console, "error").mockImplementation(() => {});
         expect(() => render(<Trigger options={[]} />)).toThrow(/ToastProvider/);
