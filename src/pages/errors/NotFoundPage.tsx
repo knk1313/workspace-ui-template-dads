@@ -1,9 +1,11 @@
 import { ButtonLink } from "@/components/ui/Button";
 import { ErrorPage } from "@/components/ui/ErrorPage";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 // 404。ルート定義の * で、存在しない URL のときにシェルの中に表示する。
 // 見つからない原因（URL の誤り・削除）と、次に取れる行動（ホーム / 申請一覧）を示す。
 export default function NotFoundPage() {
+    usePageTitle("ページが見つかりません");
     return (
         <ErrorPage
             status={404}

@@ -20,6 +20,7 @@ import { ApplicationStatusChip } from "./list/ApplicationStatusChip";
 import { AssignDialog } from "./list/AssignDialog";
 import { formatAmount } from "./list/format";
 import { filterApplications, hasFilters, useApplicationQuery } from "./list/useApplicationQuery";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 // 申請一覧。検索・絞り込み（URL に保存）→ データテーブル（並べ替え・行選択・ページ送り）→ 一括操作 / 行ごとの操作。
 // データは src/api/ のダミー API から読み書きする（画面を移っても保たれ、再読み込みで元に戻る）。
@@ -31,6 +32,7 @@ const QUERY_KEY = "applications";
 const STATUS_ORDER = Object.keys(STATUS_LABELS);
 
 export default function ApplicationListPage() {
+    usePageTitle("申請一覧");
     const navigate = useNavigate();
     const { toast } = useToast();
     const { formatDateTime } = useDisplaySettings();

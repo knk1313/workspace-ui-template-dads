@@ -14,6 +14,7 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { Tabs } from "@/components/ui/Tabs";
 import { useToast } from "@/components/ui/Toast";
 import { useDisplaySettings } from "@/context/DisplaySettings";
+import { usePageTitle } from "@/hooks/usePageTitle";
 import { AttachmentsTab } from "./detail/AttachmentsTab";
 import { DetailSkeleton } from "./detail/DetailSkeleton";
 import { HistoryTab } from "./detail/HistoryTab";
@@ -54,6 +55,9 @@ export default function ApplicationDetailPage() {
     useEffect(() => {
         if (notice?.type === "approved") approvedHeadingRef.current?.focus();
     }, [notice]);
+
+    const loaded = detail.data?.application;
+    usePageTitle(loaded ? loaded.title : detail.isLoading || detail.error ? "申請の詳細" : "申請が見つかりません");
 
     if (detail.isLoading) return <DetailSkeleton />;
     if (detail.error && detail.data === undefined) {

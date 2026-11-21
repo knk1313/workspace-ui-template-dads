@@ -32,6 +32,7 @@ import { useThemePreference, type ThemePreference } from "@/context/ThemePrefere
 import { useUnsavedChangesWarning } from "@/hooks/useUnsavedChangesWarning";
 import { formatDateTime } from "@/lib/format";
 import { DEPARTMENTS, SAMPLE_DATETIME } from "@/mocks/settings";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 // 設定画面。タブで「アカウント」「通知」「表示」に分け、各タブの中は設定画面型のフォーム
 // （FormSection layout="settings": md 以上で左に見出し・説明、右に項目）にする。
@@ -48,6 +49,7 @@ const BIO_MAX = 200;
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default function SettingsPage() {
+    usePageTitle("設定");
     // 選択中のタブは URL（?tab=）に持つ。画面レイアウトを保存するとシェルが入れ替わってこの画面が描き直されるため、
     // コンポーネントの state に持つと「表示」タブから「アカウント」タブに戻ってしまう。
     const [searchParams, setSearchParams] = useSearchParams();

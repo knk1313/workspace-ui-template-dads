@@ -1,10 +1,12 @@
 import { Button, ButtonLink } from "@/components/ui/Button";
 import { ErrorPage } from "@/components/ui/ErrorPage";
 import { SUPPORT_CONTACT } from "@/mocks/settings";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 // 500 エラー画面（/error/500 はプレビュー用）。実際のアプリでは、API の失敗やエラーバウンダリからこの画面を出す。
 // 利用者のせいではないことと、時間をおいて再度試す・問い合わせる、という次の行動を示す。
 export default function ServerErrorPage() {
+    usePageTitle("ページを表示できません");
     return (
         <ErrorPage
             status={500}

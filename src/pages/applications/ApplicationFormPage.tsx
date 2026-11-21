@@ -30,6 +30,7 @@ import {
     type FieldError,
     type FieldName,
 } from "./form/validation";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 // 申請の作成・編集フォーム（/applications/new、/applications/:id/edit）。
 // 入力 → 確認 → 完了 の 3 ステップ（編集は 入力 → 確認 で、更新後は詳細画面へ戻る）。
@@ -97,6 +98,7 @@ function toInput(values: ApplicationFormValues, kept: Application["attachments"]
 }
 
 export default function ApplicationFormPage({ mode }: ApplicationFormPageProps) {
+    usePageTitle(mode === "create" ? "新規申請" : "申請を編集");
     if (mode === "create") return <ApplicationForm key="new" mode="create" application={undefined} />;
     return <EditApplicationForm />;
 }

@@ -1,4 +1,4 @@
-import { screen, waitFor, within } from "@testing-library/react";
+import { act, screen, waitFor, within } from "@testing-library/react";
 import { approveApplication } from "@/api/applications";
 import { describe, expect, it } from "vitest";
 import { APPLICATIONS } from "@/mocks/applications";
@@ -59,6 +59,13 @@ describe("ApplicationDetailPage", () => {
         expect(screen.queryByRole("button", { name: "承認する" })).not.toBeInTheDocument();
         // ボタンが消えたので、フォーカスは結果のバナーの見出しへ移す
         await waitFor(() => expect(screen.getByRole("heading", { name: "申請を承認しました" })).toHaveFocus());
+    });
+
+    it("ブラウザーのタブの名前を、申請の件名にする。画面を移ると変わる", async () => {
+        const { router } = await renderDetail(`/applications/${reviewing.id}`);
+        await waitFor(() => expect(document.title).toBe(`${reviewing.title} | 申請管理システム`));
+        await act(() => router.navigate("/applications"));
+        await waitFor(() => expect(document.title).toBe("申請一覧 | 申請管理システム"));
     });
 
     it("承認済みの申請をもう一度承認しようとすると、APIが断る", async () => {

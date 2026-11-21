@@ -11,6 +11,7 @@ import { Link } from "@/components/ui/Link";
 import { NotificationBanner } from "@/components/ui/NotificationBanner";
 import { useToast } from "@/components/ui/Toast";
 import { LOGIN_FAILURE_EMAIL } from "@/mocks/settings";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 // ログイン画面（シェルなし）。アプリケーションシェルの外にあるため、自前で <main id="main"> を持つ。
 // 認証はサンプルで、LOGIN_FAILURE_EMAIL のときだけ失敗として扱い、それ以外は 600ms 待ってからホームへ移る。
@@ -21,6 +22,7 @@ const SIGN_IN_DELAY_MS = 600;
 type LoginErrors = { email?: string; password?: string };
 
 export default function LoginPage() {
+    usePageTitle("ログイン");
     const navigate = useNavigate();
     const { toast } = useToast();
     const [email, setEmail] = useState("");

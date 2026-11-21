@@ -21,6 +21,7 @@ import { listApplications, listRecentActivity } from "@/api/applications";
 import { useQuery } from "@/api/query";
 import { STATUS_LABELS, type ActivityItem, type Application, type ApplicationStatus } from "@/api/applicationTypes";
 import { DATA_SOURCE, KPIS, MONTHLY_RECEIVED, RECEIVED_BY_CATEGORY, RECEIVED_BY_CHANNEL } from "@/mocks/dashboard";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 // ダッシュボード（ダッシュボードデザインの実践ガイドブック / docs/chart-guide.md の画面構成）。
 //   左上から右下へ「全体 → 部分」: 期間の切り替え（上部）→ KPI（左上を強調）→ 推移 → 内訳 → 最新の一覧（右下 = 最も詳細）。
@@ -69,6 +70,7 @@ const yen = new Intl.NumberFormat("ja-JP");
 const fetchActivity = () => listRecentActivity(6);
 
 export default function DashboardPage() {
+    usePageTitle("ダッシュボード");
     const { toast } = useToast();
     const { formatDateTime } = useDisplaySettings();
     const [period, setPeriod] = useState<Period>("thisMonth");
