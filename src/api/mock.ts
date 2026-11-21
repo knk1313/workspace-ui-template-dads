@@ -1,15 +1,11 @@
 // ダミー API の土台。画面はこのディレクトリの関数だけを通してデータを読み書きする。
 // 実際の API に置き換えるときは、src/api/*.ts の各関数の中身を fetch などに差し替える（画面側は変えなくてよい）。
+// 差し替え終わったら、このファイルと、設定画面の「動作の確認」（src/pages/settings/MockApiOptions.tsx）を消す。
+// エラーの型（ApiError）は errors.ts にあり、消しても残る。
 //
 // 見本として、通信の遅延と失敗を起こせる。設定画面の「表示」タブ →「動作の確認」で切り替える（ブラウザーのタブを閉じるまで有効）。
 
-/** API が失敗したときに投げるエラー。画面には message をそのまま出せる文にする。 */
-export class ApiError extends Error {
-    constructor(message = "通信に失敗しました。時間をおいて、もう一度お試しください。") {
-        super(message);
-        this.name = "ApiError";
-    }
-}
+import { ApiError } from "./errors";
 
 export type MockOptions = {
     /** すべての通信を失敗させる（エラー表示と再試行の確認用）。 */

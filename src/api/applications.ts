@@ -5,7 +5,8 @@ import { RECENT_ACTIVITY, historyFor } from "@/mocks/activity";
 import { STAFF_PROFILES, findStaff } from "@/mocks/staff";
 import { generateApplications } from "@/mocks/applications";
 import { defineStore } from "./db";
-import { ApiError, mockRequest } from "./mock";
+import { ApiError } from "./errors";
+import { mockRequest } from "./mock";
 import { currentProfile } from "./settings";
 import { defineQuery, invalidate } from "./query";
 import {
