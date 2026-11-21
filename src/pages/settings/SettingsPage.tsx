@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { getMockOptions, setMockOptions, type MockOptions } from "@/api/mock";
-import { setQueryData, useMutation, useQuery } from "@/api/query";
+import { getQueryData, setQueryData, useMutation, useQuery } from "@/api/query";
 import { getNotificationSettings, getProfile, saveNotificationSettings, saveProfile } from "@/api/settings";
 import type { NotificationSettings, Profile } from "@/api/types";
 import { useSearchParams } from "react-router";
@@ -313,16 +313,23 @@ function NotificationsForm({ settings }: { settings: NotificationSettings }) {
     const dirty = byEmail !== settings.channels.email || inApp !== settings.channels.inApp;
     useUnsavedChangesWarning(dirty, { title: "通知方法の変更を破棄して移動する" });
 
-    const toggle = async (key: EventKey, value: boolean) => {
-        const previous = settings;
-        const next = { ...settings, [key]: value };
-        setQueryData<NotificationSettings>(NOTIFICATIONS_KEY, () => next);
-        try {
-            await saveNotificationSettings(next);
-        } catch {
-            setQueryData<NotificationSettings>(NOTIFICATIONS_KEY, () => previous);
-            toast({ type: "error", title: "通知の設定を変更できませんでした", description: "時間をおいて、もう一度切り替えてください。" });
-        }
+    // 続けて切り替えたときに保存の順番が入れ替わらないよう、保存は一つずつ順に行う
+    const saving = useRef<Promise<void>>(Promise.resolve());
+
+    const toggle = (key: EventKey, value: boolean) => {
+        setQueryData<NotificationSettings>(NOTIFICATIONS_KEY, (prev) => ({ ...(prev ?? settings), [key]: value }));
+        const save = async () => {
+            try {
+                // 保存するのは、その時点の画面の状態（先に切り替えたほかの項目も含む）
+                await saveNotificationSettings({ ...settings, ...getQueryData<NotificationSettings>(NOTIFICATIONS_KEY) });
+            } catch {
+                // 失敗した項目だけを元に戻す（丸ごと戻すと、あとから切り替えた項目まで戻ってしまう）
+                setQueryData<NotificationSettings>(NOTIFICATIONS_KEY, (prev) => ({ ...(prev ?? settings), [key]: !value }));
+                toast({ type: "error", title: "通知の設定を変更できませんでした", description: "時間をおいて、もう一度切り替えてください。" });
+            }
+        };
+        saving.current = saving.current.then(save);
+        return saving.current;
     };
 
     const onSubmit = async (e: FormEvent<HTMLFormElement>) => {

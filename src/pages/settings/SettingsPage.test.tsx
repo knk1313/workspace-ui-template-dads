@@ -1,6 +1,7 @@
-import { act, screen, within } from "@testing-library/react";
+import { act, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
 import { setMockOptions } from "@/api/mock";
+import { getNotificationSettings } from "@/api/settings";
 import { clearQueryCache } from "@/api/query";
 import { STORAGE_KEY } from "@/context/DisplaySettings";
 import { LAYOUT_STORAGE_KEY } from "@/context/LayoutPreference";
@@ -123,6 +124,28 @@ describe("SettingsPage", () => {
         await user.click(weekly);
         expect(await screen.findByText("通知の設定を変更できませんでした")).toBeInTheDocument();
         expect(screen.getByRole("switch", { name: "週次のまとめ" })).toHaveAttribute("aria-checked", "true");
+    });
+
+    it("通知のスイッチを続けて切り替えると、両方を保存する。失敗したら切り替えた項目だけを元に戻す", async () => {
+        const { user } = await renderLoaded("/settings?tab=notifications");
+        const submitted = screen.getByRole("switch", { name: "申請が届いたとき" });
+        const weekly = screen.getByRole("switch", { name: "週次のまとめ" });
+        const before = { submitted: submitted.getAttribute("aria-checked"), weekly: weekly.getAttribute("aria-checked") };
+        await user.click(submitted);
+        await user.click(weekly);
+        await waitFor(async () => {
+            const saved = await getNotificationSettings();
+            expect(String(saved.onSubmitted)).not.toBe(before.submitted);
+            expect(String(saved.weeklyDigest)).not.toBe(before.weekly);
+        });
+
+        setMockOptions({ fail: true, slow: false });
+        await user.click(submitted);
+        await user.click(weekly);
+        await waitFor(() => expect(screen.getAllByText("通知の設定を変更できませんでした")).toHaveLength(2));
+        // 失敗した2つは、どちらも切り替える前（保存されている値）に戻る
+        expect(submitted).toHaveAttribute("aria-checked", String(before.submitted !== "true"));
+        expect(weekly).toHaveAttribute("aria-checked", String(before.weekly !== "true"));
     });
 
     it("「動作の確認」で通信を失敗させると、読み込めなかった画面にエラーと「再読み込み」が出る", async () => {

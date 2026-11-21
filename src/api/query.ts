@@ -123,6 +123,11 @@ export function invalidate(prefix: string): void {
     }
 }
 
+/** 保持している結果を返す（まだ読み込んでいなければ undefined）。 */
+export function getQueryData<T>(key: string): T | undefined {
+    return cache.get(key)?.data as T | undefined;
+}
+
 /** 保持している結果を書き換える（楽観的な更新。通信の結果を待たずに画面へ反映する）。 */
 export function setQueryData<T>(key: string, update: (prev: T | undefined) => T): void {
     const entry = cache.get(key);
