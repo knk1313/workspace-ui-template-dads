@@ -263,6 +263,15 @@ export function DataTable<T>({
 
     return (
         <div className={cn("flex flex-col gap-4", className)} aria-busy={loading || undefined}>
+            {/*
+              選んだ件数を読み上げる。操作の帯は表の上に出るため、Tab で先へ進んでも気付きにくい（WCAG 4.1.3）。
+              リージョンは常に置いておく（追加時に読み上げられるように）。
+            */}
+            {selectable && (
+                <p role="status" className="sr-only">
+                    {selectedIds.length > 0 ? `${selectedIds.length}件選択中${bulkActions ? "。表の上の「選択中の項目の操作」から、まとめて操作できます" : ""}` : ""}
+                </p>
+            )}
             {selectable && selectedIds.length > 0 && (
                 <div role="region" aria-label="選択中の項目の操作" className={cn("flex flex-wrap items-center gap-x-4 gap-y-2 rounded-8 bg-primary-surface px-4 py-2 text-16 text-text", flush && "mx-6")}>
                     <p className="m-0 font-bold nums">{selectedIds.length}件選択中</p>
