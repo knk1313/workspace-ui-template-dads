@@ -2,7 +2,7 @@
  * セマンティックトークン（用途別の別名）。
  * コンポーネントは原則としてここで定義した名前（bg-surface / text-text-muted / border-border など）を使い、
  * プリミティブ（blue-900 など）は DADS がプリミティブで規定している箇所（チップラベルの色相など）に限って使う。
- * 値の根拠は docs/dads-research.md 1.3 節と docs/decisions.md（D-07, D-12）を参照。
+ * 値の根拠は docs/decisions.md（D-07, D-12）と docs/tokens.md を参照。
  */
 @theme {
   /* --- 面 --- */

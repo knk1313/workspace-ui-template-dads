@@ -94,3 +94,4 @@
 | `scroll-shadow-x` | 横スクロール領域の端のシャドー |
 | `underline-thick` | 下線 3px（hover） |
 | `nums` | 等幅数字 |
+| `h-below-header` | 画面の高さからヘッダーの高さを引いた高さ（ヘッダーの下に固定するサイドバー） |
