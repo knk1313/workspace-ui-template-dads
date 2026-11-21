@@ -35,6 +35,10 @@ describe("DashboardPage", () => {
         const { user } = await renderLoaded("/");
         await user.selectOptions(screen.getByLabelText("表示期間"), "lastMonth");
         expect(screen.getByText(/対象期間：先月（2026年9月1日〜9月30日）/)).toBeInTheDocument();
+        // 見本の集計値は今月の分だけなので、数字が変わらないことを知らせる
+        expect(screen.getByRole("heading", { name: /見本のため、どの期間を選んでも/ })).toBeInTheDocument();
+        await user.selectOptions(screen.getByLabelText("表示期間"), "thisMonth");
+        expect(screen.queryByRole("heading", { name: /見本のため、どの期間を選んでも/ })).not.toBeInTheDocument();
     });
 
     it("CSVのダウンロードは見本である旨をトーストで知らせる", async () => {

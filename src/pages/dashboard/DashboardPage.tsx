@@ -8,6 +8,7 @@ import { StatusChip, type ChipStatus } from "@/components/ui/ChipLabel";
 import { DataTable, type DataTableColumn } from "@/components/ui/DataTable";
 import { Link } from "@/components/ui/Link";
 import { LoadError } from "@/components/ui/LoadError";
+import { NotificationBanner } from "@/components/ui/NotificationBanner";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Select } from "@/components/ui/Select";
@@ -162,6 +163,11 @@ export default function DashboardPage() {
                     </>
                 }
             />
+
+            {/* 見本の集計値は今月の分しかない。期間を変えても数字が変わらないことを、数字を読み違えないよう画面で伝える */}
+            {period !== "thisMonth" && (
+                <NotificationBanner type="info" title="見本のため、どの期間を選んでも、指標とグラフは今月（2026年10月）の値のままです" live />
+            )}
 
             <section aria-labelledby="dashboard-kpi">
                 <h2 id="dashboard-kpi" className="sr-only">
