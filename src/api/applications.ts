@@ -6,7 +6,7 @@ import { generateApplications } from "@/mocks/applications";
 import { CURRENT_USER } from "@/mocks/settings";
 import { defineStore } from "./db";
 import { ApiError, mockRequest } from "./mock";
-import { invalidate } from "./query";
+import { defineQuery, invalidate } from "./query";
 import { DECIDABLE, RETURNABLE, type ActivityItem, type Application, type ApplicationDetail, type ApplicationInput, type ApplicationStatus } from "./applicationTypes";
 
 const db = defineStore(() => {
@@ -158,6 +158,19 @@ export function returnApplication(id: string, reason: string): Promise<Applicati
 export function listRecentActivity(limit = 6): Promise<ActivityItem[]> {
     return mockRequest(() => db.activity.slice(0, limit));
 }
+
+/**
+ * 画面が useQuery に渡す、読み込みのキーと関数の組。キーはこのファイルの中だけで決める。
+ * 申請に関わるキーは "applications" で、操作履歴は "activity" で始める（invalidateApplications でまとめて読み込み直すため）。
+ */
+export const applicationQueries = {
+    /** 申請の一覧（全件）。 */
+    all: defineQuery("applications", listApplications),
+    /** 申請の詳細。 */
+    detail: (id: string) => defineQuery(`applications/${id}`, () => getApplication(id)),
+    /** 最近の操作履歴。ダッシュボードとヘッダーのお知らせで同じ結果を使う（件数は画面側で切る）。 */
+    recentActivity: defineQuery("activity", () => listRecentActivity(6)),
+};
 
 /** 申請を変えたあとに呼ぶ。申請の一覧・詳細と、操作履歴（アクティビティ・お知らせ）を読み込み直す。 */
 export function invalidateApplications(): void {

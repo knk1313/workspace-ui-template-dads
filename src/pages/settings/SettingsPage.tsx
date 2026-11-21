@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { getMockOptions, setMockOptions, type MockOptions } from "@/api/mock";
 import { getQueryData, setQueryData, useMutation, useQuery } from "@/api/query";
-import { getNotificationSettings, getProfile, saveNotificationSettings, saveProfile } from "@/api/settings";
+import { saveNotificationSettings, saveProfile, settingsQueries } from "@/api/settings";
 import type { NotificationSettings, Profile } from "@/api/types";
 import { useSearchParams } from "react-router";
 import { ActionPanel } from "@/components/ui/ActionPanel";
@@ -104,7 +104,7 @@ function FormSkeleton({ label }: { label: string }) {
 }
 
 function AccountTab() {
-    const profile = useQuery("settings/profile", getProfile);
+    const profile = useQuery(settingsQueries.profile);
     return (
         <div className="flex flex-col gap-6">
             {profile.error && !profile.data ? (
@@ -165,7 +165,7 @@ function ProfileForm({ initial }: { initial: Profile }) {
         if (next.image) return;
         try {
             const result = await save.run({ name: name.trim(), email: email.trim(), department, bio }, images[0]);
-            setQueryData<Profile>("settings/profile", () => result);
+            setQueryData(settingsQueries.profile, () => result);
             setSaved(result);
             setName(result.name);
             setEmail(result.email);
@@ -295,10 +295,10 @@ function revoke(url: string | undefined) {
 
 /* ───────────── 通知 ───────────── */
 
-const NOTIFICATIONS_KEY = "settings/notifications";
+const NOTIFICATIONS = settingsQueries.notifications;
 
 function NotificationsTab() {
-    const settings = useQuery(NOTIFICATIONS_KEY, getNotificationSettings);
+    const settings = useQuery(NOTIFICATIONS);
     if (settings.error && !settings.data) return <LoadError subject="通知の設定" error={settings.error} onRetry={settings.reload} />;
     if (!settings.data) return <FormSkeleton label="通知の設定" />;
     return <NotificationsForm settings={settings.data} />;
@@ -325,14 +325,14 @@ function NotificationsForm({ settings }: { settings: NotificationSettings }) {
     const saving = useRef<Promise<void>>(Promise.resolve());
 
     const toggle = (key: EventKey, value: boolean) => {
-        setQueryData<NotificationSettings>(NOTIFICATIONS_KEY, (prev) => ({ ...(prev ?? settings), [key]: value }));
+        setQueryData(NOTIFICATIONS, (prev) => ({ ...(prev ?? settings), [key]: value }));
         const save = async () => {
             try {
                 // 保存するのは、その時点の画面の状態（先に切り替えたほかの項目も含む）
-                await saveNotificationSettings({ ...settings, ...getQueryData<NotificationSettings>(NOTIFICATIONS_KEY) });
+                await saveNotificationSettings({ ...settings, ...getQueryData(NOTIFICATIONS) });
             } catch {
                 // 失敗した項目だけを元に戻す（丸ごと戻すと、あとから切り替えた項目まで戻ってしまう）
-                setQueryData<NotificationSettings>(NOTIFICATIONS_KEY, (prev) => ({ ...(prev ?? settings), [key]: !value }));
+                setQueryData(NOTIFICATIONS, (prev) => ({ ...(prev ?? settings), [key]: !value }));
                 toast({ type: "error", title: "通知の設定を変更できませんでした", description: "時間をおいて、もう一度切り替えてください。" });
             }
         };
@@ -351,7 +351,7 @@ function NotificationsForm({ settings }: { settings: NotificationSettings }) {
         setChannelError(undefined);
         try {
             const result = await saveChannels.run({ ...settings, channels: { email: byEmail, inApp } });
-            setQueryData<NotificationSettings>(NOTIFICATIONS_KEY, () => result);
+            setQueryData(NOTIFICATIONS, () => result);
             toast({ type: "success", title: "通知方法を保存しました" });
         } catch {
             toast({ type: "error", title: "通知方法を保存できませんでした", description: "時間をおいて、もう一度保存してください。" });

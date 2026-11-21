@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { FileText } from "lucide-react";
-import { listApplications, listRecentActivity } from "@/api/applications";
+import { applicationQueries } from "@/api/applications";
 import { useQuery } from "@/api/query";
 import type { CommandItem } from "@/components/ui/CommandPalette";
 
@@ -16,11 +16,9 @@ export type HeaderNotifications = {
     error: Error | undefined;
 };
 
-const fetchNotifications = () => listRecentActivity(3);
-
 /** 検索で、ナビゲーションの画面に加えて出す候補（見本では最近の申請）。 */
 export function useHeaderSearchItems(navigate: (to: string) => void): CommandItem[] {
-    const applications = useQuery("applications", listApplications);
+    const applications = useQuery(applicationQueries.all);
     return useMemo(
         () =>
             (applications.data ?? []).slice(0, 20).map((a) => ({
@@ -37,10 +35,11 @@ export function useHeaderSearchItems(navigate: (to: string) => void): CommandIte
 
 /** お知らせ（見本では最近の操作の履歴）。 */
 export function useHeaderNotifications(): HeaderNotifications {
-    const activity = useQuery("activity/notifications", fetchNotifications);
+    // ダッシュボードの「最近の操作」と同じ結果を使い、新しい3件だけを出す（同じ履歴を2回読み込まないため）
+    const activity = useQuery(applicationQueries.recentActivity);
     const items = useMemo(
         () =>
-            (activity.data ?? []).map((a) => ({
+            (activity.data ?? []).slice(0, 3).map((a) => ({
                 id: a.id,
                 title: `${a.actor}が${a.action}`,
                 description: a.target,

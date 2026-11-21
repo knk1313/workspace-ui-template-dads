@@ -17,7 +17,7 @@ import { TableCellLine } from "@/components/ui/Table";
 import { useToast } from "@/components/ui/Toast";
 import { useDisplaySettings } from "@/context/DisplaySettings";
 import { useMediaQuery } from "@/layouts/useMediaQuery";
-import { listApplications, listRecentActivity } from "@/api/applications";
+import { applicationQueries } from "@/api/applications";
 import { useQuery } from "@/api/query";
 import { STATUS_LABELS, type ActivityItem, type Application, type ApplicationStatus } from "@/api/applicationTypes";
 import { DATA_SOURCE, KPIS, MONTHLY_RECEIVED, RECEIVED_BY_CATEGORY, RECEIVED_BY_CHANNEL } from "@/mocks/dashboard";
@@ -67,8 +67,6 @@ const SM_QUERY = "(min-width: 40rem)";
 
 const yen = new Intl.NumberFormat("ja-JP");
 
-const fetchActivity = () => listRecentActivity(6);
-
 export default function DashboardPage() {
     usePageTitle("ダッシュボード");
     const { toast } = useToast();
@@ -80,8 +78,8 @@ export default function DashboardPage() {
 
     // 右下の一覧は「いま何が動いているか」を見るためのものなので、更新日の新しい順に絞って出す。
     // 「最近の申請」と「アクティビティ」は承認や削除で変わるので API から読む（集計値とグラフは見本の固定値）
-    const applications = useQuery("applications", listApplications);
-    const recentActivity = useQuery("activity", fetchActivity);
+    const applications = useQuery(applicationQueries.all);
+    const recentActivity = useQuery(applicationQueries.recentActivity);
     const recent = useMemo(
         () => [...(applications.data ?? [])].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt)).slice(0, RECENT_COUNT),
         [applications.data],

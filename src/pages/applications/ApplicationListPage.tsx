@@ -12,7 +12,7 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { TableCellLine } from "@/components/ui/Table";
 import { useToast } from "@/components/ui/Toast";
 import { useDisplaySettings } from "@/context/DisplaySettings";
-import { assignApplications, deleteApplications as deleteApi, invalidateApplications, listApplications, restoreApplications } from "@/api/applications";
+import { applicationQueries, assignApplications, deleteApplications as deleteApi, invalidateApplications, restoreApplications } from "@/api/applications";
 import { setQueryData, useMutation, useQuery } from "@/api/query";
 import { CATEGORY_LABELS, STATUS_LABELS, type Application } from "@/api/applicationTypes";
 import { ApplicationFilters } from "./list/ApplicationFilters";
@@ -27,7 +27,6 @@ import { usePageTitle } from "@/hooks/usePageTitle";
 // 削除は確認ダイアログを出さずにすぐ行い、トーストの「元に戻す」で取り消せるようにする（DADS: 確認ダイアログだけを安全対策にしない）。
 
 const PAGE_SIZE = 20;
-const QUERY_KEY = "applications";
 
 const STATUS_ORDER = Object.keys(STATUS_LABELS);
 
@@ -38,7 +37,7 @@ export default function ApplicationListPage() {
     const { formatDateTime } = useDisplaySettings();
     const { query, search, setFilter, clearFilters, setSort, setPage } = useApplicationQuery();
 
-    const list = useQuery(QUERY_KEY, listApplications);
+    const list = useQuery(applicationQueries.all);
     const applications = useMemo(() => list.data ?? [], [list.data]);
     const [selectedIds, setSelectedIds] = useState<string[]>([]);
     const [assignOpen, setAssignOpen] = useState(false);
@@ -65,7 +64,7 @@ export default function ApplicationListPage() {
         // 「R08-001060を削除しました」「3件の申請を削除しました」
         const label = targets.length === 1 ? targets[0].number : `${targets.length}件の申請`;
         // 通信の結果を待たずに一覧から消し（楽観的な更新）、失敗したら読み込み直して元に戻す
-        setQueryData<Application[]>(QUERY_KEY, (prev) => (prev ?? []).filter((a) => !ids.has(a.id)));
+        setQueryData(applicationQueries.all, (prev) => (prev ?? []).filter((a) => !ids.has(a.id)));
         setSelectedIds((prev) => prev.filter((id) => !ids.has(id)));
         try {
             const deleted = await deleteApi([...ids]);

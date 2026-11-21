@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate, useParams, useSearchParams } from "react-router";
-import { createApplication, getApplication, invalidateApplications, updateApplication } from "@/api/applications";
+import { applicationQueries, createApplication, invalidateApplications, updateApplication } from "@/api/applications";
 import { useMutation, useQuery } from "@/api/query";
 import { Button, ButtonLink } from "@/components/ui/Button";
 import { ActionPanel } from "@/components/ui/ActionPanel";
@@ -106,8 +106,7 @@ export default function ApplicationFormPage({ mode }: ApplicationFormPageProps) 
 /** 編集: 対象の申請を読み込んでからフォームを出す。 */
 function EditApplicationForm() {
     const { id = "" } = useParams();
-    const fetchDetail = useCallback(() => getApplication(id), [id]);
-    const detail = useQuery(`applications/${id}`, fetchDetail);
+    const detail = useQuery(applicationQueries.detail(id));
     const application = detail.data?.application;
 
     if (detail.isLoading) {

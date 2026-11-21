@@ -3,6 +3,7 @@
 import { NOTIFICATION_SETTINGS, PROFILE } from "@/mocks/settings";
 import { defineStore } from "./db";
 import { mockRequest } from "./mock";
+import { defineQuery } from "./query";
 import type { NotificationSettings, Profile } from "./types";
 
 const db = defineStore(() => ({
@@ -33,3 +34,9 @@ export function getNotificationSettings(): Promise<NotificationSettings> {
 export function saveNotificationSettings(settings: NotificationSettings): Promise<NotificationSettings> {
     return mockRequest(() => (db.notifications = structuredClone(settings)));
 }
+
+/** 画面が useQuery に渡す、読み込みのキーと関数の組。 */
+export const settingsQueries = {
+    profile: defineQuery("settings/profile", getProfile),
+    notifications: defineQuery("settings/notifications", getNotificationSettings),
+};

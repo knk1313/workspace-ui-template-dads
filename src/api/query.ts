@@ -1,8 +1,10 @@
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 
 // API の読み込み状態を、全画面で同じ形で扱うための小さな仕組み。
-//   const list = useQuery("applications", listApplications);
+//   const list = useQuery(applicationQueries.recent(8));
 //   list.data / list.error / list.isLoading / list.reload()
+// キーと読み込む関数の組（QueryDef）は、各 API のファイル（src/api/applications.ts など）で定義し、画面はそれを渡すだけにする。
+// 読み込み方を変えたときに、画面ごとにキーを直さずに済み、同じキーで別の結果が混ざらないようにするため。
 // - 読み込んだ結果はキーごとに保持し、画面を移って戻ったときは読み込み中を出さずにすぐ表示する（裏で読み込み直す）。
 // - 更新系の操作のあとに invalidate("applications") を呼ぶと、そのキーで始まる結果を読み込み直す。
 // - 読み込み直しが失敗しても、前の結果は消さずに表示を続ける（エラーは error で分かる）。
@@ -41,6 +43,10 @@ function setEntry(key: string, entry: Entry) {
     for (const listener of listeners) listener();
 }
 
+function keyOf(query: QueryDef<unknown> | string): string {
+    return typeof query === "string" ? query : query.key;
+}
+
 function toError(e: unknown): Error {
     return e instanceof Error ? e : new Error(String(e));
 }
@@ -72,6 +78,17 @@ function fetchQuery(key: string, fetcher: () => Promise<unknown>): Promise<void>
     return promise;
 }
 
+/** 読み込みのキーと、読み込む関数の組。各 API のファイルで作る。 */
+export type QueryDef<T> = {
+    key: string;
+    fetcher: () => Promise<T>;
+};
+
+/** キーと関数の組を作る（型を付けるための小さなヘルパー）。 */
+export function defineQuery<T>(key: string, fetcher: () => Promise<T>): QueryDef<T> {
+    return { key, fetcher };
+}
+
 export type QueryResult<T> = {
     data: T | undefined;
     error: Error | undefined;
@@ -82,7 +99,11 @@ export type QueryResult<T> = {
     reload: () => Promise<void>;
 };
 
-export function useQuery<T>(key: string, fetcher: () => Promise<T>): QueryResult<T> {
+export function useQuery<T>(query: QueryDef<T>): QueryResult<T>;
+export function useQuery<T>(key: string, fetcher: () => Promise<T>): QueryResult<T>;
+export function useQuery<T>(queryOrKey: QueryDef<T> | string, fetcherArg?: () => Promise<T>): QueryResult<T> {
+    const key = typeof queryOrKey === "string" ? queryOrKey : queryOrKey.key;
+    const fetcher = typeof queryOrKey === "string" ? fetcherArg! : queryOrKey.fetcher;
     const entry = useSyncExternalStore(subscribe, () => cache.get(key));
     // fetcher は呼び出し側で毎回作り直されてもよいように ref で持つ（作り直しのたびに通信しないため）
     const fetcherRef = useRef(fetcher);
@@ -124,12 +145,13 @@ export function invalidate(prefix: string): void {
 }
 
 /** 保持している結果を返す（まだ読み込んでいなければ undefined）。 */
-export function getQueryData<T>(key: string): T | undefined {
-    return cache.get(key)?.data as T | undefined;
+export function getQueryData<T>(query: QueryDef<T> | string): T | undefined {
+    return cache.get(keyOf(query))?.data as T | undefined;
 }
 
 /** 保持している結果を書き換える（楽観的な更新。通信の結果を待たずに画面へ反映する）。 */
-export function setQueryData<T>(key: string, update: (prev: T | undefined) => T): void {
+export function setQueryData<T>(query: QueryDef<T> | string, update: (prev: T | undefined) => T): void {
+    const key = keyOf(query);
     const entry = cache.get(key);
     bumpGeneration(key);
     setEntry(key, { fetching: false, stale: false, ...entry, data: update(entry?.data as T | undefined) });

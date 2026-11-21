@@ -1,7 +1,7 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router";
 import { Check, Pencil, Trash2, Undo2 } from "lucide-react";
-import { approveApplication, deleteApplications, getApplication, invalidateApplications, restoreApplications, returnApplication as returnApi } from "@/api/applications";
+import { applicationQueries, approveApplication, deleteApplications, invalidateApplications, restoreApplications, returnApplication as returnApi } from "@/api/applications";
 import { useMutation, useQuery } from "@/api/query";
 import { DECIDABLE, RETURNABLE } from "@/api/applicationTypes";
 import { Button, ButtonLink } from "@/components/ui/Button";
@@ -41,8 +41,7 @@ export default function ApplicationDetailPage() {
     const [listState] = useState<ListLinkState>(() => (location.state as ListLinkState) ?? null);
     const listHref = listHrefOf(listState);
 
-    const fetchDetail = useCallback(() => getApplication(id), [id]);
-    const detail = useQuery(`applications/${id}`, fetchDetail);
+    const detail = useQuery(applicationQueries.detail(id));
     const returnMutation = useMutation(returnApi);
     // 承認と削除も useMutation を通し、通信中はボタンに処理中を出して二度押しを防ぐ
     const approveMutation = useMutation(approveApplication);
