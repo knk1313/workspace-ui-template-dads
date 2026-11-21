@@ -14,7 +14,7 @@ import { StepNavigation } from "@/components/ui/StepNavigation";
 import { useToast } from "@/components/ui/Toast";
 import { useUnsavedChangesWarning } from "@/hooks/useUnsavedChangesWarning";
 import { useMediaQuery } from "@/layouts/useMediaQuery";
-import { findApplicationContact, keptAttachments, toMockFiles } from "@/mocks/applicationForm";
+import { keptAttachments, toMockFiles } from "@/mocks/applicationForm";
 import type { Application, ApplicationInput } from "@/api/applicationTypes";
 import { ApplicationFormComplete, COMPLETE_HEADING_ID } from "./form/ApplicationFormComplete";
 import { ApplicationFormConfirm } from "./form/ApplicationFormConfirm";
@@ -51,7 +51,6 @@ const SUBMIT_ERROR_ID = "application-submit-error";
 
 function initialValues(application: Application | undefined): ApplicationFormValues {
     if (!application) return EMPTY_VALUES;
-    const contact = findApplicationContact(application);
     return {
         ...EMPTY_VALUES,
         title: application.title,
@@ -60,9 +59,9 @@ function initialValues(application: Application | undefined): ApplicationFormVal
         applicant: application.applicant,
         // モックの「個人」は所属なしとして扱う
         organization: application.organization === "個人" ? "" : application.organization,
-        email: contact.email,
-        phone: contact.phone,
-        desiredDate: contact.desiredDate,
+        email: application.email,
+        phone: application.phone,
+        desiredDate: application.desiredDate,
         assignee: application.assignee,
         attachments: toMockFiles(application.attachments),
         memo: application.memo ?? "",
@@ -91,6 +90,9 @@ function toInput(values: ApplicationFormValues, kept: Application["attachments"]
         amount: normalizeAmount(values.amount) ?? 0,
         applicant: values.applicant.trim(),
         organization: values.organization.trim() || "個人",
+        email: values.email.trim(),
+        phone: values.phone.trim(),
+        desiredDate: values.desiredDate,
         assignee: values.assignee,
         attachments: [...values.attachments.map((f) => ({ name: f.name, size: f.size })), ...kept],
         memo: values.memo.trim() || undefined,

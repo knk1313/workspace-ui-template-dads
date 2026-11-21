@@ -8,6 +8,9 @@ const input: ApplicationInput = {
     amount: 0,
     applicant: "山田 太郎",
     organization: "個人",
+    email: "yamada@example.jp",
+    phone: "",
+    desiredDate: "2099-12-01",
     assignee: "",
     attachments: [],
 };

@@ -227,6 +227,20 @@ describe("ApplicationFormPage（編集）", () => {
         await waitFor(() => expect(screen.queryByRole("heading", { level: 1, name: "申請を編集" })).not.toBeInTheDocument());
     });
 
+    it("連絡先と希望日も保存し、次に編集するときの初期値にする", async () => {
+        const { user } = renderApp(`/applications/${app.id}/edit`);
+        const email = await screen.findByLabelText(/^メールアドレス/);
+        expect(email).toHaveValue(app.email);
+        await user.clear(email);
+        await user.type(email, "changed@example.jp");
+        await user.click(screen.getByRole("checkbox", { name: "記載内容に誤りがないことを確かめた" }));
+        await user.click(screen.getByRole("button", { name: "確認へ進む" }));
+        await user.click(screen.getByRole("button", { name: "更新する" }));
+        await waitFor(() => expect(screen.queryByRole("heading", { level: 1, name: "申請を編集" })).not.toBeInTheDocument());
+        const { application } = (await getApplication(app.id))!;
+        expect(application.email).toBe("changed@example.jp");
+    });
+
     it("フォームで扱わない形式の添付ファイルは、更新しても消えない", async () => {
         const withXlsx = APPLICATIONS.find((a) => a.attachments.some((f) => f.name.endsWith(".xlsx")))!;
         const { user } = renderApp(`/applications/${withXlsx.id}/edit`);

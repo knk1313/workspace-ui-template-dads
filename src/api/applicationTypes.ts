@@ -38,6 +38,12 @@ export type Application = {
     status: ApplicationStatus;
     /** 申請額（円）。届出など金額のないものは 0。 */
     amount: number;
+    /** 申請者の連絡先のメールアドレス。審査の結果を知らせる。 */
+    email: string;
+    /** 申請者の電話番号。未入力は ""。 */
+    phone: string;
+    /** 希望日（"YYYY-MM-DD"）。 */
+    desiredDate: string;
     /** 担当者。 */
     assignee: string;
     /** ISO 8601 */
@@ -94,7 +100,10 @@ export type ApplicationListPage = {
 };
 
 /** 申請の作成・更新で送る内容。 */
-export type ApplicationInput = Pick<Application, "title" | "category" | "amount" | "applicant" | "organization" | "assignee"> & {
+export type ApplicationInput = Pick<
+    Application,
+    "title" | "category" | "amount" | "applicant" | "organization" | "email" | "phone" | "desiredDate" | "assignee"
+> & {
     attachments: Application["attachments"];
     memo?: string;
 };
