@@ -1,6 +1,6 @@
 import { act, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import { invalidate, setQueryData, useMutation, useQuery } from "./query";
+import { IDLE_CACHE_MAX, getQueryData, invalidate, setQueryData, useMutation, useQuery } from "./query";
 
 function Reader({ queryKey, fetcher }: { queryKey: string; fetcher: () => Promise<string> }) {
     const q = useQuery(queryKey, fetcher);
@@ -114,6 +114,29 @@ describe("useQuery", () => {
         expect(screen.queryByText("data: 古い")).not.toBeInTheDocument();
         await act(async () => resolvers[1]("新しい"));
         expect(screen.getByText("data: 新しい")).toBeInTheDocument();
+    });
+});
+
+describe("結果の保持", () => {
+    it("どの画面も表示していない結果は、上限を超えたら古いものから消す", async () => {
+        for (let i = 0; i <= IDLE_CACHE_MAX; i++) {
+            const { unmount } = render(<Reader queryKey={`item/${i}`} fetcher={async () => `v${i}`} />);
+            await screen.findByText(`data: v${i}`);
+            unmount();
+        }
+        expect(getQueryData("item/0")).toBeUndefined();
+        expect(getQueryData(`item/${IDLE_CACHE_MAX}`)).toBe(`v${IDLE_CACHE_MAX}`);
+    });
+
+    it("表示している画面の結果は消さない", async () => {
+        render(<Reader queryKey="kept" fetcher={async () => "keep"} />);
+        await screen.findByText("data: keep");
+        for (let i = 0; i <= IDLE_CACHE_MAX; i++) {
+            const { unmount } = render(<Reader queryKey={`other/${i}`} fetcher={async () => `v${i}`} />);
+            await screen.findByText(`data: v${i}`);
+            unmount();
+        }
+        expect(getQueryData("kept")).toBe("keep");
     });
 });
 

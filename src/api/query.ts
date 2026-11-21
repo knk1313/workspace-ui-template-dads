@@ -9,6 +9,7 @@ import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "
 // - 更新系の操作のあとに invalidate("applications") を呼ぶと、そのキーで始まる結果を読み込み直す。
 // - 読み込み直しが失敗しても、前の結果は消さずに表示を続ける（エラーは error で分かる）。
 // - 通信中に setQueryData や invalidate をしたら、その通信の結果は古いものとして捨てる（楽観的な更新を古い結果で戻さないため）。
+// - どの画面も表示していない結果は、IDLE_CACHE_MAX 件を超えたら古いものから消す（開いた詳細画面の分だけメモリが増え続けないため）。
 
 type Entry = {
     data?: unknown;
@@ -22,6 +23,35 @@ type Entry = {
 const cache = new Map<string, Entry>();
 const listeners = new Set<() => void>();
 const inflight = new Map<string, Promise<void>>();
+/** キーごとの、いま表示している画面の数。0 のキーは、上限を超えたときに古いものから消す。 */
+const watchers = new Map<string, number>();
+/** 使われなくなった順に並べたキー（Map は入れた順を保つ）。 */
+const idle = new Map<string, true>();
+/** 表示していない結果を保つ上限。超えたら古いものから消す（詳細画面を開くたびに結果が増え続けないように）。 */
+export const IDLE_CACHE_MAX = 30;
+
+function watch(key: string): () => void {
+    watchers.set(key, (watchers.get(key) ?? 0) + 1);
+    idle.delete(key);
+    return () => {
+        const count = (watchers.get(key) ?? 1) - 1;
+        if (count > 0) {
+            watchers.set(key, count);
+            return;
+        }
+        watchers.delete(key);
+        idle.set(key, true);
+        while (idle.size > IDLE_CACHE_MAX) {
+            const oldest = idle.keys().next().value!;
+            idle.delete(oldest);
+            if (!inflight.has(oldest)) {
+                cache.delete(oldest);
+                generations.delete(oldest);
+            }
+        }
+    };
+}
+
 /** キーごとの世代。setQueryData と invalidate で進め、通信を始めたときと違えば、その結果を捨てる。 */
 const generations = new Map<string, number>();
 
@@ -113,7 +143,9 @@ export function useQuery<T>(queryOrKey: QueryDef<T> | string, fetcherArg?: () =>
 
     // 画面を開いたとき（キーが変わったとき）は、前の結果を表示したまま裏で読み込み直す（stale-while-revalidate）
     useEffect(() => {
+        const unwatch = watch(key);
         void fetchQuery(key, () => fetcherRef.current());
+        return unwatch;
     }, [key]);
 
     // invalidate されたら読み込み直す（通信中の重複は fetchQuery がまとめる）
@@ -162,6 +194,8 @@ export function clearQueryCache(): void {
     cache.clear();
     inflight.clear();
     generations.clear();
+    watchers.clear();
+    idle.clear();
 }
 
 export type MutationResult<A extends unknown[], R> = {
