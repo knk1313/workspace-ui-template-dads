@@ -16,12 +16,15 @@ export type HeaderNotifications = {
     error: Error | undefined;
 };
 
-/** 検索で、ナビゲーションの画面に加えて出す候補（見本では最近の申請）。 */
+/**
+ * 検索で、ナビゲーションの画面に加えて出す候補（見本では最近の申請20件）。
+ * 検索を開いたときだけ呼ばれる（HeaderActions はパレットを開いている間だけこのフックを使う部品を描く）。
+ */
 export function useHeaderSearchItems(navigate: (to: string) => void): CommandItem[] {
-    const applications = useQuery(applicationQueries.all);
+    const applications = useQuery(applicationQueries.recent(20));
     return useMemo(
         () =>
-            (applications.data ?? []).slice(0, 20).map((a) => ({
+            (applications.data ?? []).map((a) => ({
                 id: `app-${a.id}`,
                 label: `${a.number}「${a.title}」`,
                 group: "申請",

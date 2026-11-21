@@ -103,6 +103,14 @@ describe("DashboardPage", () => {
         expect(within(section).getByRole("link", { name: /R08-001012/ })).toHaveAttribute("href", "/applications/app-005");
     });
 
+    it("ヘッダーの検索は、開いたときに最近の申請を候補に出す", async () => {
+        const { user } = await renderLoaded("/");
+        expect(screen.queryByRole("dialog", { name: "コマンドパレット" })).not.toBeInTheDocument();
+        await user.click(screen.getByRole("button", { name: "検索" }));
+        const dialog = screen.getByRole("dialog", { name: "コマンドパレット" });
+        expect(await within(dialog).findAllByRole("option", { name: /^R08-\d{6}「/ })).toHaveLength(20);
+    });
+
     it("axeの違反がない", async () => {
         const { container } = await renderLoaded("/");
         await expectNoA11yViolations(container);

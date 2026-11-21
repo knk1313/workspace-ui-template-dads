@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { ChevronRight, CircleCheck, Download, FilePlus2, MessageSquare, PenLine, Undo2, UserRoundCog, type LucideIcon } from "lucide-react";
 import { BarChart, DonutChart, LineChart } from "@/components/charts";
 import { ActivityFeed, type ActivityItem as FeedItem } from "@/components/ui/ActivityFeed";
@@ -78,12 +78,10 @@ export default function DashboardPage() {
 
     // 右下の一覧は「いま何が動いているか」を見るためのものなので、更新日の新しい順に絞って出す。
     // 「最近の申請」と「アクティビティ」は承認や削除で変わるので API から読む（集計値とグラフは見本の固定値）
-    const applications = useQuery(applicationQueries.all);
+    // 表に出す件数だけを API から受け取る（全件を読んで画面で並べ替えない）
+    const applications = useQuery(applicationQueries.recent(RECENT_COUNT));
     const recentActivity = useQuery(applicationQueries.recentActivity);
-    const recent = useMemo(
-        () => [...(applications.data ?? [])].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt)).slice(0, RECENT_COUNT),
-        [applications.data],
-    );
+    const recent = applications.data ?? [];
 
     // 件名以外は折り返すと読みにくい（番号・日時が 2 行に割れる）ので折り返さない。幅が足りないときは表の中だけ横スクロールする。
     const columns: DataTableColumn<Application>[] = [

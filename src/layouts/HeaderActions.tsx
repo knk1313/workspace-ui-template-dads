@@ -22,21 +22,7 @@ export function HeaderActions() {
     const [paletteOpen, setPaletteOpen] = useState(false);
     useCommandPaletteShortcut(() => setPaletteOpen(true));
 
-    const searchItems = useHeaderSearchItems(navigate);
     const notifications = useHeaderNotifications();
-
-    const commands = useMemo<CommandItem[]>(() => {
-        const pages: CommandItem[] = appConfig.navigation.flatMap((section) =>
-            section.items.map((item) => ({
-                id: `page-${item.href}`,
-                label: item.label,
-                group: "ページ",
-                icon: item.icon,
-                onSelect: () => navigate(item.href),
-            })),
-        );
-        return [...pages, ...searchItems];
-    }, [navigate, searchItems]);
 
     const accountItems = [
         { label: "設定", icon: Settings, onSelect: () => navigate("/settings") },
@@ -73,7 +59,26 @@ export function HeaderActions() {
             {/* sm 以上は名前付き、モバイルはアイコンだけ（ヘッダーの幅に収めるため）。 */}
             <DropdownMenu label={CURRENT_USER.name} icon={UserRound} align="end" className="max-sm:hidden" items={accountItems} />
             <DropdownMenu label="アカウント" iconOnly align="end" className="sm:hidden" items={accountItems} />
-            <CommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} items={commands} />
+            {/* 検索の候補は、開いたときに初めて読み込む（全画面で常に読み込まないため） */}
+            {paletteOpen && <HeaderCommandPalette onClose={() => setPaletteOpen(false)} />}
         </>
     );
+}
+
+function HeaderCommandPalette({ onClose }: { onClose: () => void }) {
+    const navigate = useNavigate();
+    const searchItems = useHeaderSearchItems(navigate);
+    const commands = useMemo<CommandItem[]>(() => {
+        const pages: CommandItem[] = appConfig.navigation.flatMap((section) =>
+            section.items.map((item) => ({
+                id: `page-${item.href}`,
+                label: item.label,
+                group: "ページ",
+                icon: item.icon,
+                onSelect: () => navigate(item.href),
+            })),
+        );
+        return [...pages, ...searchItems];
+    }, [navigate, searchItems]);
+    return <CommandPalette open onClose={onClose} items={commands} />;
 }

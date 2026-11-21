@@ -53,6 +53,11 @@ export function listApplications(): Promise<Application[]> {
     return mockRequest(() => db.applications);
 }
 
+/** 更新日時の新しい順に、最近の申請を limit 件だけ返す（ダッシュボードとヘッダーの検索の候補）。 */
+export function listRecentApplications(limit: number): Promise<Application[]> {
+    return mockRequest(() => [...db.applications].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt)).slice(0, limit));
+}
+
 /** 申請の詳細。見つからないときは null（画面で「見つかりません」を出す）。 */
 export function getApplication(id: string): Promise<ApplicationDetail | null> {
     return mockRequest(() => {
@@ -166,6 +171,8 @@ export function listRecentActivity(limit = 6): Promise<ActivityItem[]> {
 export const applicationQueries = {
     /** 申請の一覧（全件）。 */
     all: defineQuery("applications", listApplications),
+    /** 更新日時の新しい順の、最近の申請。 */
+    recent: (limit: number) => defineQuery(`applications/recent/${limit}`, () => listRecentApplications(limit)),
     /** 申請の詳細。 */
     detail: (id: string) => defineQuery(`applications/${id}`, () => getApplication(id)),
     /** 最近の操作履歴。ダッシュボードとヘッダーのお知らせで同じ結果を使う（件数は画面側で切る）。 */
