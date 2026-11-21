@@ -1,6 +1,6 @@
+import { lazy } from "react";
 import type { RouteObject } from "react-router";
 import { AppLayout } from "@/layouts/AppLayout";
-import DashboardPage from "@/pages/dashboard/DashboardPage";
 import ApplicationListPage from "@/pages/applications/ApplicationListPage";
 import ApplicationDetailPage from "@/pages/applications/ApplicationDetailPage";
 import ApplicationFormPage from "@/pages/applications/ApplicationFormPage";
@@ -8,6 +8,10 @@ import SettingsPage from "@/pages/settings/SettingsPage";
 import LoginPage from "@/pages/auth/LoginPage";
 import NotFoundPage from "@/pages/errors/NotFoundPage";
 import ServerErrorPage from "@/pages/errors/ServerErrorPage";
+
+// グラフのライブラリー（recharts）を使う画面は、開いたときに読み込む（ほかの画面の最初の読み込みに含めないため）。
+// 読み込み中は AppLayout の Suspense が「画面を読み込んでいます」を出す。
+const DashboardPage = lazy(() => import("@/pages/dashboard/DashboardPage"));
 
 // 画面のルーティング。ナビゲーションに出す画面は src/app.config.ts の navigation にも足す。
 //   /login                       ログイン（シェルなし）

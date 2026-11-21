@@ -25,11 +25,14 @@ export default defineConfig({
         rolldownOptions: {
             output: {
                 // 1 つの JS が 500 kB を超えないよう、更新頻度の低いライブラリを別のファイルに分ける（ブラウザのキャッシュも効きやすくなる）。
+                // グループは、取り込んだモジュールが依存するものまで同じファイルに入れる。
+                // react を charts より先に（priority を高く）取り込まないと、recharts が依存する react まで charts に入り、
+                // charts のファイル（グラフのライブラリー）が全画面の最初の読み込みに含まれてしまう。
                 codeSplitting: {
                     groups: [
-                        { name: "charts", test: /node_modules[\\/](recharts|d3-[^\\/]+|victory-vendor|decimal\.js-light|es-toolkit|immer|@reduxjs|redux|reselect|react-redux|eventemitter3|tiny-invariant|use-sync-external-store)[\\/]/ },
-                        { name: "react", test: /node_modules[\\/](react|react-dom|react-router|scheduler|cookie|set-cookie-parser)[\\/]/ },
-                        { name: "vendor", test: /node_modules[\\/]/ },
+                        { name: "react", priority: 3, test: /node_modules[\\/](react|react-dom|react-router|scheduler|cookie|set-cookie-parser)[\\/]/ },
+                        { name: "charts", priority: 2, test: /node_modules[\\/](recharts|d3-[^\\/]+|victory-vendor|decimal\.js-light|es-toolkit|immer|@reduxjs|redux|reselect|react-redux|eventemitter3|tiny-invariant|use-sync-external-store)[\\/]/ },
+                        { name: "vendor", priority: 1, test: /node_modules[\\/]/ },
                     ],
                 },
             },
