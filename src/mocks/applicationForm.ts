@@ -2,7 +2,6 @@
 // 一覧のモック（applications.ts）にない連絡先などを、編集画面の初期値として補う。
 
 import type { Application } from "@/api/applicationTypes";
-import { APPLICATIONS } from "./applications";
 
 export type ApplicationContact = {
     email: string;
@@ -56,12 +55,4 @@ export function toMockFiles(attachments: Application["attachments"]): File[] {
 /** 編集画面では変えられない（フォームで受け付けない形式の）添付ファイル。更新しても残す。 */
 export function keptAttachments(attachments: Application["attachments"]): Application["attachments"] {
     return attachments.filter((a) => fileTypeOf(a.name) === null);
-}
-
-let issued = 0;
-
-/** 新規申請の受付番号を払い出す（モック。既存の最後の番号の続きから振る）。 */
-export function issueReceiptNumber(): string {
-    issued += 1;
-    return `R08-${pad(1000 + (APPLICATIONS.length - 1 + issued) * 3, 6)}`;
 }

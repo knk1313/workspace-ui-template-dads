@@ -9,14 +9,22 @@ import { ApiError, mockRequest } from "./mock";
 import { invalidate } from "./query";
 import type { ActivityItem, Application, ApplicationDetail, ApplicationInput, ApplicationStatus } from "./applicationTypes";
 
-const db = defineStore(() => ({
-    applications: generateApplications(),
-    activity: structuredClone(RECENT_ACTIVITY),
-    /** 差戻しの理由（申請 id ごと）。 */
-    returnReasons: {} as Record<string, string>,
-    /** 払い出した受付番号の数。 */
-    issued: 0,
-}));
+const db = defineStore(() => {
+    const applications = generateApplications();
+    return {
+        applications,
+        activity: structuredClone(RECENT_ACTIVITY),
+        /** 差戻しの理由（申請 id ごと）。 */
+        returnReasons: {} as Record<string, string>,
+        /** 払い出した受付番号の数。 */
+        issued: 0,
+        /**
+         * 次に払い出す受付番号の通し番号。削除しても戻さない（申請の数から数えると、削除のあとで番号が重複するため）。
+         * 初期データの続きから振る。
+         */
+        nextReceiptIndex: applications.length + 1,
+    };
+});
 
 function pad(n: number, len: number): string {
     return String(n).padStart(len, "0");
@@ -64,7 +72,8 @@ export function createApplication(input: ApplicationInput): Promise<Application>
     return mockRequest(() => {
         db.issued += 1;
         const now = new Date().toISOString();
-        const index = db.applications.length + db.issued;
+        const index = db.nextReceiptIndex;
+        db.nextReceiptIndex += 1;
         const application: Application = {
             ...input,
             id: `app-new-${pad(db.issued, 3)}`,
