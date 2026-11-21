@@ -2,6 +2,7 @@ import { screen, waitFor } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { expectNoA11yViolations } from "@/test/axe";
 import { renderApp } from "@/test/renderApp";
+import { setMockOptions } from "@/api/mock";
 
 describe("LoginPage", () => {
     it("シェルなしで、自前のmainとh1を持つ", () => {
@@ -40,6 +41,17 @@ describe("LoginPage", () => {
         // 画面遷移はトランジションとして描画されるため、トーストより後になることがある。
         await waitFor(() => expect(screen.queryByRole("heading", { level: 1, name: "ログイン" })).toBeNull());
         expect(screen.getByRole("banner")).toBeInTheDocument();
+    });
+
+    it("通信に失敗したときは、入力の誤りと区別して知らせる", async () => {
+        setMockOptions({ fail: true, slow: false });
+        const { user } = renderApp("/login");
+        await user.type(screen.getByRole("textbox", { name: "メールアドレス" }), "sato@example.jp");
+        await user.type(screen.getByLabelText("パスワード", { selector: "input" }), "password");
+        await user.click(screen.getByRole("button", { name: "ログイン" }));
+        expect(await screen.findByText("ログインできませんでした")).toBeInTheDocument();
+        expect(screen.queryByRole("heading", { name: "メールアドレスかパスワードが違います" })).not.toBeInTheDocument();
+        setMockOptions({ fail: false, slow: false });
     });
 
     it("「パスワードを表示」でパスワードの表示を切り替える", async () => {

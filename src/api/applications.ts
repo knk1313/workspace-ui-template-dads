@@ -4,9 +4,9 @@
 import { RECENT_ACTIVITY, historyFor } from "@/mocks/activity";
 import { STAFF_PROFILES, findStaff } from "@/mocks/staff";
 import { generateApplications } from "@/mocks/applications";
-import { CURRENT_USER } from "@/mocks/settings";
 import { defineStore } from "./db";
 import { ApiError, mockRequest } from "./mock";
+import { currentProfile } from "./settings";
 import { defineQuery, invalidate } from "./query";
 import {
     CATEGORY_LABELS,
@@ -48,7 +48,7 @@ function pad(n: number, len: number): string {
 function record(application: Application, action: string, type: ActivityItem["type"]): void {
     db.activity.unshift({
         id: `local-${db.activity.length + 1}-${Date.now()}`,
-        actor: CURRENT_USER.name,
+        actor: currentProfile().name,
         action,
         target: `${application.number}「${application.title}」`,
         applicationId: application.id,

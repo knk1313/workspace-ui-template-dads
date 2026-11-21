@@ -10,14 +10,13 @@ import { Input } from "@/components/ui/Input";
 import { Link } from "@/components/ui/Link";
 import { NotificationBanner } from "@/components/ui/NotificationBanner";
 import { useToast } from "@/components/ui/Toast";
-import { LOGIN_FAILURE_EMAIL } from "@/mocks/settings";
+import { login } from "@/api/auth";
+import { useMutation } from "@/api/query";
 import { usePageTitle } from "@/hooks/usePageTitle";
 
 // ログイン画面（シェルなし）。アプリケーションシェルの外にあるため、自前で <main id="main"> を持つ。
-// 認証はサンプルで、LOGIN_FAILURE_EMAIL のときだけ失敗として扱い、それ以外は 600ms 待ってからホームへ移る。
-// 実際のアプリでは onSubmit の中を認証 API の呼び出しに置き換える。
-
-const SIGN_IN_DELAY_MS = 600;
+// 認証は src/api/auth.ts の login を通す（見本では fail@example.jp のときだけ失敗として扱う）。
+// 実際のアプリでは、login の中身を認証の API の呼び出しに置き換える。
 
 type LoginErrors = { email?: string; password?: string };
 
@@ -31,20 +30,18 @@ export default function LoginPage() {
     const [remember, setRemember] = useState(false);
     const [errors, setErrors] = useState<LoginErrors>({});
     const [authFailed, setAuthFailed] = useState(false);
-    const [loading, setLoading] = useState(false);
+    const signIn = useMutation(login);
+    const loading = signIn.pending;
     const emailRef = useRef<HTMLInputElement>(null);
     const passwordRef = useRef<HTMLInputElement>(null);
     const bannerRef = useRef<HTMLHeadingElement>(null);
-    const timerRef = useRef<number | undefined>(undefined);
-
-    useEffect(() => () => window.clearTimeout(timerRef.current), []);
 
     // 認証失敗のバナーが出たら、そこへフォーカスを移して読み上げさせる。
     useEffect(() => {
         if (authFailed) bannerRef.current?.focus();
     }, [authFailed]);
 
-    const onSubmit = (e: FormEvent<HTMLFormElement>) => {
+    const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         if (loading) return;
         const next: LoginErrors = {};
@@ -55,16 +52,18 @@ export default function LoginPage() {
         if (next.email) return emailRef.current?.focus();
         if (next.password) return passwordRef.current?.focus();
 
-        setLoading(true);
-        timerRef.current = window.setTimeout(() => {
-            setLoading(false);
-            if (email.trim().toLowerCase() === LOGIN_FAILURE_EMAIL) {
+        try {
+            const user = await signIn.run({ email: email.trim(), password, remember });
+            if (!user) {
                 setAuthFailed(true);
                 return;
             }
             toast({ type: "success", title: "ログインしました" });
             navigate("/");
-        }, SIGN_IN_DELAY_MS);
+        } catch (err) {
+            // 通信の失敗は、入力の誤りと区別して知らせる（入力はそのまま残す）
+            toast({ type: "error", title: "ログインできませんでした", description: (err as Error).message });
+        }
     };
 
     return (

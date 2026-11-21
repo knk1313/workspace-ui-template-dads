@@ -1,15 +1,24 @@
 // 設定の API（ダミー）。
 
-import { DEPARTMENTS, NOTIFICATION_SETTINGS, PROFILE } from "@/mocks/settings";
+import { CURRENT_USER, DEPARTMENTS, NOTIFICATION_SETTINGS, PROFILE } from "@/mocks/settings";
 import { defineStore } from "./db";
 import { mockRequest } from "./mock";
 import { defineQuery } from "./query";
-import type { NotificationSettings, Profile } from "./types";
+import type { CurrentUser, NotificationSettings, Profile } from "./types";
 
 const db = defineStore(() => ({
     profile: { name: PROFILE.name, email: PROFILE.email, department: PROFILE.department, bio: PROFILE.bio } as Profile,
     notifications: structuredClone(NOTIFICATION_SETTINGS) as NotificationSettings,
 }));
+
+/**
+ * ログインしている職員（ダミーの API の中だけで使う）。名前・メールアドレス・所属・画像はプロフィールの設定と同じにする。
+ * 利用者の名前の出どころを一つにするため（プロフィールを保存すると、ヘッダーと操作履歴の名前も変わる）。
+ */
+export function currentProfile(): CurrentUser {
+    const { name, email, department, imageUrl } = db.profile;
+    return { id: CURRENT_USER.id, role: CURRENT_USER.role, name, email, department, imageUrl };
+}
 
 export function getProfile(): Promise<Profile> {
     return mockRequest(() => db.profile);

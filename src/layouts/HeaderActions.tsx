@@ -9,7 +9,8 @@ import { Popover } from "@/components/ui/Popover";
 import { StackedList, StackedListItem } from "@/components/ui/StackedList";
 import { Tooltip } from "@/components/ui/Tooltip";
 import { useToast } from "@/components/ui/Toast";
-import { CURRENT_USER } from "@/mocks/settings";
+import { authQueries, logout } from "@/api/auth";
+import { useQuery } from "@/api/query";
 import { useHeaderNotifications, useHeaderSearchItems } from "./headerContent";
 
 // ヘッダー右側の操作。AppShell と TopNavLayout の両方で使う。
@@ -23,6 +24,8 @@ export function HeaderActions() {
     useCommandPaletteShortcut(() => setPaletteOpen(true));
 
     const notifications = useHeaderNotifications();
+    // 名前はプロフィールの設定と同じ出どころから読む（保存すると、ここも変わる）
+    const me = useQuery(authQueries.me);
 
     const accountItems = [
         { label: "設定", icon: Settings, onSelect: () => navigate("/settings") },
@@ -30,9 +33,14 @@ export function HeaderActions() {
         {
             label: "ログアウト",
             icon: LogOut,
-            onSelect: () => {
-                toast({ title: "ログアウトしました", type: "info" });
-                navigate("/login");
+            onSelect: async () => {
+                try {
+                    await logout();
+                    toast({ title: "ログアウトしました", type: "info" });
+                    navigate("/login");
+                } catch (e) {
+                    toast({ type: "error", title: "ログアウトできませんでした", description: (e as Error).message });
+                }
             },
         },
     ];
@@ -57,7 +65,7 @@ export function HeaderActions() {
                 </div>
             </Popover>
             {/* sm 以上は名前付き、モバイルはアイコンだけ（ヘッダーの幅に収めるため）。 */}
-            <DropdownMenu label={CURRENT_USER.name} icon={UserRound} align="end" className="max-sm:hidden" items={accountItems} />
+            <DropdownMenu label={me.data?.name ?? "アカウント"} icon={UserRound} align="end" className="max-sm:hidden" items={accountItems} />
             <DropdownMenu label="アカウント" iconOnly align="end" className="sm:hidden" items={accountItems} />
             {/* 検索の候補は、開いたときに初めて読み込む（全画面で常に読み込まないため） */}
             {paletteOpen && <HeaderCommandPalette onClose={() => setPaletteOpen(false)} />}

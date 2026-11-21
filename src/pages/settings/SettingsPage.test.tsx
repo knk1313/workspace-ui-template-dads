@@ -59,6 +59,15 @@ describe("SettingsPage", () => {
         expect((await getProfile()).imageUrl).toBeDefined();
     });
 
+    it("表示名を保存すると、ヘッダーの利用者の名前も変わる", async () => {
+        const { user } = await renderLoaded("/settings");
+        const name = screen.getByRole("textbox", { name: /表示名/ });
+        await user.clear(name);
+        await user.type(name, "佐藤 はなこ");
+        await user.click(screen.getAllByRole("button", { name: "保存する" })[0]);
+        expect(await screen.findByRole("button", { name: "佐藤 はなこ" })).toBeInTheDocument();
+    });
+
     it("プロフィールを保存するとトーストを出す", async () => {
         const { user } = await renderLoaded("/settings");
         await user.click(screen.getAllByRole("button", { name: "保存する" })[0]);

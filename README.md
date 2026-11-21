@@ -75,7 +75,7 @@ npm run dev               # http://localhost:5173
 - **入力途中の離脱**：保存していない変更があるまま画面を離れようとすると、確認を出します。仕組みは`useUnsavedChangesWarning`にあります。
 - **失敗と遅延の見本**：設定の「表示」にある「動作の確認」で、通信を失敗させたり遅くしたりできます。エラーの表示と読み込み中の表示を確かめるときに使います。
 
-実際のAPIに置き換えるときは、`src/api/applications.ts`、`src/api/dashboard.ts`、`src/api/settings.ts`の各関数の中身を`fetch`などに差し替えます。戻り値の型（`src/api/applicationTypes.ts`、`src/api/dashboard.ts`、`src/api/types.ts`）を保てば、画面は変えなくて済みます。
+実際のAPIに置き換えるときは、`src/api/applications.ts`、`src/api/dashboard.ts`、`src/api/settings.ts`の各関数の中身を`fetch`などに差し替えます。戻り値の型（`src/api/applicationTypes.ts`、`src/api/dashboard.ts`、`src/api/types.ts`）を保てば、画面は変えなくて済みます。ログインと利用者の情報は`src/api/auth.ts`にまとめています。画面は`src/mocks/`を直接読みません（ESLintで止めます）。
 
 ## 部品
 

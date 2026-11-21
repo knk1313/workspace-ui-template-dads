@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { getMockOptions, setMockOptions, type MockOptions } from "@/api/mock";
 import { getQueryData, setQueryData, useMutation, useQuery } from "@/api/query";
+import { invalidateCurrentUser } from "@/api/auth";
 import { saveNotificationSettings, saveProfile, settingsQueries } from "@/api/settings";
 import type { NotificationSettings, Profile } from "@/api/types";
 import { useSearchParams } from "react-router";
@@ -170,6 +171,8 @@ function ProfileForm({ initial }: { initial: Profile }) {
         try {
             const result = await save.run({ name: name.trim(), email: email.trim(), department, bio }, images[0]);
             setQueryData(settingsQueries.profile, () => result);
+            // ヘッダーの利用者の名前と画像も、保存した内容で読み込み直す
+            invalidateCurrentUser();
             setSaved(result);
             setName(result.name);
             setEmail(result.email);

@@ -11,6 +11,17 @@ export type Profile = {
     imageUrl?: string;
 };
 
+/** ログインしている職員。 */
+export type CurrentUser = {
+    id: string;
+    name: string;
+    email: string;
+    department: string;
+    /** 権限の名前（管理者など）。 */
+    role: string;
+    imageUrl?: string;
+};
+
 /** 通知の設定。 */
 export type NotificationSettings = {
     onSubmitted: boolean;
