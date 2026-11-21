@@ -12,6 +12,8 @@ export type BreadcrumbItem = {
     label: string;
     /** 省略すると現在ページ（テキスト）として扱う。通常は最後の項目だけ省略する。 */
     href?: string;
+    /** リンク先に渡す履歴の state（react-router の Link の state）。 */
+    state?: unknown;
 };
 
 export type BreadcrumbProps = Omit<HTMLAttributes<HTMLElement>, "children"> & {
@@ -57,7 +59,7 @@ export function Breadcrumb({ items, collapseOnMobile = false, label = "パンく
                             {current ? (
                                 <span aria-current={isLast ? "page" : undefined}>{item.label}</span>
                             ) : (
-                                <Link to={item.href!} className="rounded-4">
+                                <Link to={item.href!} state={item.state} className="rounded-4">
                                     {item.label}
                                 </Link>
                             )}

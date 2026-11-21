@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useNavigate, useParams } from "react-router";
+import { useLocation, useNavigate, useParams, useSearchParams } from "react-router";
 import { createApplication, getApplication, invalidateApplications, updateApplication } from "@/api/applications";
 import { useMutation, useQuery } from "@/api/query";
 import { Button, ButtonLink } from "@/components/ui/Button";
@@ -20,6 +20,7 @@ import { ApplicationFormComplete, COMPLETE_HEADING_ID } from "./form/Application
 import { ApplicationFormConfirm } from "./form/ApplicationFormConfirm";
 import { ApplicationFormFields } from "./form/ApplicationFormFields";
 import { ERROR_SUMMARY_HEADING_ID, ErrorSummary } from "./form/ErrorSummary";
+import { listHrefOf, type ListLinkState } from "./listLink";
 import {
     EMPTY_VALUES,
     normalizeAmount,
@@ -35,6 +36,8 @@ import {
 // DADS のバリデーション方針に従い、検証は「確認へ進む」を押したときだけ行う（入力中・フォーカスアウトではエラーを出さない）。
 // 送信ボタンは無効化せず、エラーは上部のバナー（各項目へのリンク付き）と各項目のエラーテキストで示す。
 // 入力途中で画面を離れようとすると確認を出す（useUnsavedChangesWarning）。送信に失敗したときは確認画面に残り、入力内容を失わない。
+// 確認の段階は URL（?step=confirm）にも持つ。ブラウザーの「戻る」で入力の段階に戻れるようにするため（同じパスの中の移動なので、離脱の確認は出ない）。
+// 一覧から来たときは、一覧の絞り込みの条件（state.listSearch）を詳細画面との行き来で引き継ぐ。
 
 export type ApplicationFormPageProps = {
     mode: "create" | "edit";
@@ -142,6 +145,10 @@ function EditApplicationForm() {
 
 function ApplicationForm({ mode, application }: { mode: "create" | "edit"; application: Application | undefined }) {
     const navigate = useNavigate();
+    const location = useLocation();
+    const [searchParams, setSearchParams] = useSearchParams();
+    const [listState] = useState<ListLinkState>(() => (location.state as ListLinkState) ?? null);
+    const listHref = listHrefOf(listState);
     const { toast } = useToast();
     const isEdit = mode === "edit";
     const create = useMutation(createApplication);
@@ -156,8 +163,13 @@ function ApplicationForm({ mode, application }: { mode: "create" | "edit"; appli
     const [kept] = useState(() => (application ? keptAttachments(application.attachments) : []));
     const [values, setValues] = useState(initial);
     const [errors, setErrors] = useState<FieldError[]>([]);
-    const [step, setStep] = useState<Step>("input");
-    const [receiptNumber, setReceiptNumber] = useState("");
+    // 確認の段階は URL で持つ。ただし、入力を検証して進んだときだけ確認を出す（?step=confirm を直接開いたときは入力から）
+    const [reachedConfirm, setReachedConfirm] = useState(false);
+    const [created, setCreated] = useState<Application>();
+    // 更新したあとの移動先。確認の段階を履歴から外してから（一つ戻ってから）、置き換えで移る
+    const [leaveTo, setLeaveTo] = useState<string>();
+    const step: Step = created ? "complete" : leaveTo || (reachedConfirm && searchParams.get("step") === "confirm") ? "confirm" : "input";
+    const submitErrorHeadingRef = useRef<HTMLHeadingElement>(null);
     // 送信のたびに増やす。同じエラーのまま再送信したときもバナーへフォーカスを移し直すため。
     const [submitCount, setSubmitCount] = useState(0);
     const today = todayIso();
@@ -184,8 +196,24 @@ function ApplicationForm({ mode, application }: { mode: "create" | "edit"; appli
         const found = validateApplicationForm(values, today);
         setErrors(found);
         setSubmitCount((n) => n + 1);
-        if (found.length === 0) setStep("confirm");
+        if (found.length === 0) {
+            setReachedConfirm(true);
+            // 履歴に積む（ブラウザーの「戻る」で入力の段階に戻る）
+            setSearchParams({ step: "confirm" }, { state: listState });
+        }
     };
+
+    useEffect(() => {
+        if (leaveTo && !searchParams.get("step")) navigate(leaveTo, { replace: true, state: listState });
+    }, [leaveTo, searchParams, navigate, listState]);
+
+    // 確認の段階から入力の段階に戻る。確認の段階は入力から履歴に積んで来ているので、一つ戻る
+    const backToInput = () => navigate(-1);
+
+    // 送信に失敗したら、エラーのバナーの見出しへフォーカスを移す（バナーを描いたあとに動かすため effect で行う）
+    useEffect(() => {
+        if (submitError) submitErrorHeadingRef.current?.focus();
+    }, [submitError]);
 
     const dirty = step !== "complete" && isDirty(values, initial);
     const { allowNavigation } = useUnsavedChangesWarning(dirty, {
@@ -201,35 +229,45 @@ function ApplicationForm({ mode, application }: { mode: "create" | "edit"; appli
                 invalidateApplications();
                 toast({ type: "success", title: "申請内容を更新しました", description: `${application.number}「${values.title.trim()}」` });
                 allowNavigation();
-                navigate(`/applications/${application.id}`);
+                // 編集の画面を履歴から外す（更新したあとに「戻る」で編集の画面に入り直さないように）。
+                // 確認の段階が履歴に積んであれば、先に一つ戻ってから置き換える（下の effect）
+                if (searchParams.get("step")) {
+                    setLeaveTo(`/applications/${application.id}`);
+                    navigate(-1);
+                } else {
+                    navigate(`/applications/${application.id}`, { replace: true, state: listState });
+                }
                 return;
             }
-            const created = await create.run(toInput(values));
+            const result = await create.run(toInput(values));
             invalidateApplications();
-            setReceiptNumber(created.number);
-            setStep("complete");
+            setCreated(result);
+            // 完了したら確認の段階を履歴から外す
+            setSearchParams({}, { replace: true, state: listState });
         } catch (e) {
             // 確認画面に残り、入力内容を失わずに再送信できるようにする
             setSubmitError((e as Error).message);
-            document.getElementById(SUBMIT_ERROR_ID)?.querySelector<HTMLElement>("[tabindex='-1']")?.focus();
         }
     };
 
     const saveDraft = () => {
+        // 保存した内容を基準にする（保存した直後に離れても、破棄の確認を出さない）
+        setInitial(values);
         toast({ type: "success", title: "下書きを保存しました", description: "入力途中の内容を保存しました。見本のため、実際には保存しません。" });
     };
 
-    const backPath = isEdit && application ? `/applications/${application.id}` : "/applications";
+    const backPath = isEdit && application ? `/applications/${application.id}` : listHref;
 
     // 入力途中なら useUnsavedChangesWarning が確認を出す
-    const cancel = () => navigate(backPath);
+    const cancel = () => navigate(backPath, { state: listState });
 
     const restart = () => {
         setInitial(EMPTY_VALUES);
         setValues(EMPTY_VALUES);
         setErrors([]);
         setSubmitCount(0);
-        setStep("input");
+        setReachedConfirm(false);
+        setCreated(undefined);
     };
 
     const steps = isEdit ? [{ label: "入力" }, { label: "確認" }] : [{ label: "入力" }, { label: "確認" }, { label: "完了" }];
@@ -239,11 +277,11 @@ function ApplicationForm({ mode, application }: { mode: "create" | "edit"; appli
         isEdit && application
             ? [
                   { label: "ホーム", href: "/" },
-                  { label: "申請一覧", href: "/applications" },
-                  { label: application.number, href: `/applications/${application.id}` },
+                  { label: "申請一覧", href: listHref },
+                  { label: application.number, href: `/applications/${application.id}`, state: listState },
                   { label: "編集" },
               ]
-            : [{ label: "ホーム", href: "/" }, { label: "申請一覧", href: "/applications" }, { label: "新規申請" }];
+            : [{ label: "ホーム", href: "/" }, { label: "申請一覧", href: listHref }, { label: "新規申請" }];
 
     return (
         <div className="flex flex-col gap-8">
@@ -298,8 +336,13 @@ function ApplicationForm({ mode, application }: { mode: "create" | "edit"; appli
                         <NotificationBanner
                             id={SUBMIT_ERROR_ID}
                             type="error"
+                            headingRef={submitErrorHeadingRef}
                             title={isEdit ? "更新できませんでした" : "申請できませんでした"}
-                            description="入力した内容は残っています。時間をおいて、もう一度「申請する」を押してください。"
+                            description={
+                                isEdit
+                                    ? "編集した内容は残っています。時間をおいて、もう一度「更新する」を押してください。"
+                                    : "入力した内容は残っています。時間をおいて、もう一度「申請する」を押してください。"
+                            }
                             live
                         />
                     )}
@@ -313,7 +356,7 @@ function ApplicationForm({ mode, application }: { mode: "create" | "edit"; appli
                             </Button>
                         }
                         secondary={
-                            <Button variant="outline" onClick={() => setStep("input")}>
+                            <Button variant="outline" onClick={backToInput}>
                                 修正する
                             </Button>
                         }
@@ -321,7 +364,9 @@ function ApplicationForm({ mode, application }: { mode: "create" | "edit"; appli
                 </div>
             )}
 
-            {step === "complete" && <ApplicationFormComplete receiptNumber={receiptNumber} email={values.email.trim()} onRestart={restart} />}
+            {step === "complete" && created && (
+                <ApplicationFormComplete applicationId={created.id} receiptNumber={created.number} email={values.email.trim()} onRestart={restart} />
+            )}
         </div>
     );
 }

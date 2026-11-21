@@ -19,13 +19,13 @@ import { DetailSkeleton } from "./detail/DetailSkeleton";
 import { HistoryTab } from "./detail/HistoryTab";
 import { OverviewTab } from "./detail/OverviewTab";
 import { ReturnDialog } from "./detail/ReturnDialog";
+import { listHrefOf, type ListLinkState } from "./listLink";
 import { ApplicationStatusChip } from "./list/ApplicationStatusChip";
 
 // 申請の詳細。ページ見出し（件名・状態・操作）→ 状態の通知バナー → タブ（概要 / 添付ファイル / 履歴）。
 // データは src/api/ のダミー API から読み書きする。承認・差戻し・削除は一覧やダッシュボードにも反映される。
 
 
-type ListLinkState = { listSearch?: string } | null;
 
 export default function ApplicationDetailPage() {
     const { id = "" } = useParams();
@@ -37,7 +37,8 @@ export default function ApplicationDetailPage() {
 
     // 一覧から来たときは、パンくずの「申請一覧」で同じ絞り込み条件に戻れるようにする。
     // 関連する申請へ移っても（同じ画面のまま id だけ変わる）最初に受け取った条件を保つ。
-    const [listHref] = useState(() => `/applications${(location.state as ListLinkState)?.listSearch ?? ""}`);
+    const [listState] = useState<ListLinkState>(() => (location.state as ListLinkState) ?? null);
+    const listHref = listHrefOf(listState);
 
     const fetchDetail = useCallback(() => getApplication(id), [id]);
     const detail = useQuery(`applications/${id}`, fetchDetail);
@@ -158,7 +159,7 @@ export default function ApplicationDetailPage() {
                 }
                 actions={
                     <>
-                        <ButtonLink to={`/applications/${app.id}/edit`} variant="outline" leadIcon={Pencil}>
+                        <ButtonLink to={`/applications/${app.id}/edit`} state={listState} variant="outline" leadIcon={Pencil}>
                             編集
                         </ButtonLink>
                         {DECIDABLE.includes(app.status) && (

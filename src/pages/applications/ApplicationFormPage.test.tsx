@@ -1,4 +1,4 @@
-import { screen, waitFor, within } from "@testing-library/react";
+import { act, screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { expectNoA11yViolations } from "@/test/axe";
 import { renderApp } from "@/test/renderApp";
@@ -115,6 +115,7 @@ describe("ApplicationFormPage（新規）", () => {
         await waitFor(() => expect(document.activeElement).toBe(screen.getByText("申請の受付完了")));
         expect(screen.getByText(/^R08-\d{6}$/)).toBeInTheDocument();
         expect(screen.getByRole("link", { name: "申請一覧へ" })).toHaveAttribute("href", "/applications");
+        expect(screen.getByRole("link", { name: "この申請を開く" })).toHaveAttribute("href", expect.stringMatching(/^\/applications\/app-new-\d+$/));
         await expectNoA11yViolations(container);
 
         // 続けて申請する → 空の入力画面に戻る
@@ -123,10 +124,31 @@ describe("ApplicationFormPage（新規）", () => {
         expect(document.activeElement).toBe(screen.getByRole("heading", { level: 2, name: "申請内容の入力" }));
     });
 
-    it("下書き保存でトーストを表示する", async () => {
+    it("下書き保存でトーストを表示し、保存した直後に離れても破棄の確認を出さない", async () => {
         const { user } = renderApp("/applications/new");
+        await user.type(screen.getByLabelText(/^件名/), "公園使用許可申請");
         await user.click(screen.getByRole("button", { name: "下書き保存" }));
         expect(await screen.findByText("下書きを保存しました")).toBeInTheDocument();
+        await user.click(screen.getByRole("button", { name: "キャンセル" }));
+        expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+        await waitFor(() => expect(screen.queryByRole("heading", { level: 1, name: "新規申請" })).not.toBeInTheDocument());
+    });
+
+    it("確認の段階でブラウザーの「戻る」を押すと、確認を出さずに入力の段階へ戻る", async () => {
+        const { user, router } = renderApp("/applications/new");
+        await fillValidForm(user);
+        await user.click(screen.getByRole("button", { name: "確認へ進む" }));
+        expect(screen.getByRole("heading", { level: 2, name: "入力内容の確認" })).toBeInTheDocument();
+        expect(router.state.location.search).toBe("?step=confirm");
+        await act(() => router.navigate(-1));
+        expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+        expect(screen.getByRole("heading", { level: 2, name: "申請内容の入力" })).toBeInTheDocument();
+        expect(screen.getByLabelText(/^件名/)).toHaveValue("商店街活性化事業補助金の申請");
+    });
+
+    it("?step=confirmを直接開いたときは、入力の段階から始める", () => {
+        renderApp("/applications/new?step=confirm");
+        expect(screen.getByRole("heading", { level: 2, name: "申請内容の入力" })).toBeInTheDocument();
     });
 
     it("入力があるときのキャンセルは破棄の確認を挟む", async () => {
@@ -159,6 +181,8 @@ describe("ApplicationFormPage（新規）", () => {
         setMockOptions({ fail: true, slow: false });
         await user.click(await screen.findByRole("button", { name: "申請する" }));
         expect(await screen.findByRole("heading", { name: "申請できませんでした" })).toBeInTheDocument();
+        // 画面の下のボタンを押したので、上に出たエラーのバナーへフォーカスを移す
+        await waitFor(() => expect(screen.getByRole("heading", { name: "申請できませんでした" })).toHaveFocus());
         expect(screen.getByRole("heading", { name: "入力内容の確認" })).toBeInTheDocument();
 
         setMockOptions({ fail: false, slow: false });
@@ -214,6 +238,33 @@ describe("ApplicationFormPage（編集）", () => {
         await waitFor(() => expect(screen.queryByRole("heading", { level: 1, name: "申請を編集" })).not.toBeInTheDocument());
         const { application } = (await getApplication(withXlsx.id))!;
         expect(application.attachments.map((f) => f.name)).toEqual(["申請書.pdf", "添付資料.xlsx"]);
+    });
+
+    it("更新に失敗したときは、「更新する」を押し直すよう案内する", async () => {
+        const { user } = renderApp(`/applications/${app.id}/edit`);
+        await user.click(await screen.findByRole("checkbox", { name: "記載内容に誤りがないことを確かめた" }));
+        await user.click(screen.getByRole("button", { name: "確認へ進む" }));
+        setMockOptions({ fail: true, slow: false });
+        await user.click(screen.getByRole("button", { name: "更新する" }));
+        expect(await screen.findByRole("heading", { name: "更新できませんでした" })).toBeInTheDocument();
+        expect(screen.getByText("編集した内容は残っています。時間をおいて、もう一度「更新する」を押してください。")).toBeInTheDocument();
+        setMockOptions({ fail: false, slow: false });
+    });
+
+    it("一覧の絞り込みの条件を、編集から詳細へ戻ったあとも引き継ぐ", async () => {
+        const { user, router } = renderApp("/");
+        await act(() => router.navigate(`/applications/${app.id}/edit`, { state: { listSearch: "?status=reviewing" } }));
+        const breadcrumb = await screen.findByRole("navigation", { name: "パンくずリスト" });
+        expect(within(breadcrumb).getByRole("link", { name: "申請一覧" })).toHaveAttribute("href", "/applications?status=reviewing");
+        await user.click(screen.getByRole("checkbox", { name: "記載内容に誤りがないことを確かめた" }));
+        await user.click(screen.getByRole("button", { name: "確認へ進む" }));
+        await user.click(screen.getByRole("button", { name: "更新する" }));
+        await waitFor(() => expect(router.state.location.pathname).toBe(`/applications/${app.id}`));
+        const detailBreadcrumb = await screen.findByRole("navigation", { name: "パンくずリスト" });
+        expect(within(detailBreadcrumb).getByRole("link", { name: "申請一覧" })).toHaveAttribute("href", "/applications?status=reviewing");
+        // 編集の画面は履歴から外したので、「戻る」で入り直さない
+        await act(() => router.navigate(-1));
+        expect(router.state.location.pathname).toBe("/");
     });
 
     it("存在しないidは404を表示する", async () => {

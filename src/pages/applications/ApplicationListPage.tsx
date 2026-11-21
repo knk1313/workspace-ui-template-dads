@@ -223,7 +223,7 @@ export default function ApplicationListPage() {
                                     align="end"
                                     items={[
                                         { label: "詳細を見る", onSelect: () => navigate(`/applications/${row.id}`, { state: detailState }) },
-                                        { label: "編集", onSelect: () => navigate(`/applications/${row.id}/edit`) },
+                                        { label: "編集", onSelect: () => navigate(`/applications/${row.id}/edit`, { state: detailState }) },
                                         "separator",
                                         { label: "削除", danger: true, icon: Trash2, onSelect: () => deleteApplications([row]) },
                                     ]}
