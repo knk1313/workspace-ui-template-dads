@@ -59,6 +59,8 @@ describe("ApplicationListPage", () => {
         // チップを外すと全件に戻る
         await user.click(within(chips).getByRole("button", { name: `キーワード：${target.number}を削除` }));
         expect(bodyRowCount()).toBe(20);
+        // 削除ボタンはチップごと消えるので、フォーカスは「絞り込み条件はありません」へ移す
+        expect(screen.getByText("絞り込み条件はありません")).toHaveFocus();
     });
 
     it("列見出しで並べ替えると順序が変わる", async () => {

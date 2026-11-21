@@ -1,4 +1,4 @@
-import { useId, useState, type ChangeEvent, type DragEvent, type Ref } from "react";
+import { useId, useLayoutEffect, useRef, useState, type ChangeEvent, type DragEvent, type Ref } from "react";
 import { cn } from "@/lib/cn";
 import { Button, buttonClassName } from "./Button";
 import { useFormField } from "./FormField";
@@ -72,12 +72,32 @@ export function FileUpload({ files, onChange, accept, multiple = false, dropArea
         addFiles(Array.from(e.dataTransfer.files));
     };
 
-    const remove = (index: number) => onChange(files.filter((_, i) => i !== index));
+    // 削除ボタンは押すと自分の行ごと消えるため、消したあとでフォーカスを移す先を決めておく
+    // （同じ位置の次のファイル → 一つ前のファイル → ファイルを選ぶボタン）
+    const listRef = useRef<HTMLUListElement>(null);
+    const inputRef = useRef<HTMLInputElement | null>(null);
+    const focusAfterRemove = useRef<number | null>(null);
+    const remove = (index: number) => {
+        focusAfterRemove.current = index;
+        onChange(files.filter((_, i) => i !== index));
+    };
+    useLayoutEffect(() => {
+        const index = focusAfterRemove.current;
+        if (index === null) return;
+        focusAfterRemove.current = null;
+        const buttons = listRef.current?.querySelectorAll<HTMLButtonElement>("button");
+        (buttons?.[index] ?? buttons?.[index - 1] ?? inputRef.current)?.focus();
+    }, [files]);
+    const setInputRef = (el: HTMLInputElement | null) => {
+        inputRef.current = el;
+        if (typeof ref === "function") ref(el);
+        else if (ref) ref.current = el;
+    };
 
     const control = (
         <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
             <input
-                ref={ref}
+                ref={setInputRef}
                 id={inputId}
                 type="file"
                 name={name}
@@ -124,7 +144,7 @@ export function FileUpload({ files, onChange, accept, multiple = false, dropArea
             {files.length === 0 ? (
                 <p className="m-0 text-text-muted">ファイルが選択されていません</p>
             ) : (
-                <ul aria-label="選択したファイル" className="m-0 flex list-none flex-col gap-1 p-0">
+                <ul ref={listRef} aria-label="選択したファイル" className="m-0 flex list-none flex-col gap-1 p-0">
                     {files.map((file, i) => (
                         <li key={`${file.name}-${file.size}-${file.lastModified}`} className="flex items-center gap-2">
                             <Button variant="outline" size="xs" aria-label={`${file.name}を削除`} onClick={() => remove(i)} className="min-w-12 shrink-0">

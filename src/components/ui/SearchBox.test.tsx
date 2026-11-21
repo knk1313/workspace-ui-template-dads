@@ -43,6 +43,8 @@ describe("SearchBox", () => {
         await user.click(screen.getByRole("button", { name: "入力内容を消去" }));
         expect(input).toHaveValue("");
         expect(screen.queryByRole("button", { name: "入力内容を消去" })).not.toBeInTheDocument();
+        // 消去ボタンは消えるので、フォーカスは入力欄へ移す
+        expect(input).toHaveFocus();
     });
 
     it("size / showLabel / buttonLabelを反映する", () => {

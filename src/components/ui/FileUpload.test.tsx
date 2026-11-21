@@ -105,6 +105,17 @@ describe("FileUpload", () => {
         expect(screen.getByText("ファイルを選択")).toHaveClass("border-error");
     });
 
+    it("削除すると、次のファイル → 前のファイル → ファイルを選ぶボタンの順にフォーカスを移す", async () => {
+        const user = userEvent.setup();
+        render(<Controlled multiple />);
+        const input = screen.getByLabelText(/^添付ファイル/);
+        await user.upload(input, [pdf, png]);
+        await user.click(screen.getByRole("button", { name: "report.pdfを削除" }));
+        expect(screen.getByRole("button", { name: "photo.pngを削除" })).toHaveFocus();
+        await user.click(screen.getByRole("button", { name: "photo.pngを削除" }));
+        expect(input).toHaveFocus();
+    });
+
     it("アクセシビリティ違反がない", async () => {
         const user = userEvent.setup();
         const { container } = render(
