@@ -86,6 +86,35 @@ describe("useQuery", () => {
         act(() => setQueryData<string>("k", (prev) => `${prev}+`));
         expect(screen.getByText("data: A+")).toBeInTheDocument();
     });
+
+    it("通信中にsetQueryDataで書き換えたら、あとで返る古い結果で戻さない", async () => {
+        let resolve: (v: string) => void = () => {};
+        const fetcher = vi
+            .fn<() => Promise<string>>()
+            .mockResolvedValueOnce("A")
+            .mockImplementationOnce(() => new Promise((r) => (resolve = r)));
+        const { unmount } = render(<Reader queryKey="k" fetcher={fetcher} />);
+        await screen.findByText("data: A");
+        unmount();
+        // 開き直すと、前の結果を表示したまま裏で読み込み直す
+        render(<Reader queryKey="k" fetcher={fetcher} />);
+        expect(screen.getByText("refreshing")).toBeInTheDocument();
+        act(() => setQueryData<string>("k", () => "B"));
+        await act(async () => resolve("A"));
+        expect(screen.getByText("data: B")).toBeInTheDocument();
+    });
+
+    it("通信中にinvalidateされたら、その結果を捨てて読み込み直す", async () => {
+        const resolvers: ((v: string) => void)[] = [];
+        const fetcher = vi.fn(() => new Promise<string>((r) => resolvers.push(r)));
+        render(<Reader queryKey="k" fetcher={fetcher} />);
+        act(() => invalidate("k"));
+        await act(async () => resolvers[0]("古い"));
+        await waitFor(() => expect(fetcher).toHaveBeenCalledTimes(2));
+        expect(screen.queryByText("data: 古い")).not.toBeInTheDocument();
+        await act(async () => resolvers[1]("新しい"));
+        expect(screen.getByText("data: 新しい")).toBeInTheDocument();
+    });
 });
 
 describe("useMutation", () => {

@@ -6,6 +6,7 @@ import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "
 // - 読み込んだ結果はキーごとに保持し、画面を移って戻ったときは読み込み中を出さずにすぐ表示する（裏で読み込み直す）。
 // - 更新系の操作のあとに invalidate("applications") を呼ぶと、そのキーで始まる結果を読み込み直す。
 // - 読み込み直しが失敗しても、前の結果は消さずに表示を続ける（エラーは error で分かる）。
+// - 通信中に setQueryData や invalidate をしたら、その通信の結果は古いものとして捨てる（楽観的な更新を古い結果で戻さないため）。
 
 type Entry = {
     data?: unknown;
@@ -19,6 +20,16 @@ type Entry = {
 const cache = new Map<string, Entry>();
 const listeners = new Set<() => void>();
 const inflight = new Map<string, Promise<void>>();
+/** キーごとの世代。setQueryData と invalidate で進め、通信を始めたときと違えば、その結果を捨てる。 */
+const generations = new Map<string, number>();
+
+function generationOf(key: string): number {
+    return generations.get(key) ?? 0;
+}
+
+function bumpGeneration(key: string): void {
+    generations.set(key, generationOf(key) + 1);
+}
 
 function subscribe(listener: () => void) {
     listeners.add(listener);
@@ -38,13 +49,25 @@ function fetchQuery(key: string, fetcher: () => Promise<unknown>): Promise<void>
     const running = inflight.get(key);
     if (running) return running;
     const prev = cache.get(key);
+    const generation = generationOf(key);
     setEntry(key, { data: prev?.data, error: undefined, fetching: true, stale: false });
+    const settle = (next: Pick<Entry, "data" | "error">) => {
+        // 先に通信中の印を消す（このあとの setEntry で読み込み直しが始まったとき、終わった通信にまとめられないように）
+        inflight.delete(key);
+        const current = cache.get(key);
+        if (generationOf(key) !== generation) {
+            // 通信中に書き換えられた（楽観的な更新）か、読み込み直しを頼まれた（invalidate）。
+            // この結果は古いので捨て、今の内容を残す。invalidate されていれば stale のままなので、すぐ読み込み直す。
+            setEntry(key, { data: current?.data, error: current?.error, fetching: false, stale: !!current?.stale });
+            return;
+        }
+        setEntry(key, { ...next, fetching: false, stale: false });
+    };
     const promise = fetcher()
         .then(
-            (data) => setEntry(key, { data, fetching: false, stale: false }),
-            (e: unknown) => setEntry(key, { data: prev?.data, error: toError(e), fetching: false, stale: false }),
-        )
-        .finally(() => inflight.delete(key));
+            (data) => settle({ data }),
+            (e: unknown) => settle({ data: cache.get(key)?.data, error: toError(e) }),
+        );
     inflight.set(key, promise);
     return promise;
 }
@@ -93,13 +116,17 @@ export function useQuery<T>(key: string, fetcher: () => Promise<T>): QueryResult
 /** key で始まる結果を「読み込み直しが必要」にする。表示中の画面はすぐ読み込み直し、ほかの画面は次に開いたときに読み込み直す。 */
 export function invalidate(prefix: string): void {
     for (const [key, entry] of cache) {
-        if (key === prefix || key.startsWith(`${prefix}/`)) setEntry(key, { ...entry, stale: true });
+        if (key === prefix || key.startsWith(`${prefix}/`)) {
+            bumpGeneration(key);
+            setEntry(key, { ...entry, stale: true });
+        }
     }
 }
 
 /** 保持している結果を書き換える（楽観的な更新。通信の結果を待たずに画面へ反映する）。 */
 export function setQueryData<T>(key: string, update: (prev: T | undefined) => T): void {
     const entry = cache.get(key);
+    bumpGeneration(key);
     setEntry(key, { fetching: false, stale: false, ...entry, data: update(entry?.data as T | undefined) });
 }
 
@@ -107,6 +134,7 @@ export function setQueryData<T>(key: string, update: (prev: T | undefined) => T)
 export function clearQueryCache(): void {
     cache.clear();
     inflight.clear();
+    generations.clear();
 }
 
 export type MutationResult<A extends unknown[], R> = {
