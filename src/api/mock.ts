@@ -5,6 +5,7 @@
 //
 // 見本として、通信の遅延と失敗を起こせる。設定画面の「表示」タブ →「動作の確認」で切り替える（ブラウザーのタブを閉じるまで有効）。
 
+import { parseJson, readStored, writeStored } from "@/lib/storage";
 import { ApiError } from "./errors";
 
 export type MockOptions = {
@@ -22,20 +23,22 @@ const LATENCY_MS = import.meta.env.MODE === "test" ? 0 : 400;
 const SLOW_LATENCY_MS = 3000;
 
 export function getMockOptions(): MockOptions {
-    try {
-        const raw = sessionStorage.getItem(STORAGE_KEY);
-        return raw ? { ...DEFAULT_OPTIONS, ...(JSON.parse(raw) as Partial<MockOptions>) } : DEFAULT_OPTIONS;
-    } catch {
-        return DEFAULT_OPTIONS;
-    }
+    return readStored<MockOptions>(
+        STORAGE_KEY,
+        (raw) => {
+            const saved = parseJson(raw);
+            if (typeof saved !== "object" || saved === null) return undefined;
+            const { fail, slow } = saved as Record<string, unknown>;
+            return { fail: fail === true, slow: slow === true };
+        },
+        DEFAULT_OPTIONS,
+        "session",
+    );
 }
 
 export function setMockOptions(options: MockOptions): void {
-    try {
-        sessionStorage.setItem(STORAGE_KEY, JSON.stringify(options));
-    } catch {
-        // 保存できない環境（プライベートブラウズなど）では、この画面を開いている間だけ無効になる
-    }
+    // 保存できない環境（プライベートブラウズなど）では、この画面を開いている間だけ無効になる
+    writeStored(STORAGE_KEY, JSON.stringify(options), "session");
 }
 
 /** 遅延のあとに handler を実行し、その結果を返す。「失敗させる」設定のときは ApiError を投げる。 */
