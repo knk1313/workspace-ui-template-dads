@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { DescriptionList } from "@/components/ui/DescriptionList";
 import { formatFileSize } from "@/components/ui/FileUpload";
-import { CATEGORY_LABELS } from "@/api/applicationTypes";
+import { CATEGORY_LABELS, type Application } from "@/api/applicationTypes";
 import { FIELD_LABELS } from "./fields";
 import { formatAmount, type ApplicationFormValues, type FieldName } from "./validation";
 
@@ -23,7 +23,7 @@ function text(value: string): ReactNode {
 
 type Group = { title: string; items: [FieldName, ReactNode][] };
 
-function groups(values: ApplicationFormValues): Group[] {
+function groups(values: ApplicationFormValues, kept: Application["attachments"]): Group[] {
     return [
         {
             title: "基本情報",
@@ -55,13 +55,18 @@ function groups(values: ApplicationFormValues): Group[] {
             items: [
                 [
                     "attachments",
-                    values.attachments.length === 0 ? (
+                    values.attachments.length === 0 && kept.length === 0 ? (
                         <span className="text-text-muted">なし</span>
                     ) : (
                         <ul className="m-0 flex list-none flex-col gap-1 p-0">
-                            {values.attachments.map((f) => (
-                                <li key={`${f.name}-${f.size}-${f.lastModified}`}>
+                            {values.attachments.map((f, i) => (
+                                <li key={`${f.name}-${f.size}-${f.lastModified}-${i}`}>
                                     {f.name} <span className="text-text-muted nums">（{formatFileSize(f.size)}）</span>
+                                </li>
+                            ))}
+                            {kept.map((f, i) => (
+                                <li key={`kept-${f.name}-${f.size}-${i}`}>
+                                    {f.name} <span className="text-text-muted nums">（{formatFileSize(f.size)}、変更しない）</span>
                                 </li>
                             ))}
                         </ul>
@@ -73,10 +78,16 @@ function groups(values: ApplicationFormValues): Group[] {
     ];
 }
 
-export function ApplicationFormConfirm({ values }: { values: ApplicationFormValues }) {
+export type ApplicationFormConfirmProps = {
+    values: ApplicationFormValues;
+    /** 編集画面で扱わない既存の添付ファイル（更新しても残る）。 */
+    keptAttachments?: Application["attachments"];
+};
+
+export function ApplicationFormConfirm({ values, keptAttachments = [] }: ApplicationFormConfirmProps) {
     return (
         <div className="flex flex-col gap-10">
-            {groups(values).map((g) => (
+            {groups(values, keptAttachments).map((g) => (
                 <div key={g.title} className="flex flex-col gap-2">
                     <h3 className="m-0 text-std-20B-150 text-text-strong">{g.title}</h3>
                     <DescriptionList divided items={g.items.map(([field, description]) => ({ term: FIELD_LABELS[field], description }))} />

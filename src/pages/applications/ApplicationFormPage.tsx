@@ -14,7 +14,7 @@ import { StepNavigation } from "@/components/ui/StepNavigation";
 import { useToast } from "@/components/ui/Toast";
 import { useUnsavedChangesWarning } from "@/hooks/useUnsavedChangesWarning";
 import { useMediaQuery } from "@/layouts/useMediaQuery";
-import { findApplicationContact, toMockFiles } from "@/mocks/applicationForm";
+import { findApplicationContact, keptAttachments, toMockFiles } from "@/mocks/applicationForm";
 import type { Application, ApplicationInput } from "@/api/applicationTypes";
 import { ApplicationFormComplete, COMPLETE_HEADING_ID } from "./form/ApplicationFormComplete";
 import { ApplicationFormConfirm } from "./form/ApplicationFormConfirm";
@@ -76,7 +76,11 @@ function isDirty(values: ApplicationFormValues, initial: ApplicationFormValues):
     });
 }
 
-function toInput(values: ApplicationFormValues): ApplicationInput {
+/**
+ * フォームの値を API に送る形にする。
+ * kept は編集画面で扱わない既存の添付ファイル。フォームの添付だけを送ると消えてしまうため、後ろに足して送る。
+ */
+function toInput(values: ApplicationFormValues, kept: Application["attachments"] = []): ApplicationInput {
     return {
         title: values.title.trim(),
         category: values.category || "other",
@@ -84,7 +88,7 @@ function toInput(values: ApplicationFormValues): ApplicationInput {
         applicant: values.applicant.trim(),
         organization: values.organization.trim() || "個人",
         assignee: values.assignee,
-        attachments: values.attachments.map((f) => ({ name: f.name, size: f.size })),
+        attachments: [...values.attachments.map((f) => ({ name: f.name, size: f.size })), ...kept],
         memo: values.memo.trim() || undefined,
     };
 }
@@ -148,6 +152,8 @@ function ApplicationForm({ mode, application }: { mode: "create" | "edit"; appli
     const isWide = useMediaQuery("(min-width: 48rem)");
 
     const [initial, setInitial] = useState(() => initialValues(application));
+    // 編集画面で扱わない形式の既存の添付ファイル。表示だけして、更新するときにそのまま送り返す
+    const [kept] = useState(() => (application ? keptAttachments(application.attachments) : []));
     const [values, setValues] = useState(initial);
     const [errors, setErrors] = useState<FieldError[]>([]);
     const [step, setStep] = useState<Step>("input");
@@ -191,7 +197,7 @@ function ApplicationForm({ mode, application }: { mode: "create" | "edit"; appli
         setSubmitError(undefined);
         try {
             if (isEdit && application) {
-                await update.run(application.id, toInput(values));
+                await update.run(application.id, toInput(values, kept));
                 invalidateApplications();
                 toast({ type: "success", title: "申請内容を更新しました", description: `${application.number}「${values.title.trim()}」` });
                 allowNavigation();
@@ -260,7 +266,7 @@ function ApplicationForm({ mode, application }: { mode: "create" | "edit"; appli
                 >
                     {errors.length > 0 && <ErrorSummary errors={errors} />}
                     <StepHeading>{isEdit ? "申請内容の編集" : "申請内容の入力"}</StepHeading>
-                    <ApplicationFormFields values={values} errors={errors} onChange={onChange} minDate={today} />
+                    <ApplicationFormFields values={values} errors={errors} onChange={onChange} minDate={today} keptAttachments={kept} />
                     {/* 画面下部への固定表示はフォームの上に浮いて見え、入力欄を隠すため使わない。フォームの末尾に罫線で区切って置く。 */}
                     <ActionPanel
                         className="border-t border-border pt-6"
@@ -297,7 +303,7 @@ function ApplicationForm({ mode, application }: { mode: "create" | "edit"; appli
                             live
                         />
                     )}
-                    <ApplicationFormConfirm values={values} />
+                    <ApplicationFormConfirm values={values} keptAttachments={kept} />
                     <ActionPanel
                         className="border-t border-border pt-6"
                         label="確認の操作"

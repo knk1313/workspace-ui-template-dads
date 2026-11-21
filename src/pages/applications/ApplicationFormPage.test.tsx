@@ -2,6 +2,7 @@ import { screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { expectNoA11yViolations } from "@/test/axe";
 import { renderApp } from "@/test/renderApp";
+import { getApplication } from "@/api/applications";
 import { setMockOptions } from "@/api/mock";
 import { APPLICATIONS } from "@/mocks/applications";
 
@@ -200,6 +201,19 @@ describe("ApplicationFormPage（編集）", () => {
         expect(await screen.findByText("申請内容を更新しました")).toBeInTheDocument();
         // 画面の移動はトーストのあとに終わる
         await waitFor(() => expect(screen.queryByRole("heading", { level: 1, name: "申請を編集" })).not.toBeInTheDocument());
+    });
+
+    it("フォームで扱わない形式の添付ファイルは、更新しても消えない", async () => {
+        const withXlsx = APPLICATIONS.find((a) => a.attachments.some((f) => f.name.endsWith(".xlsx")))!;
+        const { user } = renderApp(`/applications/${withXlsx.id}/edit`);
+        expect(await screen.findByText(/ここでは変更できない形式の添付ファイルがあります/)).toBeInTheDocument();
+        await user.click(screen.getByRole("checkbox", { name: "記載内容に誤りがないことを確かめた" }));
+        await user.click(screen.getByRole("button", { name: "確認へ進む" }));
+        expect(screen.getByText(/添付資料\.xlsx/)).toBeInTheDocument();
+        await user.click(screen.getByRole("button", { name: "更新する" }));
+        await waitFor(() => expect(screen.queryByRole("heading", { level: 1, name: "申請を編集" })).not.toBeInTheDocument());
+        const { application } = (await getApplication(withXlsx.id))!;
+        expect(application.attachments.map((f) => f.name)).toEqual(["申請書.pdf", "添付資料.xlsx"]);
     });
 
     it("存在しないidは404を表示する", async () => {
