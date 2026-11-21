@@ -12,12 +12,13 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { TableCellLine } from "@/components/ui/Table";
 import { useToast } from "@/components/ui/Toast";
 import { useDisplaySettings } from "@/context/DisplaySettings";
-import { applicationQueries, assignApplications, deleteApplications as deleteApi, invalidateApplications, restoreApplications } from "@/api/applications";
+import { applicationQueries, assignApplications, invalidateApplications } from "@/api/applications";
 import { setQueryData, useMutation, useQuery } from "@/api/query";
 import { CATEGORY_LABELS, type Application, type ApplicationListPage } from "@/api/applicationTypes";
 import { ApplicationFilters } from "./list/ApplicationFilters";
 import { ApplicationStatusChip } from "./list/ApplicationStatusChip";
 import { AssignDialog } from "./list/AssignDialog";
+import { useUndoableDelete } from "./useUndoableDelete";
 import { formatAmount } from "./list/format";
 import { hasFilters, toListParams, useApplicationQuery } from "./list/useApplicationQuery";
 import { usePageTitle } from "@/hooks/usePageTitle";
@@ -69,35 +70,21 @@ export default function ApplicationListPage() {
         clearFilters();
     };
 
-    /** 削除する。label は「R08-001060」か「3件の申請」（トーストの「〜を削除しました」に使う）。 */
-    async function deleteApplications(targetIds: string[], label: string) {
-        const ids = new Set(targetIds);
-        // 通信の結果を待たずに一覧から消し（楽観的な更新）、失敗したら読み込み直して元に戻す
-        setQueryData(listQuery, (prev = { items: [], total: 0 }) => ({
-            items: prev.items.filter((a) => !ids.has(a.id)),
-            total: prev.total - prev.items.filter((a) => ids.has(a.id)).length,
-        }));
-        setSelectedIds((prev) => prev.filter((id) => !ids.has(id)));
-        try {
-            const deleted = await deleteApi([...ids]);
-            // 消えた行にあったフォーカスの移し先として、「元に戻す」へフォーカスを移す（キーボードでもすぐ取り消せる）
-            toast({ type: "success", title: `${label}を削除しました`, action: { label: "元に戻す", focus: true, onClick: () => void undoDelete(deleted, label) } });
-        } catch {
-            toast({ type: "error", title: `${label}を削除できませんでした`, description: "時間をおいて、もう一度削除してください。" });
-        } finally {
-            invalidateApplications();
-        }
-    }
+    const { remove } = useUndoableDelete();
 
-    async function undoDelete(deleted: Application[], label: string) {
-        try {
-            await restoreApplications(deleted);
-            toast({ type: "success", title: `${label}を元に戻しました` });
-        } catch {
-            toast({ type: "error", title: `${label}を元に戻せませんでした`, description: "時間をおいて、もう一度「元に戻す」を押してください。" });
-        } finally {
-            invalidateApplications();
-        }
+    /** 削除する。label は「R08-001060」か「3件の申請」（トーストの「〜を削除しました」に使う）。 */
+    function deleteApplications(targetIds: string[], label: string) {
+        const ids = new Set(targetIds);
+        return remove(targetIds, label, {
+            // 通信の結果を待たずに一覧から消し（楽観的な更新）、失敗したら読み込み直して元に戻す
+            beforeDelete: () => {
+                setQueryData(listQuery, (prev = { items: [], total: 0 }) => ({
+                    items: prev.items.filter((a) => !ids.has(a.id)),
+                    total: prev.total - prev.items.filter((a) => ids.has(a.id)).length,
+                }));
+                setSelectedIds((prev) => prev.filter((id) => !ids.has(id)));
+            },
+        });
     }
 
     async function assignSelected(assignee: string) {

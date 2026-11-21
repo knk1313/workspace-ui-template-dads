@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router";
 import { Check, Pencil, Trash2, Undo2 } from "lucide-react";
-import { applicationQueries, approveApplication, deleteApplications, invalidateApplications, restoreApplications, returnApplication as returnApi } from "@/api/applications";
+import { applicationQueries, approveApplication, invalidateApplications, returnApplication as returnApi } from "@/api/applications";
 import { useMutation, useQuery } from "@/api/query";
 import { DECIDABLE, RETURNABLE } from "@/api/applicationTypes";
 import { Button, ButtonLink } from "@/components/ui/Button";
@@ -20,6 +20,7 @@ import { DetailSkeleton } from "./detail/DetailSkeleton";
 import { HistoryTab } from "./detail/HistoryTab";
 import { OverviewTab } from "./detail/OverviewTab";
 import { ReturnDialog } from "./detail/ReturnDialog";
+import { useUndoableDelete } from "./useUndoableDelete";
 import { listHrefOf, type ListLinkState } from "./listLink";
 import { ApplicationStatusChip } from "./list/ApplicationStatusChip";
 
@@ -45,7 +46,7 @@ export default function ApplicationDetailPage() {
     const returnMutation = useMutation(returnApi);
     // 承認と削除も useMutation を通し、通信中はボタンに処理中を出して二度押しを防ぐ
     const approveMutation = useMutation(approveApplication);
-    const deleteMutation = useMutation(deleteApplications);
+    const { remove: removeApplications, pending: deletePending } = useUndoableDelete();
     // 直前の操作の結果。別の申請に移ったら出さないよう、対象の id と組にする。
     const [notice, setNotice] = useState<{ id: string; type: "approved" | "returned" } | null>(null);
     const [returnOpen, setReturnOpen] = useState(false);
@@ -116,34 +117,14 @@ export default function ApplicationDetailPage() {
         }
     }
 
-    async function remove() {
-        if (deleteMutation.pending) return;
-        const number = app!.number;
-        try {
-            const deleted = await deleteMutation.run([id]);
-            invalidateApplications();
-            navigate(listHref);
-            toast({
-                type: "success",
-                title: `${number}を削除しました`,
-                action: {
-                    label: "元に戻す",
-                    focus: true,
-                    onClick: () =>
-                        void restoreApplications(deleted)
-                            .then(() => toast({ type: "success", title: `${number}を元に戻しました` }))
-                            .catch((e: Error) => toast({ type: "error", title: `${number}を元に戻せませんでした`, description: e.message }))
-                            .finally(() => invalidateApplications()),
-                },
-            });
-        } catch {
-            toast({ type: "error", title: `${number}を削除できませんでした`, description: "時間をおいて、もう一度削除してください。" });
-        }
+    function remove() {
+        if (deletePending) return;
+        return removeApplications([id], app!.number, { afterDelete: () => navigate(listHref) });
     }
 
     const menuItems: DropdownMenuEntry[] = [
         ...(RETURNABLE.includes(app.status) ? [{ label: "差し戻す", icon: Undo2, onSelect: () => setReturnOpen(true) }] : []),
-        { label: "削除", icon: Trash2, danger: true, disabled: deleteMutation.pending, onSelect: remove },
+        { label: "削除", icon: Trash2, danger: true, disabled: deletePending, onSelect: remove },
     ];
 
     return (

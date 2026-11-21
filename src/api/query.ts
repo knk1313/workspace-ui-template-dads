@@ -10,6 +10,8 @@ import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "
 // - 読み込み直しが失敗しても、前の結果は消さずに表示を続ける（エラーは error で分かる）。
 // - 通信中に setQueryData や invalidate をしたら、その通信の結果は古いものとして捨てる（楽観的な更新を古い結果で戻さないため）。
 // - どの画面も表示していない結果は、IDLE_CACHE_MAX 件を超えたら古いものから消す（開いた詳細画面の分だけメモリが増え続けないため）。
+// 更新系の操作（保存・削除・承認など）は、API を直接呼ばずに useMutation を通す。
+// 通信中は pending をボタンの loading に渡し、二度押しで二重に送らないようにする。
 
 type Entry = {
     data?: unknown;
