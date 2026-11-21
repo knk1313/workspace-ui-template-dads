@@ -1,12 +1,7 @@
-import { useMemo } from "react";
-import { FileText } from "lucide-react";
-import { applicationQueries } from "@/api/applications";
-import { useQuery } from "@/api/query";
-import type { CommandItem } from "@/components/ui/CommandPalette";
-
-// ヘッダーの検索（コマンドパレット）とお知らせに出す、アプリ固有の内容。
-// 見本の申請管理の画面のデータを使っている。自分のアプリにするときは、このファイルを書き換える。
-// npm run remove-samples を実行すると、何も出さない版に置き換わる。
+// ヘッダーの検索（コマンドパレット）とお知らせに出す、アプリ固有の内容の入り口。
+// 実装は下の export の行の先にある。何も出さない版は ./headerContentEmpty、見本の申請管理の版は src/pages/applications/headerContent.ts。
+// 自分のアプリにするときは、export の行の先を書き換えるか、このファイルに直接実装する。
+// npm run remove-samples を実行すると、export の行の先が何も出さない版に切り替わる。
 
 export type HeaderNotification = { id: string; title: string; description?: string; href?: string };
 
@@ -16,39 +11,4 @@ export type HeaderNotifications = {
     error: Error | undefined;
 };
 
-/**
- * 検索で、ナビゲーションの画面に加えて出す候補（見本では最近の申請20件）。
- * 検索を開いたときだけ呼ばれる（HeaderActions はパレットを開いている間だけこのフックを使う部品を描く）。
- */
-export function useHeaderSearchItems(navigate: (to: string) => void): CommandItem[] {
-    const applications = useQuery(applicationQueries.recent(20));
-    return useMemo(
-        () =>
-            (applications.data ?? []).map((a) => ({
-                id: `app-${a.id}`,
-                label: `${a.number}「${a.title}」`,
-                group: "申請",
-                icon: FileText,
-                keywords: [a.applicant, a.organization],
-                onSelect: () => navigate(`/applications/${a.id}`),
-            })),
-        [applications.data, navigate],
-    );
-}
-
-/** お知らせ（見本では最近の操作の履歴）。 */
-export function useHeaderNotifications(): HeaderNotifications {
-    // ダッシュボードの「最近の操作」と同じ結果を使い、新しい3件だけを出す（同じ履歴を2回読み込まないため）
-    const activity = useQuery(applicationQueries.recentActivity);
-    const items = useMemo(
-        () =>
-            (activity.data ?? []).slice(0, 3).map((a) => ({
-                id: a.id,
-                title: `${a.actor}が${a.action}`,
-                description: a.target,
-                href: a.applicationId ? `/applications/${a.applicationId}` : undefined,
-            })),
-        [activity.data],
-    );
-    return { items, isLoading: activity.isLoading, error: activity.data ? undefined : activity.error };
-}
+export { useHeaderNotifications, useHeaderSearchItems } from "@/pages/applications/headerContent";
