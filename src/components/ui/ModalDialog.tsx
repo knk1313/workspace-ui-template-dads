@@ -2,7 +2,7 @@ import { Children, Fragment, isValidElement, useId, useRef, type MouseEvent, typ
 import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 import { cn } from "@/lib/cn";
-import { useModalBehavior } from "@/hooks/useModalBehavior";
+import { useModalBehavior } from "./useModalBehavior";
 import { Icon } from "./Icon";
 
 // DADS モーダルダイアログ（HTML 版 modal-dialog.css）。
