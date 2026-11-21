@@ -58,7 +58,9 @@ describe("CommandPalette", () => {
         await user.clear(input);
         await user.type(input, "存在しない");
         expect(screen.queryByRole("option")).toBeNull();
-        expect(screen.getByText("一致する画面と申請はありません。別の言葉で検索してください。")).toBeInTheDocument();
+        expect(screen.getByRole("status")).toHaveTextContent("一致する画面と申請はありません。別の言葉で検索してください。");
+        // 0 件でも listbox は残し、入力欄の aria-controls の参照先を保つ
+        expect(document.getElementById(input.getAttribute("aria-controls")!)).toHaveAttribute("role", "listbox");
     });
 
     it("↓ ↑ で候補を移動し、Enterで実行して閉じる", async () => {

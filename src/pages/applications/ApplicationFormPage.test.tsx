@@ -212,7 +212,7 @@ describe("ApplicationFormPage（編集）", () => {
         expect(screen.getByLabelText(/^申請額/)).toHaveValue(String(app.amount));
         expect(screen.getByLabelText(/^氏名/)).toHaveValue(app.applicant);
         expect(screen.getByLabelText(/^所属/)).toHaveValue(app.organization);
-        expect(screen.getByLabelText(/^担当者/)).toHaveValue(app.assignee);
+        expect(screen.getByRole("combobox", { name: /^担当者/ })).toHaveValue(app.assignee);
         expect(within(screen.getByRole("navigation", { name: "手続きの流れ" })).getAllByRole("listitem")).toHaveLength(2);
         await expectNoA11yViolations(container);
     });

@@ -18,6 +18,8 @@ export type FieldSize = "sm" | "md" | "lg";
 export type FormFieldContextValue = {
     /** 入力部品に付ける id。label の for と対応する。 */
     id: string;
+    /** ラベルの要素の id。入力欄とは別の要素（候補のリストボックスなど）に、同じ名前を付けるときに aria-labelledby で使う。 */
+    labelId: string;
     /** サポートテキストとエラーテキストの id。入力部品の aria-describedby に付ける。 */
     describedBy?: string;
     invalid: boolean;
@@ -79,6 +81,7 @@ export function FormField({
 }: FormFieldProps) {
     const autoId = useId();
     const id = fixedId ?? autoId;
+    const labelId = `${id}-label`;
     const supportId = `${id}-support`;
     const errorId = `${id}-error`;
     const invalid = Boolean(errorText);
@@ -104,7 +107,7 @@ export function FormField({
     const labelClass = cn("justify-self-start font-bold", LABEL_SIZE[size], direction === "horizontal" && "md:pt-3");
 
     return (
-        <FormFieldContext.Provider value={{ id, describedBy, invalid, required, size, group }}>
+        <FormFieldContext.Provider value={{ id, labelId, describedBy, invalid, required, size, group }}>
             <Wrapper
                 className={cn(
                     "m-0 grid min-w-0 border-0 p-0 text-16 leading-170 tracking-2 text-text break-words",
@@ -117,10 +120,12 @@ export function FormField({
             >
                 {group ? (
                     <legend className="contents">
-                        <span className={labelClass}>{labelContent}</span>
+                        <span id={labelId} className={labelClass}>
+                            {labelContent}
+                        </span>
                     </legend>
                 ) : (
-                    <label htmlFor={id} className={labelClass}>
+                    <label id={labelId} htmlFor={id} className={labelClass}>
                         {labelContent}
                     </label>
                 )}
