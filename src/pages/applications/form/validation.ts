@@ -1,4 +1,5 @@
 import type { ApplicationCategory } from "@/api/applicationTypes";
+import { parseIso } from "@/components/ui/DatePicker";
 
 // 申請フォームの入力値と検証（純粋関数）。画面から切り離して単体テストできるようにする。
 // DADS のバリデーション方針: 送信時にまとめて検証し、入力中やフォーカスアウトではエラーを出さない。
@@ -160,7 +161,7 @@ export function validateApplicationForm(values: ApplicationFormValues, today: st
         errors.phone = "電話番号は数字とハイフンで、市外局番から入力してください（例：03-1234-5678）";
     }
 
-    if (values.desiredDate === "") errors.desiredDate = "希望日を西暦の年月日で入力してください（例：2026-12-01）";
+    if (values.desiredDate === "" || !parseIso(values.desiredDate)) errors.desiredDate = "希望日を西暦の年月日で入力してください（例：2026-12-01）";
     else if (values.desiredDate < today) errors.desiredDate = `希望日は今日（${today}）以降の日付を入力してください`;
 
     const rejected = values.attachments.filter((f) => !isAcceptedFile(f));

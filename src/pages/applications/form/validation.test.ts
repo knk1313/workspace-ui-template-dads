@@ -65,6 +65,11 @@ describe("validateApplicationForm", () => {
         expect(messageOf({ ...VALID, desiredDate: "2026-11-02" }, "desiredDate")).toBe("希望日は今日（2026-11-03）以降の日付を入力してください");
     });
 
+    it("解釈できない希望日はエラーにする", () => {
+        expect(messageOf({ ...VALID, desiredDate: "2026-02-30" }, "desiredDate")).toBe("希望日を西暦の年月日で入力してください（例：2026-12-01）");
+        expect(messageOf({ ...VALID, desiredDate: "2026-12-3x" }, "desiredDate")).toBe("希望日を西暦の年月日で入力してください（例：2026-12-01）");
+    });
+
     it("補助金では添付ファイルが必須で、PDF・画像以外は受け付けない", () => {
         expect(messageOf({ ...VALID, attachments: [] }, "attachments")).toContain("添付してください");
         expect(fields({ ...VALID, category: "report", amount: "", attachments: [] })).toEqual([]);
