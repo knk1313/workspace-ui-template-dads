@@ -1,6 +1,6 @@
 import { act, screen, waitFor, within } from "@testing-library/react";
-import { approveApplication } from "@/api/applications";
-import { describe, expect, it } from "vitest";
+import { approveApplication, createApplication } from "@/api/applications";
+import { describe, expect, it, vi } from "vitest";
 import { APPLICATIONS } from "@/mocks/applications";
 import { expectNoA11yViolations } from "@/test/axe";
 import { renderApp } from "@/test/renderApp";
@@ -66,6 +66,31 @@ describe("ApplicationDetailPage", () => {
         await waitFor(() => expect(document.title).toBe(`${reviewing.title} | 申請管理システム`));
         await act(() => router.navigate("/applications"));
         await waitFor(() => expect(document.title).toBe("申請一覧 | 申請管理システム"));
+    });
+
+    it("同じ名前の添付ファイルが2つあっても、両方を表示する", async () => {
+        const created = await createApplication({
+            title: "同じ名前の添付",
+            category: "other",
+            amount: 0,
+            applicant: "山田 太郎",
+            organization: "個人",
+            email: "yamada@example.jp",
+            phone: "",
+            desiredDate: "2099-12-01",
+            assignee: "",
+            attachments: [
+                { name: "scan.pdf", size: 1024 },
+                { name: "scan.pdf", size: 2048 },
+            ],
+        });
+        const spy = vi.spyOn(console, "error").mockImplementation(() => {});
+        const { user } = await renderDetail(`/applications/${created.id}`);
+        await user.click(screen.getByRole("tab", { name: /^添付ファイル/ }));
+        expect(screen.getAllByRole("button", { name: "scan.pdfをダウンロード" })).toHaveLength(2);
+        // key が重なると React が警告を出す
+        expect(spy.mock.calls.some((args) => String(args[0]).includes("same key"))).toBe(false);
+        spy.mockRestore();
     });
 
     it("承認済みの申請をもう一度承認しようとすると、APIが断る", async () => {

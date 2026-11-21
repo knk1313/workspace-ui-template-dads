@@ -21,9 +21,10 @@ export function AttachmentsTab({ attachments }: { attachments: Application["atta
         <Card as="section" padding="sm" className="overflow-hidden">
             <CardHeader title="添付ファイル" description={`${attachments.length}件`} />
             <StackedList className="mt-3 border-t border-border">
-                {attachments.map((file) => (
+                {attachments.map((file, i) => (
                     <StackedListItem
-                        key={file.name}
+                        // 別のフォルダーの同じ名前のファイルも添付できるため、名前だけでは key が重なる
+                        key={`${file.name}-${file.size}-${i}`}
                         // 1 行目の高さの枠で上下中央に置き、ファイル名が折り返してもアイコンを 1 行目にそろえる
                         leading={
                             <span className="flex h-lh items-center">
