@@ -189,7 +189,7 @@ export function ApplicationFormFields({ values, errors, onChange, minDate, keptA
                         onChange={(files) => onChange("attachments", files)}
                     />
                     {keptAttachments.length > 0 && (
-                        <div className="flex flex-col gap-1 text-16 leading-170 tracking-2 text-text">
+                        <div className="mt-4 flex flex-col gap-1 text-16 leading-170 tracking-2 text-text">
                             <p className="m-0">このほかに、ここでは変更できない形式の添付ファイルがあります。更新しても残ります。</p>
                             <ul className="m-0 flex flex-col gap-1 pl-6">
                                 {keptAttachments.map((f, i) => (
