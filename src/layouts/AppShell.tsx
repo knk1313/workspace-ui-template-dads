@@ -78,10 +78,15 @@ export function AppShell({
                     // 本文はページ全体でスクロールし、サイドバーはヘッダーの下に固定する
                     // （本文だけを内側でスクロールさせると、画面外の要素にフォーカスしたときに画面全体がずれるため）。
                     // 背景と罫線は外側の列に持たせ、長いページでもサイドバーの白い面が途中で切れないようにする。
-                    <div className={cn("shrink-0 border-r border-border bg-surface transition-[width]", collapsed ? "w-sidebar-collapsed" : "w-sidebar")}>
+                    // 幅のアニメーションは外側の列だけにかけ、中身は最初から開閉後の幅で描いて、はみ出す分を切り取る
+                    // （中身の幅も一緒に変えると、広がる途中の狭い幅でラベルが何行にも折り返される）。
+                    // overflow-x-hidden にするとスクロールの入れ物になり、中の sticky が効かなくなるため、clip を使う。
+                    <div className={cn("shrink-0 overflow-x-clip border-r border-border bg-surface transition-[width]", collapsed ? "w-sidebar-collapsed" : "w-sidebar")}>
                     <aside
                         className={cn(
-                            "flex flex-col overflow-y-auto",
+                            // 透明の罫線は、外側の列の罫線と同じ幅を空けるため（中身の幅を、外側の列の内側とそろえる）
+                            "flex flex-col overflow-y-auto border-r border-transparent",
+                            collapsed ? "w-sidebar-collapsed" : "w-sidebar",
                             embedded ? "h-full" : "sticky top-header h-below-header",
                         )}
                     >
