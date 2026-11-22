@@ -7,12 +7,13 @@ import { LoadError } from "@/components/ui/LoadError";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { Spinner } from "@/components/ui/Spinner";
 import { useLayoutPreference } from "@/context/LayoutPreference";
+import { useFocusOnNavigate } from "@/hooks/useFocusOnNavigate";
 import { AppShell } from "./AppShell";
 import { HeaderActions } from "./HeaderActions";
 import { TopNavLayout } from "./TopNavLayout";
 
 // ログイン後の画面の共通レイアウト。設定画面で選んだ型（サイドバー型 / 上部ナビ型）で描き分ける。
-// ページ遷移のたびにスクロール位置を先頭に戻す。
+// ページ遷移のたびにスクロール位置を先頭に戻し、本文へフォーカスを移す（useFocusOnNavigate）。
 // ログインしているかを確かめてから描く。していなければログイン画面へ移し、ログインしたあとに元の画面へ戻す（docs/decisions.md D-32）。
 // ルートの handle に { public: true } を付けた画面（404 と 500）は、ログインしていなくても、シェルなしで出す。
 
@@ -30,6 +31,8 @@ export function AppLayout() {
         // jsdom には scrollTo がないため、存在するときだけ呼ぶ
         if (typeof window.scrollTo === "function" && !navigator.userAgent.includes("jsdom")) window.scrollTo({ top: 0 });
     }, [pathname]);
+
+    useFocusOnNavigate(!!me.data || (me.data === null && isPublic));
 
     if (me.data === undefined) {
         return (

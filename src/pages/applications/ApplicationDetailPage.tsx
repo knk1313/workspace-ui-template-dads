@@ -57,7 +57,7 @@ export default function ApplicationDetailPage() {
     }, [notice]);
 
     const loaded = detail.data?.application;
-    usePageTitle(loaded ? loaded.title : detail.isLoading || detail.error ? "申請の詳細" : "申請が見つかりません");
+    usePageTitle(loaded ? loaded.title : detail.isLoading || detail.error ? "申請の詳細" : "申請が見つかりません", { pending: detail.isLoading });
 
     if (detail.isLoading) return <DetailSkeleton />;
     if (detail.error && detail.data === undefined) {

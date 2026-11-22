@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
-import { useLocation, useNavigate } from "react-router";
+import { useLocation, useNavigate, useNavigationType } from "react-router";
 import { appConfig } from "@/app.config";
 import { Button } from "@/components/ui/Button";
 import { Card, CardBody } from "@/components/ui/Card";
@@ -22,9 +22,19 @@ import { usePageTitle } from "@/hooks/usePageTitle";
 type LoginErrors = { email?: string; password?: string };
 
 export default function LoginPage() {
-    usePageTitle("ログイン");
+    // 移ってきたときは見出しへフォーカスを移すので、画面の名前を二重に読み上げない
+    usePageTitle("ログイン", { announced: false });
     const navigate = useNavigate();
     const location = useLocation();
+    // ログアウトや、ログインを求められて移ってきたときは、見出しへフォーカスを移す（直接開いたときは動かさない）
+    const navigationType = useNavigationType();
+    const headingRef = useRef<HTMLHeadingElement>(null);
+    const arrived = useRef(false);
+    useEffect(() => {
+        if (arrived.current) return;
+        arrived.current = true;
+        if (navigationType !== "POP") headingRef.current?.focus();
+    }, [navigationType]);
     const { toast } = useToast();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -80,7 +90,9 @@ export default function LoginPage() {
                                 <Icon icon={appConfig.logo} size="lg" className="text-primary" />
                                 {appConfig.name}
                             </p>
-                            <h1 className="m-0 text-std-28B-150 text-text-strong">ログイン</h1>
+                            <h1 ref={headingRef} tabIndex={-1} className="m-0 text-std-28B-150 text-text-strong">
+                                ログイン
+                            </h1>
                             {/* 見本用。自分のアプリにするときは消す */}
                             <p className="m-0 text-std-16N-170 text-text-muted">見本のため、どのメールアドレスとパスワードでもログインできます</p>
                         </div>

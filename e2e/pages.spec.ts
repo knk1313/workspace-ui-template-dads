@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { expectNoAxeViolations, expectNoHorizontalOverflow, isMobile, navigateVia } from "./helpers";
+import { expectNoAxeViolations, expectNoHorizontalOverflow, isMobile, navigateVia, waitForLoaded } from "./helpers";
 import { PAGES } from "./routes";
 
 // 主要ページの表示・ナビゲーション・アクセシビリティ（desktop / mobile の両プロジェクトで実行する）。
@@ -114,4 +114,15 @@ test("設定で選んだ配色は、OSの設定より優先され、再読み込
     await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
     await page.emulateMedia({ colorScheme: "dark" });
     await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+});
+
+test("画面を移ると、本文へフォーカスを移して画面の名前を知らせる。モバイルのメニューからでも同じ", async ({ page }) => {
+    await page.goto("/");
+    await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+    await waitForLoaded(page);
+    // 最初に開いたときは動かさない
+    await expect(page.locator("body")).toBeFocused();
+    await navigateVia(page, "設定");
+    await expect(page.locator("main")).toBeFocused();
+    await expect(page.locator("[aria-live]", { hasText: "「設定」の画面を開きました" })).toHaveCount(1);
 });

@@ -3,6 +3,7 @@ import { cleanup } from "@testing-library/react";
 import { afterEach, vi } from "vitest";
 import { resetStores } from "@/api/db";
 import { clearQueryCache } from "@/api/query";
+import { resetPageAnnouncement } from "@/hooks/usePageTitle";
 
 afterEach(() => {
     cleanup();
@@ -12,6 +13,7 @@ afterEach(() => {
     // ダミー API のデータと読み込み結果をテストごとに初期値へ戻す
     resetStores();
     clearQueryCache();
+    resetPageAnnouncement();
 });
 
 // jsdom にない API のスタブ。

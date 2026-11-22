@@ -60,6 +60,38 @@ describe("ログインの確認", () => {
     });
 });
 
+describe("画面を移ったときのフォーカスと読み上げ", () => {
+    const announced = (text: RegExp) => screen.findByText(text, { selector: "[aria-live]" });
+
+    it("最初に開いたときは動かさず、移ると本文へフォーカスを移して画面の名前を読み上げる", async () => {
+        const { router } = renderApp("/");
+        await screen.findByRole("heading", { level: 1, name: "ダッシュボード" });
+        expect(document.body).toHaveFocus();
+        expect(screen.queryByText(/の画面を開きました/)).not.toBeInTheDocument();
+        await act(() => router.navigate("/settings"));
+        expect(await announced(/^「設定」の画面を開きました/)).toBeInTheDocument();
+        expect(screen.getByRole("main")).toHaveFocus();
+    });
+
+    it("同じ画面の中の移動（タブ）では、フォーカスを動かさない", async () => {
+        const { user } = renderApp("/settings");
+        const tab = await screen.findByRole("tab", { name: "通知" });
+        await user.click(tab);
+        expect(tab).toHaveFocus();
+    });
+
+    it("ログインを求められたときと、ログアウトしたときは、ログイン画面の見出しへ移す。ログインしたら本文へ移す", async () => {
+        const { user, router } = renderApp("/settings", { loggedIn: false });
+        await waitFor(() => expect(screen.getByRole("heading", { level: 1, name: "ログイン" })).toHaveFocus());
+        await signInThroughForm(user);
+        await waitFor(() => expect(screen.getByRole("main")).toHaveFocus());
+        expect(await announced(/^「設定」の画面を開きました/)).toBeInTheDocument();
+        await clickLogout(user);
+        await waitFor(() => expect(router.state.location.pathname).toBe("/login"));
+        await waitFor(() => expect(screen.getByRole("heading", { level: 1, name: "ログイン" })).toHaveFocus());
+    });
+});
+
 describe("ログアウト", () => {
     it("ログアウトすると、読み込んだ結果を消してログイン画面へ移り、画面を開けなくなる", async () => {
         const { user, router } = renderApp("/settings");

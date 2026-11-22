@@ -213,3 +213,25 @@ test("キーボードだけで新規申請を完了できる", async ({ page }) 
     await page.keyboard.press("Enter");
     await expect(page.getByText("申請の受付完了")).toBeFocused();
 });
+
+test("申請を更新すると、詳細の画面を先頭から表示し、本文へフォーカスを移す", async ({ page }) => {
+    await open(page, "/applications/app-044");
+    await page.getByRole("link", { name: "編集", exact: true }).click();
+    await page.getByRole("checkbox", { name: /記載内容に誤りがない/ }).check();
+    await page.getByRole("button", { name: "確認へ進む" }).click();
+    await expect(page.getByRole("heading", { name: "入力内容の確認" })).toBeFocused();
+    await page.getByRole("button", { name: "更新する" }).click();
+    await expect(page).toHaveURL(/\/applications\/app-044$/);
+    await waitForLoaded(page);
+    await expect(page.locator("main")).toBeFocused();
+    expect(await page.evaluate(() => window.scrollY)).toBe(0);
+});
+
+test("詳細で削除すると、一覧へ移っても「元に戻す」のフォーカスを奪わない", async ({ page }) => {
+    await open(page, "/applications/app-036");
+    await page.getByRole("button", { name: "その他の操作" }).click();
+    await page.getByRole("menuitem", { name: "削除" }).click();
+    await expect(page).toHaveURL(/\/applications$/);
+    await waitForLoaded(page);
+    await expect(page.getByRole("button", { name: "元に戻す" })).toBeFocused();
+});
