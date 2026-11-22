@@ -65,7 +65,10 @@ export function HeaderActions() {
                 </div>
             </Popover>
             {/* sm 以上は名前付き、モバイルはアイコンだけ（ヘッダーの幅に収めるため）。 */}
-            <DropdownMenu label={me.data?.name ?? "アカウント"} icon={UserRound} align="end" className="max-sm:hidden" items={accountItems} />
+            {/* 名前を読み込むまでは「アカウント」と出す。読み込み中であることは aria-busy で示す（E2E もこれを待つ） */}
+            <div className="contents" aria-busy={me.isLoading || undefined}>
+                <DropdownMenu label={me.data?.name ?? "アカウント"} icon={UserRound} align="end" className="max-sm:hidden" items={accountItems} />
+            </div>
             <DropdownMenu label="アカウント" iconOnly align="end" className="sm:hidden" items={accountItems} />
             {/* 検索の候補は、開いたときに初めて読み込む（全画面で常に読み込まないため） */}
             {paletteOpen && <HeaderCommandPalette onClose={() => setPaletteOpen(false)} />}
