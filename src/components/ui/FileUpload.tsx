@@ -22,6 +22,8 @@ export type FileUploadProps = {
     invalid?: boolean;
     name?: string;
     id?: string;
+    /** FormField の説明に加えて読み上げる要素の id。 */
+    "aria-describedby"?: string;
     className?: string;
     ref?: Ref<HTMLInputElement>;
 };
@@ -39,7 +41,7 @@ export function formatFileSize(bytes: number): string {
     return `${value.toFixed(value < 10 ? 1 : 0)} ${units[unit]}`;
 }
 
-export function FileUpload({ files, onChange, accept, multiple = false, dropArea = true, buttonLabel = "ファイルを選択", invalid, name, id, className, ref }: FileUploadProps) {
+export function FileUpload({ files, onChange, accept, multiple = false, dropArea = true, buttonLabel = "ファイルを選択", invalid, name, id, "aria-describedby": describedBy, className, ref }: FileUploadProps) {
     const field = useFormField();
     const autoId = useId();
     const inputId = id ?? (field && !field.group ? field.id : autoId);
@@ -103,7 +105,7 @@ export function FileUpload({ files, onChange, accept, multiple = false, dropArea
                 name={name}
                 accept={accept}
                 multiple={multiple}
-                aria-describedby={field?.describedBy}
+                aria-describedby={[field?.describedBy, describedBy].filter(Boolean).join(" ") || undefined}
                 aria-invalid={isInvalid || undefined}
                 aria-required={field?.required ? true : undefined}
                 onChange={onInputChange}

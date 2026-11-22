@@ -41,6 +41,7 @@ const CATEGORY_OPTIONS = (Object.keys(CATEGORY_LABELS) as ApplicationCategory[])
 
 export function ApplicationFormFields({ values, errors, onChange, minDate, keptAttachments = [] }: ApplicationFormFieldsProps) {
     const priorityHelpId = useId();
+    const keptHelpId = useId();
     const { options: assigneeOptions } = useStaffOptions(values.assignee);
     const errorOf = (field: FieldName) => errors.find((e) => e.field === field)?.message;
     const amountRequired = requiresAmount(values.category);
@@ -187,9 +188,10 @@ export function ApplicationFormFields({ values, errors, onChange, minDate, keptA
                         accept={ACCEPTED_FILE_TYPES}
                         files={values.attachments}
                         onChange={(files) => onChange("attachments", files)}
+                        aria-describedby={keptAttachments.length > 0 ? keptHelpId : undefined}
                     />
                     {keptAttachments.length > 0 && (
-                        <div className="mt-4 flex flex-col gap-1 text-16 leading-170 tracking-2 text-text">
+                        <div id={keptHelpId} className="mt-4 flex flex-col gap-1 text-16 leading-170 tracking-2 text-text">
                             <p className="m-0">このほかに、ここでは変更できない形式の添付ファイルがあります。更新しても残ります。</p>
                             <ul className="m-0 flex flex-col gap-1 pl-6">
                                 {keptAttachments.map((f, i) => (

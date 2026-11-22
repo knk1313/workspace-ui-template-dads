@@ -245,6 +245,8 @@ describe("ApplicationFormPage（編集）", () => {
         const withXlsx = APPLICATIONS.find((a) => a.attachments.some((f) => f.name.endsWith(".xlsx")))!;
         const { user } = renderApp(`/applications/${withXlsx.id}/edit`);
         expect(await screen.findByText(/ここでは変更できない形式の添付ファイルがあります/)).toBeInTheDocument();
+        // ファイルの欄に直接移っても、説明とファイル名が読み上げられる
+        expect(screen.getByLabelText(/^添付ファイル/)).toHaveAccessibleDescription(/更新しても残ります。.*添付資料\.xlsx/);
         await user.click(screen.getByRole("checkbox", { name: "記載内容に誤りがないことを確かめた" }));
         await user.click(screen.getByRole("button", { name: "確認へ進む" }));
         expect(screen.getByText(/添付資料\.xlsx/)).toBeInTheDocument();
