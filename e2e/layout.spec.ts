@@ -21,6 +21,8 @@ for (const path of PATHS) {
     test(`${path}: Tabで移動したフォーカスが固定ヘッダーの下に隠れない`, async ({ page }) => {
         await page.goto(path);
         await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+        // 操作の途中で中身が届くと、フォーカスした要素の位置がずれ、測るたびに結果が変わる
+        await waitForLoaded(page);
         expect(await findObscuredFocus(page, 40, "Tab"), "Tab").toEqual([]);
         // ページの末尾から戻るとき（上方向へのスクロール）に隠れやすい
         await page.evaluate(() => {
