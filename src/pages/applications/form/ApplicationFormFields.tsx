@@ -41,7 +41,7 @@ const CATEGORY_OPTIONS = (Object.keys(CATEGORY_LABELS) as ApplicationCategory[])
 
 export function ApplicationFormFields({ values, errors, onChange, minDate, keptAttachments = [] }: ApplicationFormFieldsProps) {
     const priorityHelpId = useId();
-    const assigneeOptions = useStaffOptions();
+    const { options: assigneeOptions } = useStaffOptions(values.assignee);
     const errorOf = (field: FieldName) => errors.find((e) => e.field === field)?.message;
     const amountRequired = requiresAmount(values.category);
     const attachmentRequired = requiresAttachment(values.category);

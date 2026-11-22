@@ -34,7 +34,7 @@ type Props = {
 };
 
 function FilterFields({ query, onFilterChange, idPrefix }: Pick<Props, "query" | "onFilterChange"> & { idPrefix: string }) {
-    const assigneeOptions = useStaffOptions();
+    const { options: assigneeOptions } = useStaffOptions(query.assignee);
     return (
         <>
             <FormField label="種別" id={`${idPrefix}-category`}>

@@ -18,6 +18,7 @@ import { CATEGORY_LABELS, type Application, type ApplicationListPage } from "@/a
 import { ApplicationFilters } from "./list/ApplicationFilters";
 import { ApplicationStatusChip } from "./list/ApplicationStatusChip";
 import { AssignDialog } from "./list/AssignDialog";
+import { useStaffOptions } from "./useStaffOptions";
 import { useUndoableDelete } from "./useUndoableDelete";
 import { formatAmount } from "./list/format";
 import { hasFilters, toListParams, useApplicationQuery } from "./list/useApplicationQuery";
@@ -50,6 +51,8 @@ export default function ApplicationListPage() {
     const [selectedIds, setSelectedIds] = useState<string[]>([]);
     const [assignOpen, setAssignOpen] = useState(false);
     const assign = useMutation(assignApplications);
+    // 担当者の変更ダイアログを開いたときに待たせないよう、職員の一覧を先に読み込んでおく
+    useStaffOptions();
 
     const filtered = hasFilters(query);
 
