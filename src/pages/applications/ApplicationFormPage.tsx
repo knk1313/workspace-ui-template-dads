@@ -210,6 +210,16 @@ function ApplicationForm({ mode, application }: { mode: "create" | "edit"; appli
         if (leaveTo && !searchParams.get("step")) navigate(leaveTo, { replace: true, state: listState });
     }, [leaveTo, searchParams, navigate, listState]);
 
+    // フォームの間は、ブラウザーにスクロールの位置を復元させない。更新したあとは履歴を一つ戻ってから詳細へ移るため、
+    // 復元させると、詳細の画面が入力の段階の位置（途中）から表示される。段階を移ったときの位置は、見出しへのフォーカスで決まる。
+    useEffect(() => {
+        const previous = window.history.scrollRestoration;
+        window.history.scrollRestoration = "manual";
+        return () => {
+            window.history.scrollRestoration = previous;
+        };
+    }, []);
+
     // 確認の段階から入力の段階に戻る。確認の段階は入力から履歴に積んで来ているので、一つ戻る
     const backToInput = () => navigate(-1);
 
