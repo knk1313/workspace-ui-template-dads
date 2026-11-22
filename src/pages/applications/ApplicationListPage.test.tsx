@@ -196,4 +196,16 @@ describe("ApplicationListPage", () => {
         await waitForLoaded();
         expect(rowHeaders()).not.toContain(first);
     });
+
+    it("条件を変えたあとの読み込みに失敗したら、前の内容を表示しているとは言わず、表を出さない", async () => {
+        const { user } = await renderList();
+        setMockOptions({ fail: true, slow: false });
+        await search(user, "R08");
+        expect(await screen.findByRole("heading", { name: "申請の一覧を読み込めませんでした" })).toBeInTheDocument();
+        expect(screen.queryByText(/前に読み込んだ内容を表示しています/)).not.toBeInTheDocument();
+        expect(screen.queryByRole("table")).not.toBeInTheDocument();
+        setMockOptions({ fail: false, slow: false });
+        await user.click(screen.getByRole("button", { name: "再読み込み" }));
+        expect(await screen.findByRole("table")).toBeInTheDocument();
+    });
 });

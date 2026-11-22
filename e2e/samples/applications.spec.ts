@@ -27,12 +27,17 @@ test.describe("申請一覧の表", () => {
         const header = page.getByRole("columnheader", { name: /受付番号/ });
         await page.getByRole("button", { name: /^受付番号・件名/ }).click();
         await expect(header).toHaveAttribute("aria-sort", "ascending");
+        // 並べ替えた結果を API から読み込み終わるまで待つ
+        await waitForLoaded(page);
         const asc = await numbers(page);
+        expect(asc).toHaveLength(20);
         expect([...asc].sort()).toEqual(asc);
 
         await page.getByRole("button", { name: /^受付番号・件名/ }).click();
         await expect(header).toHaveAttribute("aria-sort", "descending");
+        await waitForLoaded(page);
         const desc = await numbers(page);
+        expect(desc).toHaveLength(20);
         expect([...desc].sort().reverse()).toEqual(desc);
     });
 
@@ -41,7 +46,9 @@ test.describe("申請一覧の表", () => {
         await expect(page.getByText("全64件中1〜20件")).toBeVisible();
         await page.getByRole("navigation", { name: "ページ送り" }).getByRole("button", { name: /2/ }).first().click();
         await expect(page.getByText("全64件中21〜40件")).toBeVisible();
+        await waitForLoaded(page);
         const second = await numbers(page);
+        expect(second).toHaveLength(20);
         expect(second).not.toEqual(first);
         await expect(page.getByRole("navigation", { name: "ページ送り" }).locator("[aria-current='page']")).toHaveText(/2/);
     });

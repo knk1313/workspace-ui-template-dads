@@ -40,11 +40,13 @@ export default function ApplicationListPage() {
 
     const listQuery = applicationQueries.list(toListParams(query, PAGE_SIZE));
     const list = useQuery(listQuery);
-    // 条件やページを変えて読み込んでいる間は、前の結果を出したままにする（表がスケルトンに戻って画面が跳ねないように）
+    // 条件やページを変えて読み込んでいる間は、表を読み込み中にする（古い行を出したまま「21〜40件」などの表示だけが変わると食い違うため）。
+    // ページ送りの総数だけは前の結果を使い、ページ送りの部品が消えて画面が跳ねないようにする。
     const [lastPage, setLastPage] = useState<ApplicationListPage | undefined>(list.data);
     if (list.data && list.data !== lastPage) setLastPage(list.data);
-    const page = list.data ?? lastPage;
+    const page = list.data;
     const rows = page?.items ?? [];
+    const total = (list.data ?? lastPage)?.total ?? 0;
     const [selectedIds, setSelectedIds] = useState<string[]>([]);
     const [assignOpen, setAssignOpen] = useState(false);
     const assign = useMutation(assignApplications);
@@ -175,7 +177,7 @@ export default function ApplicationListPage() {
             <ApplicationFilters
                 query={query}
                 resultCount={page?.total}
-                loading={list.isLoading}
+                loading={!page && !list.error}
                 onFilterChange={changeFilter}
                 onClear={clearAll}
             />
@@ -191,7 +193,7 @@ export default function ApplicationListPage() {
                             flush
                             columns={columns}
                             rows={rows}
-                            totalCount={page?.total ?? 0}
+                            totalCount={total}
                             getRowId={(row) => row.id}
                             getRowLabel={(row) => `${row.number}「${row.title}」`}
                             loading={!page}
