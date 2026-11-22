@@ -14,7 +14,10 @@ export const STATUS_LABELS: Record<ApplicationStatus, string> = {
     rejected: "不承認",
 };
 
-/** 承認・差戻しができる状態（決定前）。画面のボタンの出し分けと、API の検証の両方で使う。 */
+/**
+ * 承認できる状態（決定前）。画面のボタンの出し分けと、API の検証の両方で使う。
+ * 差し戻した申請（returned）も、出し直しを待たずに承認できる（docs/decisions.md D-33）。
+ */
 export const DECIDABLE: ApplicationStatus[] = ["submitted", "reviewing", "returned"];
 /** 差戻しができる状態（審査の途中）。 */
 export const RETURNABLE: ApplicationStatus[] = ["submitted", "reviewing"];
