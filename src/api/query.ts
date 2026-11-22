@@ -56,6 +56,8 @@ function watch(key: string): () => void {
 
 /** キーごとの世代。setQueryData と invalidate で進め、通信を始めたときと違えば、その結果を捨てる。 */
 const generations = new Map<string, number>();
+/** clearQueryCache のたびに進める。消す前に始めた通信の結果を、消したあとに入れないため。 */
+let epoch = 0;
 
 function generationOf(key: string): number {
     return generations.get(key) ?? 0;
@@ -88,8 +90,10 @@ function fetchQuery(key: string, fetcher: () => Promise<unknown>): Promise<void>
     if (running) return running;
     const prev = cache.get(key);
     const generation = generationOf(key);
+    const startedIn = epoch;
     setEntry(key, { data: prev?.data, error: undefined, fetching: true, stale: false });
     const settle = (next: Pick<Entry, "data" | "error">) => {
+        if (epoch !== startedIn) return;
         // 先に通信中の印を消す（このあとの setEntry で読み込み直しが始まったとき、終わった通信にまとめられないように）
         inflight.delete(key);
         const current = cache.get(key);
@@ -191,8 +195,9 @@ export function setQueryData<T>(query: QueryDef<T> | string, update: (prev: T | 
     setEntry(key, { fetching: false, stale: false, ...entry, data: update(entry?.data as T | undefined) });
 }
 
-/** 保持している結果をすべて消す（単体テストで、テストごとに状態をそろえるために使う）。 */
+/** 保持している結果をすべて消す（ログアウトしたときと、単体テストでテストごとに状態をそろえるときに使う）。 */
 export function clearQueryCache(): void {
+    epoch += 1;
     cache.clear();
     inflight.clear();
     generations.clear();

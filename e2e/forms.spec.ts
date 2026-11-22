@@ -1,9 +1,30 @@
 import { expect, test } from "@playwright/test";
 import { expectNoAxeViolations } from "./helpers";
+import { LOGGED_OUT } from "./session";
 
 // フォーム送信とエラー表示（ログイン・設定）。見本の申請の作成フォームは e2e/samples/ にある。
 
 test.describe("ログイン", () => {
+    test.use({ storageState: LOGGED_OUT });
+
+    test("ログインしていないと画面を開けず、ログインすると元の画面へ戻る。再読み込みしてもログインしたままになる", async ({ page }) => {
+        await page.goto("/settings?tab=display");
+        await expect(page).toHaveURL(/\/login$/);
+        await page.getByLabel("メールアドレス").fill("sato@example.jp");
+        await page.getByLabel("パスワード", { exact: true }).fill("password");
+        await page.getByRole("button", { name: "ログイン" }).click();
+        await expect(page).toHaveURL(/\/settings\?tab=display$/);
+        await page.reload();
+        await expect(page.getByRole("heading", { level: 1, name: "設定" })).toBeVisible();
+    });
+
+    test("「パスワードを忘れた場合」などの、まだない画面は404になる", async ({ page }) => {
+        await page.goto("/login");
+        await page.getByRole("link", { name: "パスワードを忘れた場合" }).click();
+        await expect(page.getByRole("heading", { level: 1, name: "ページが見つかりません" })).toBeVisible();
+        await expectNoAxeViolations(page, "404（ログインしていない）");
+    });
+
     test("空欄で送信するとエラーが出る", async ({ page }) => {
         await page.goto("/login");
         await page.getByRole("button", { name: "ログイン" }).click();

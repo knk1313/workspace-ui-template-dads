@@ -24,6 +24,7 @@ type ContextValue = {
     register: (id: string, guard: Guard) => void;
     unregister: (id: string) => void;
     allow: () => void;
+    confirmLeave: () => Promise<boolean>;
 };
 
 const UnsavedChangesContext = createContext<ContextValue | null>(null);
@@ -52,6 +53,13 @@ export function UnsavedChangesProvider({ children }: { children: ReactNode }) {
     const allow = useCallback(() => {
         allowed.current = true;
     }, []);
+
+    // 画面を移る前に済ませる処理（ログアウトなど）の前に確かめる。変更がなければ、確認を出さずに true を返す
+    const confirmLeave = useCallback(async () => {
+        if (guards.current.size === 0) return true;
+        const guard = [...guards.current.values()].at(-1) ?? DEFAULT_GUARD;
+        return confirm({ ...guard, confirmLabel: "破棄して移動", cancelLabel: "入力を続ける", tone: "error" });
+    }, [confirm]);
 
     const blocker = useBlocker(({ currentLocation, nextLocation }) => {
         if (currentLocation.pathname === nextLocation.pathname) return false;
@@ -88,8 +96,18 @@ export function UnsavedChangesProvider({ children }: { children: ReactNode }) {
         return () => window.removeEventListener("beforeunload", onBeforeUnload);
     }, [count]);
 
-    const value = useMemo(() => ({ register, unregister, allow }), [register, unregister, allow]);
+    const value = useMemo(() => ({ register, unregister, allow, confirmLeave }), [register, unregister, allow, confirmLeave]);
     return <UnsavedChangesContext.Provider value={value}>{children}</UnsavedChangesContext.Provider>;
+}
+
+/**
+ * 画面を移る前に、取り消せない処理（ログアウトなど）をするときに使う。
+ * confirmLeave() が true なら処理をし、allowNavigation() を呼んでから移る（もう一度は確認しない）。
+ */
+export function useConfirmLeave() {
+    const ctx = useContext(UnsavedChangesContext);
+    if (!ctx) throw new Error("useConfirmLeaveはUnsavedChangesProviderの内側で使ってください");
+    return { confirmLeave: ctx.confirmLeave, allowNavigation: ctx.allow };
 }
 
 /** 保存していない変更があることを登録する。when が true の間、画面を離れるときに確認を出す。 */

@@ -41,12 +41,12 @@ export function setMockOptions(options: MockOptions): void {
     writeStored(STORAGE_KEY, JSON.stringify(options), "session");
 }
 
-/** 遅延のあとに handler を実行し、その結果を返す。「失敗させる」設定のときは ApiError を投げる。 */
-export async function mockRequest<T>(handler: () => T): Promise<T> {
+/** 遅延のあとに handler を実行し、その結果を返す。「失敗させる」設定のときは ApiError を投げる（canFail が false なら投げない）。 */
+export async function mockRequest<T>(handler: () => T, { canFail = true }: { canFail?: boolean } = {}): Promise<T> {
     const { fail, slow } = getMockOptions();
     const latency = slow ? SLOW_LATENCY_MS : LATENCY_MS;
     if (latency > 0) await new Promise((resolve) => setTimeout(resolve, latency));
-    if (fail) throw new ApiError();
+    if (fail && canFail) throw new ApiError();
     // 呼び出し側が受け取った値を書き換えても、ダミーのデータベースに影響しないよう複製して返す
     return structuredClone(handler());
 }

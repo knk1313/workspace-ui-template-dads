@@ -1,4 +1,5 @@
 import { defineConfig, devices } from "@playwright/test";
+import { LOGGED_IN } from "./e2e/session";
 
 // 見た目の回帰テスト（スクリーンショットの比較）。
 // フォントの描画を環境でそろえるため、Playwright 公式の Linux イメージの中で実行する（`npm run test:visual`。scripts/visual.sh）。
@@ -22,6 +23,7 @@ export default defineConfig({
     },
     use: {
         baseURL: "http://localhost:4173",
+        storageState: LOGGED_IN,
         locale: "ja-JP",
         timezoneId: "Asia/Tokyo",
     },

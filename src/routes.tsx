@@ -19,8 +19,9 @@ export const routes: RouteObject[] = [
         children: [
             ...sampleRoutes,
             { path: "settings", element: <SettingsPage /> },
-            { path: "error/500", element: <ServerErrorPage /> },
-            { path: "*", element: <NotFoundPage /> },
+            // handle の public は、ログインしていなくても見られる画面
+            { path: "error/500", element: <ServerErrorPage />, handle: { public: true } },
+            { path: "*", element: <NotFoundPage />, handle: { public: true } },
         ],
     },
 ];

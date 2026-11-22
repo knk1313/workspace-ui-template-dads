@@ -8,7 +8,7 @@ import { LAYOUT_STORAGE_KEY } from "@/context/LayoutPreference";
 import { THEME_STORAGE_KEY } from "@/context/ThemePreference";
 import { mockViewport } from "@/layouts/testUtils";
 import { expectNoA11yViolations } from "@/test/axe";
-import { renderLoaded } from "@/test/renderApp";
+import { renderLoaded, signIn } from "@/test/renderApp";
 
 let restore: (() => void) | undefined;
 afterEach(() => {
@@ -182,6 +182,7 @@ describe("SettingsPage", () => {
         await user.click(screen.getByRole("switch", { name: "通信を失敗させる" }));
         // 読み込んだ結果を消してから開き直すと、読み込みが失敗する
         clearQueryCache();
+        signIn();
         await act(() => router.navigate("/no-such-page"));
         await act(() => router.navigate("/settings"));
         expect(await screen.findByRole("heading", { name: "プロフィールを読み込めませんでした" })).toBeInTheDocument();

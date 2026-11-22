@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
-import { useNavigate } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 import { appConfig } from "@/app.config";
 import { Button } from "@/components/ui/Button";
 import { Card, CardBody } from "@/components/ui/Card";
@@ -10,8 +10,9 @@ import { Input } from "@/components/ui/Input";
 import { Link } from "@/components/ui/Link";
 import { NotificationBanner } from "@/components/ui/NotificationBanner";
 import { useToast } from "@/components/ui/Toast";
-import { login } from "@/api/auth";
-import { useMutation } from "@/api/query";
+import { authQueries, login } from "@/api/auth";
+import { setQueryData, useMutation } from "@/api/query";
+import type { LoginState } from "@/layouts/AppLayout";
 import { usePageTitle } from "@/hooks/usePageTitle";
 
 // ログイン画面（シェルなし）。アプリケーションシェルの外にあるため、自前で <main id="main"> を持つ。
@@ -23,6 +24,7 @@ type LoginErrors = { email?: string; password?: string };
 export default function LoginPage() {
     usePageTitle("ログイン");
     const navigate = useNavigate();
+    const location = useLocation();
     const { toast } = useToast();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -58,8 +60,10 @@ export default function LoginPage() {
                 setAuthFailed(true);
                 return;
             }
+            setQueryData(authQueries.me, () => user);
             toast({ type: "success", title: "ログインしました" });
-            navigate("/");
+            // ログインを求められた画面へ戻る（「戻る」でログイン画面に入り直さないよう置き換える）
+            navigate((location.state as LoginState)?.from ?? "/", { replace: true });
         } catch (err) {
             // 通信の失敗は、入力の誤りと区別して知らせる（入力はそのまま残す）
             toast({ type: "error", title: "ログインできませんでした", description: (err as Error).message });
@@ -77,6 +81,8 @@ export default function LoginPage() {
                                 {appConfig.name}
                             </p>
                             <h1 className="m-0 text-std-28B-150 text-text-strong">ログイン</h1>
+                            {/* 見本用。自分のアプリにするときは消す */}
+                            <p className="m-0 text-std-16N-170 text-text-muted">見本のため、どのメールアドレスとパスワードでもログインできます</p>
                         </div>
 
                         {authFailed && (

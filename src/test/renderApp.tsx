@@ -3,9 +3,20 @@ import { expect } from "vitest";
 import userEvent from "@testing-library/user-event";
 import { RouterProvider, createMemoryRouter } from "react-router";
 import { appRoutes } from "@/App";
+import { SESSION_STORAGE_KEY, authQueries } from "@/api/auth";
+import { setQueryData } from "@/api/query";
+import { currentProfile } from "@/api/settings";
+
+/** ログインした状態にする（画面がログインの確認を待たずに描かれるよう、読み込み結果も入れておく）。 */
+export function signIn(): void {
+    sessionStorage.setItem(SESSION_STORAGE_KEY, "1");
+    setQueryData(authQueries.me, currentProfile);
+}
 
 // 指定した URL でアプリ全体を描画する。操作には返り値の user を、現在の URL の確認には router を使う。
-export function renderApp(path: string) {
+// 既定ではログインした状態で描く。
+export function renderApp(path: string, { loggedIn = true }: { loggedIn?: boolean } = {}) {
+    if (loggedIn) signIn();
     const user = userEvent.setup();
     const router = createMemoryRouter(appRoutes, { initialEntries: [path] });
     const result = render(<RouterProvider router={router} />);
