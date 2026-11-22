@@ -64,12 +64,12 @@ describe("画面を移ったときのフォーカスと読み上げ", () => {
     const announced = (text: RegExp) => screen.findByText(text, { selector: "[aria-live]" });
 
     it("最初に開いたときは動かさず、移ると本文へフォーカスを移して画面の名前を読み上げる", async () => {
-        const { router } = renderApp("/");
-        await screen.findByRole("heading", { level: 1, name: "ダッシュボード" });
+        const { router } = renderApp("/settings");
+        await screen.findByRole("heading", { level: 1, name: "設定" });
         expect(document.body).toHaveFocus();
         expect(screen.queryByText(/の画面を開きました/)).not.toBeInTheDocument();
-        await act(() => router.navigate("/settings"));
-        expect(await announced(/^「設定」の画面を開きました/)).toBeInTheDocument();
+        await act(() => router.navigate("/no-such-page"));
+        expect(await announced(/^「ページが見つかりません」の画面を開きました/)).toBeInTheDocument();
         expect(screen.getByRole("main")).toHaveFocus();
     });
 
@@ -78,6 +78,8 @@ describe("画面を移ったときのフォーカスと読み上げ", () => {
         const tab = await screen.findByRole("tab", { name: "通知" });
         await user.click(tab);
         expect(tab).toHaveFocus();
+        // 同じ画面なので、読み上げもしない
+        expect(screen.queryByText(/の画面を開きました/)).not.toBeInTheDocument();
     });
 
     it("ログインを求められたときと、ログアウトしたときは、ログイン画面の見出しへ移す。ログインしたら本文へ移す", async () => {

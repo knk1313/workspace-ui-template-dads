@@ -52,10 +52,12 @@ import { ButtonLink } from "@/components/ui/Button";
 import { Card, CardBody } from "@/components/ui/Card";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { PageHeader } from "@/components/ui/PageHeader";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 // ホーム。自分のアプリの最初の画面に書き換える。
-// 画面を足すときは、src/pages/ に画面を作り、src/routes.tsx にルートを、src/app.config.ts の navigation に項目を足す。
+// 画面を足すときは、src/pages/ に画面を作り（名前は usePageTitle で付ける）、src/routes.tsx にルートを、src/app.config.ts の navigation に項目を足す。
 export default function HomePage() {
+    usePageTitle("ホーム");
     return (
         <div className="flex flex-col gap-6">
             <PageHeader title="ホーム" description="ここに、アプリの最初の画面を作ります" />
@@ -85,6 +87,7 @@ describe("HomePage", () => {
     it("見出しと、最初の画面の作り方を表示する", async () => {
         const { container } = renderApp("/");
         expect(screen.getByRole("heading", { level: 1, name: "ホーム" })).toBeInTheDocument();
+        expect(document.title).toMatch(/^ホーム \\| /);
         expect(screen.getByRole("link", { name: "設定を開く" })).toHaveAttribute("href", "/settings");
         await expectNoA11yViolations(container);
     });
