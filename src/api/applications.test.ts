@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { createApplication, deleteApplications, listApplications } from "./applications";
+import { createApplication, deleteApplications, listApplications, restoreApplications } from "./applications";
 import type { ApplicationInput } from "./applicationTypes";
 
 const input: ApplicationInput = {
@@ -44,5 +44,24 @@ describe("listApplications", () => {
         const fullWidth = target.number.replace(/[0-9A-Z-]/g, (c) => (c === "-" ? "－" : String.fromCharCode(c.charCodeAt(0) + 0xfee0)));
         const found = await listApplications({ q: fullWidth, page: 1, pageSize: 20 });
         expect(found.items.map((a) => a.id)).toEqual([target.id]);
+    });
+});
+
+describe("restoreApplications", () => {
+    it("削除して元に戻すと、並べ替えなしの一覧が削除する前と同じ順に戻る", async () => {
+        const before = (await listApplications({ page: 1, pageSize: 1000 })).items.map((a) => a.id);
+        // 先頭・途中・末尾をまとめて消して戻す
+        const deleted = await deleteApplications([before[0], before[5], before[6], before[before.length - 1]]);
+        await restoreApplications(deleted);
+        const after = (await listApplications({ page: 1, pageSize: 1000 })).items.map((a) => a.id);
+        expect(after).toEqual(before);
+    });
+
+    it("二度戻しても重複しない", async () => {
+        const before = (await listApplications({ page: 1, pageSize: 1000 })).items.map((a) => a.id);
+        const deleted = await deleteApplications([before[3]]);
+        await restoreApplications(deleted);
+        await restoreApplications(deleted);
+        expect((await listApplications({ page: 1, pageSize: 1000 })).items.map((a) => a.id)).toEqual(before);
     });
 });

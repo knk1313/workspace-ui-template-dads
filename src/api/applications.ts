@@ -30,6 +30,8 @@ const db = defineStore(() => {
     return {
         applications,
         activity: structuredClone(RECENT_ACTIVITY),
+        /** 削除した申請の、削除する前の並び順の位置（申請 id ごと）。「元に戻す」で同じ位置へ戻すため。 */
+        deletedPositions: {} as Record<string, number>,
         /** 差戻しの理由（申請 id ごと）。 */
         returnReasons: {} as Record<string, string>,
         /** 払い出した受付番号の数。 */
@@ -185,17 +187,28 @@ export function updateApplication(id: string, input: ApplicationInput): Promise<
 export function deleteApplications(ids: string[]): Promise<Application[]> {
     return mockRequest(() => {
         const targets = new Set(ids);
-        const deleted = db.applications.filter((a) => targets.has(a.id));
+        const deleted: Application[] = [];
+        db.applications.forEach((a, index) => {
+            if (!targets.has(a.id)) return;
+            db.deletedPositions[a.id] = index;
+            deleted.push(a);
+        });
         db.applications = db.applications.filter((a) => !targets.has(a.id));
         return deleted;
     });
 }
 
-/** 削除した申請を元に戻す（元の並び順に戻すため、受付日時の新しい順に並べ直す）。 */
+/** 削除した申請を、削除する前の位置へ戻す（位置が分からないものは末尾に足す）。 */
 export function restoreApplications(applications: Application[]): Promise<void> {
     return mockRequest(() => {
         const existing = new Set(db.applications.map((a) => a.id));
-        db.applications = [...db.applications, ...applications.filter((a) => !existing.has(a.id))].sort((a, b) => b.submittedAt.localeCompare(a.submittedAt));
+        const positionOf = (a: Application) => db.deletedPositions[a.id] ?? Number.POSITIVE_INFINITY;
+        // 前の位置から順に差し込むと、あとから差し込む申請の位置も削除する前と同じになる
+        const targets = applications.filter((a) => !existing.has(a.id)).sort((a, b) => positionOf(a) - positionOf(b));
+        for (const application of targets) {
+            db.applications.splice(Math.min(positionOf(application), db.applications.length), 0, application);
+            delete db.deletedPositions[application.id];
+        }
     });
 }
 
