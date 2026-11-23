@@ -55,7 +55,5 @@ See the Japanese [README](README.md) for the component list, directory layout an
 
 ## License
 
-[MIT License](LICENSE). See [SECURITY.md](SECURITY.md) for reporting security issues.
-
 - Token values in `src/tokens/` come from the Digital Agency's `@digital-go-jp/design-tokens` and `@digital-go-jp/tailwind-theme-plugin` (both MIT).
 - The built files include React, React DOM, React Router and Recharts (MIT), Lucide (ISC), and Noto Sans JP (SIL Open Font License 1.1).

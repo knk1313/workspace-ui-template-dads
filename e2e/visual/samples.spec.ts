@@ -19,6 +19,8 @@ test("フォームのエラー表示", async ({ page }) => {
     await open(page, "/applications/new");
     await page.getByRole("button", { name: "確認へ進む" }).click();
     await expect(page.getByRole("heading", { name: /件の誤りがあります/ })).toBeFocused();
+    // フォーカスで少しスクロールした位置のまま全体を撮ると、固定のヘッダーが途中に写るため、先頭に戻してから撮る
+    await page.evaluate(() => window.scrollTo(0, 0));
     await expect(page).toHaveScreenshot("application-form-errors.png", { fullPage: true });
 });
 

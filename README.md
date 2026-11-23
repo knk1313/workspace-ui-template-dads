@@ -188,8 +188,6 @@ Dependabot（`.github/dependabot.yml`）が、npmのパッケージを毎週、G
 
 ## ライセンス
 
-[MIT License](LICENSE)です。セキュリティの問題を報告する方法は、[SECURITY.md](SECURITY.md)にあります。
-
 - `src/tokens/`の色と文字の値は、デジタル庁が公開しているパッケージから写したものです。元のパッケージは`@digital-go-jp/design-tokens`と`@digital-go-jp/tailwind-theme-plugin`で、どちらもMIT Licenseです。
 - ビルドしたファイルに含まれるライブラリーのライセンスは、次のとおりです。
 
