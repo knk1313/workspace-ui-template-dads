@@ -13,6 +13,11 @@ const FOCUSABLE = [
 // 開いているダイアログの積み重ね。キー操作はいちばん上のダイアログだけが受け取る。
 const stack: symbol[] = [];
 
+/** モーダルな UI がひとつでも開いているか（ショートカットで別のモーダルを重ねて開かないために使う）。 */
+export function hasOpenModal(): boolean {
+    return stack.length > 0;
+}
+
 type Options = {
     /** 開いているか。マウント中ずっと開いている部品では省略する。 */
     open?: boolean;
@@ -31,7 +36,7 @@ type Options = {
     inertOutside?: boolean;
 };
 
-// モーダル系 UI（ModalDialog / Drawer / ConfirmDialog）の共通の振る舞い。
+// モーダル系 UI（ModalDialog / Drawer / ConfirmDialog / CommandPalette / モバイルメニュー）の共通の振る舞い。
 // 開いた直後のフォーカス、Esc で閉じる、Tab のフォーカストラップ、閉じた後のフォーカス復帰、背景スクロールの停止、
 // 背景の inert 化。
 export function useModalBehavior({ open = true, onClose, containerRef, initialFocusRef, lockScroll = true, inertOutside = false }: Options) {
@@ -56,7 +61,8 @@ export function useModalBehavior({ open = true, onClose, containerRef, initialFo
             while (node !== document.body && node.parentElement) {
                 const parent: HTMLElement = node.parentElement;
                 for (const sibling of Array.from(parent.children)) {
-                    if (sibling === node || sibling.hasAttribute("inert") || sibling.tagName === "SCRIPT") continue;
+                    // data-modal-exempt はモーダルの上でも働かせたいもの（トーストのリージョン）
+                    if (sibling === node || sibling.hasAttribute("inert") || sibling.hasAttribute("data-modal-exempt") || sibling.tagName === "SCRIPT") continue;
                     sibling.setAttribute("inert", "");
                     inerted.push(sibling);
                 }

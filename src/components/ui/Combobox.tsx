@@ -216,7 +216,14 @@ export function Combobox({
                 hidden={!open}
                 className="absolute left-0 top-full z-30 mt-1 w-full min-w-fit rounded-8 border border-border bg-surface py-4 shadow-1 max-h-popup-max overflow-y-auto"
             >
-                <ul id={listId} role="listbox" aria-label={ariaLabel} className="m-0 list-none p-0">
+                {/* FormField の中では aria-label がないので、ラベルの要素で名前を付ける */}
+                <ul
+                    id={listId}
+                    role="listbox"
+                    aria-label={ariaLabel}
+                    aria-labelledby={ariaLabel ? undefined : field?.labelId}
+                    className="m-0 list-none p-0"
+                >
                     {filtered.map((o, i) => {
                         const isSelected = o.value === value;
                         const isActive = i === activeIndex;
@@ -245,6 +252,10 @@ export function Combobox({
                 </ul>
                 {filtered.length === 0 && <p className="m-0 px-4 py-2 text-16 leading-130 text-text-muted">{emptyMessage}</p>}
             </div>
+            {/* 絞り込んだ結果の件数（0 件のときはその旨）を読み上げる。リージョンは常に置いておく */}
+            <p role="status" className="sr-only">
+                {open ? (filtered.length === 0 ? emptyMessage : `${filtered.length}件の候補があります`) : ""}
+            </p>
         </div>
     );
 }

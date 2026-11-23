@@ -1,13 +1,14 @@
-import { act, screen, within } from "@testing-library/react";
+import { act, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
 import { setMockOptions } from "@/api/mock";
+import { getNotificationSettings, getProfile } from "@/api/settings";
 import { clearQueryCache } from "@/api/query";
 import { STORAGE_KEY } from "@/context/DisplaySettings";
 import { LAYOUT_STORAGE_KEY } from "@/context/LayoutPreference";
 import { THEME_STORAGE_KEY } from "@/context/ThemePreference";
 import { mockViewport } from "@/layouts/testUtils";
 import { expectNoA11yViolations } from "@/test/axe";
-import { renderLoaded } from "@/test/renderApp";
+import { renderLoaded, signIn } from "@/test/renderApp";
 
 let restore: (() => void) | undefined;
 afterEach(() => {
@@ -36,6 +37,35 @@ describe("SettingsPage", () => {
         expect(name).toHaveAttribute("aria-invalid", "true");
         expect(name).toHaveFocus();
         expect(screen.queryByText("プロフィールを保存しました")).toBeNull();
+    });
+
+    it("自己紹介が200文字を超えていると、保存せずにエラーを出す", async () => {
+        const { user } = await renderLoaded("/settings");
+        const bio = screen.getByRole("textbox", { name: /自己紹介/ });
+        await user.clear(bio);
+        await user.click(bio);
+        await user.paste("あ".repeat(212));
+        await user.click(screen.getAllByRole("button", { name: "保存する" })[0]);
+        expect(screen.getByText("＊自己紹介を200文字以内にしてください（12文字超過）")).toBeInTheDocument();
+        expect(bio).toHaveFocus();
+        expect(screen.queryByText("プロフィールを保存しました")).toBeNull();
+    });
+
+    it("選んだプロフィール画像も保存する", async () => {
+        const { user } = await renderLoaded("/settings");
+        await user.upload(screen.getByLabelText(/プロフィール画像/), new File(["png"], "顔写真.png", { type: "image/png" }));
+        await user.click(screen.getAllByRole("button", { name: "保存する" })[0]);
+        expect(await screen.findByText("プロフィールを保存しました")).toBeInTheDocument();
+        expect((await getProfile()).imageUrl).toBeDefined();
+    });
+
+    it("表示名を保存すると、ヘッダーの利用者の名前も変わる", async () => {
+        const { user } = await renderLoaded("/settings");
+        const name = screen.getByRole("textbox", { name: /表示名/ });
+        await user.clear(name);
+        await user.type(name, "佐藤 はなこ");
+        await user.click(screen.getAllByRole("button", { name: "保存する" })[0]);
+        expect(await screen.findByRole("button", { name: "佐藤 はなこ" })).toBeInTheDocument();
     });
 
     it("プロフィールを保存するとトーストを出す", async () => {
@@ -125,11 +155,34 @@ describe("SettingsPage", () => {
         expect(screen.getByRole("switch", { name: "週次のまとめ" })).toHaveAttribute("aria-checked", "true");
     });
 
+    it("通知のスイッチを続けて切り替えると、両方を保存する。失敗したら切り替えた項目だけを元に戻す", async () => {
+        const { user } = await renderLoaded("/settings?tab=notifications");
+        const submitted = screen.getByRole("switch", { name: "申請が届いたとき" });
+        const weekly = screen.getByRole("switch", { name: "週次のまとめ" });
+        const before = { submitted: submitted.getAttribute("aria-checked"), weekly: weekly.getAttribute("aria-checked") };
+        await user.click(submitted);
+        await user.click(weekly);
+        await waitFor(async () => {
+            const saved = await getNotificationSettings();
+            expect(String(saved.onSubmitted)).not.toBe(before.submitted);
+            expect(String(saved.weeklyDigest)).not.toBe(before.weekly);
+        });
+
+        setMockOptions({ fail: true, slow: false });
+        await user.click(submitted);
+        await user.click(weekly);
+        await waitFor(() => expect(screen.getAllByText("通知の設定を変更できませんでした")).toHaveLength(2));
+        // 失敗した2つは、どちらも切り替える前（保存されている値）に戻る
+        expect(submitted).toHaveAttribute("aria-checked", String(before.submitted !== "true"));
+        expect(weekly).toHaveAttribute("aria-checked", String(before.weekly !== "true"));
+    });
+
     it("「動作の確認」で通信を失敗させると、読み込めなかった画面にエラーと「再読み込み」が出る", async () => {
         const { user, router } = await renderLoaded("/settings?tab=display");
         await user.click(screen.getByRole("switch", { name: "通信を失敗させる" }));
         // 読み込んだ結果を消してから開き直すと、読み込みが失敗する
         clearQueryCache();
+        signIn();
         await act(() => router.navigate("/no-such-page"));
         await act(() => router.navigate("/settings"));
         expect(await screen.findByRole("heading", { name: "プロフィールを読み込めませんでした" })).toBeInTheDocument();

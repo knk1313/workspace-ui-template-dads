@@ -8,7 +8,7 @@ import { HeaderNav } from "@/components/ui/HeaderNav";
 import { SideNav, type SideNavSection } from "@/components/ui/SideNav";
 import { MobileDrawer } from "./MobileDrawer";
 import { Brand, HamburgerButton, ShellHeader, SkipLink } from "./ShellHeader";
-import { DESKTOP_QUERY, useMediaQuery } from "./useMediaQuery";
+import { DESKTOP_QUERY, useMediaQuery } from "@/hooks/useMediaQuery";
 
 // 上部ナビゲーション型のアプリケーションシェル。
 //   ┌ ヘッダー（64px: アプリ名 / 水平メニュー（lg 以上）/ headerActions。lg 未満はハンバーガー）┐

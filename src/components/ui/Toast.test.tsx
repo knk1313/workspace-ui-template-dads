@@ -1,6 +1,7 @@
 import { act, fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { expectNoA11yViolations } from "@/test/axe";
+import { ModalDialog } from "./ModalDialog";
 import { ToastProvider, useToast, type ToastOptions } from "./Toast";
 
 function Trigger({ options }: { options: ToastOptions[] }) {
@@ -133,6 +134,39 @@ describe("Toast", () => {
         expect(screen.getByText("B")).toBeInTheDocument();
         expect(screen.getByText("D")).toBeInTheDocument();
         expect(screen.getAllByRole("button", { name: "通知を閉じる" })).toHaveLength(3);
+    });
+
+    it("操作付きのトーストは、上限を超えても押し出さず、操作のないものから消す", async () => {
+        const restore = vi.fn();
+        const { user } = setup([{ title: "削除しました", action: { label: "元に戻す", onClick: restore } }, { title: "B" }, { title: "C" }, { title: "D" }]);
+        for (const name of ["通知1", "通知2", "通知3", "通知4"]) await user.click(screen.getByRole("button", { name }));
+        expect(screen.getByText("削除しました")).toBeInTheDocument();
+        expect(screen.queryByText("B")).not.toBeInTheDocument();
+        expect(screen.getByText("D")).toBeInTheDocument();
+        await user.click(screen.getByRole("button", { name: "元に戻す" }));
+        expect(restore).toHaveBeenCalledTimes(1);
+    });
+
+    it("モーダルを開いている間に出したトーストも、inertにならずに読み上げられる", async () => {
+        function WithDialog() {
+            const { toast } = useToast();
+            return (
+                <ModalDialog open onClose={() => {}} title="担当者の変更">
+                    <button type="button" onClick={() => toast({ type: "error", title: "担当者を変更できませんでした" })}>
+                        変更する
+                    </button>
+                </ModalDialog>
+            );
+        }
+        render(
+            <ToastProvider>
+                <WithDialog />
+            </ToastProvider>,
+        );
+        fireEvent.click(screen.getByRole("button", { name: "変更する" }));
+        const region = screen.getByRole("status");
+        expect(region.closest("[inert]")).toBeNull();
+        expect(within(region).getByText("担当者を変更できませんでした")).toBeInTheDocument();
     });
 
     it("Providerの外でuseToastを使うとエラーになる", () => {

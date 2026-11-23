@@ -139,13 +139,16 @@ function ColumnSkeleton({ kind, align, variant }: { kind: NonNullable<DataTableC
 const SORT_ICON: Record<SortDirection | "none", typeof ArrowUp> = { asc: ArrowUp, desc: ArrowDown, none: ArrowUpDown };
 const ARIA_SORT: Record<SortDirection, "ascending" | "descending"> = { asc: "ascending", desc: "descending" };
 
+// 照合の設定は一度だけ作って使い回す（localeCompare にロケールを渡すと、比べるたびに照合の準備をし直すため）
+const collator = new Intl.Collator("ja", { numeric: true });
+
 function compareValues(a: string | number | null | undefined, b: string | number | null | undefined): number {
     // 空値は常に末尾
     if (a == null && b == null) return 0;
     if (a == null) return 1;
     if (b == null) return -1;
     if (typeof a === "number" && typeof b === "number") return a - b;
-    return String(a).localeCompare(String(b), "ja", { numeric: true });
+    return collator.compare(String(a), String(b));
 }
 
 /** 内部状態と制御（props）を切り替える小さなヘルパー。 */
@@ -263,6 +266,15 @@ export function DataTable<T>({
 
     return (
         <div className={cn("flex flex-col gap-4", className)} aria-busy={loading || undefined}>
+            {/*
+              選んだ件数を読み上げる。操作の帯は表の上に出るため、Tab で先へ進んでも気付きにくい（WCAG 4.1.3）。
+              リージョンは常に置いておく（追加時に読み上げられるように）。
+            */}
+            {selectable && (
+                <p role="status" className="sr-only">
+                    {selectedIds.length > 0 ? `${selectedIds.length}件選択中${bulkActions ? "。表の上の「選択中の項目の操作」から、まとめて操作できます" : ""}` : ""}
+                </p>
+            )}
             {selectable && selectedIds.length > 0 && (
                 <div role="region" aria-label="選択中の項目の操作" className={cn("flex flex-wrap items-center gap-x-4 gap-y-2 rounded-8 bg-primary-surface px-4 py-2 text-16 text-text", flush && "mx-6")}>
                     <p className="m-0 font-bold nums">{selectedIds.length}件選択中</p>

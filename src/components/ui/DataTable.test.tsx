@@ -93,6 +93,8 @@ describe("DataTable", () => {
         expect(all).not.toBeChecked();
         const region = screen.getByRole("region", { name: "選択中の項目の操作" });
         expect(region).toHaveTextContent("1件選択中");
+        // 操作の帯は表の上に出るので、件数と操作の場所を読み上げる
+        expect(screen.getByRole("status")).toHaveTextContent("1件選択中。表の上の「選択中の項目の操作」から、まとめて操作できます");
         expect(within(region).getByRole("button", { name: "一括承認" })).toBeInTheDocument();
         // 選択行はハイライト
         expect(screen.getByRole("checkbox", { name: "佐藤を選択" }).closest("tr")).toHaveClass("bg-surface-selected");

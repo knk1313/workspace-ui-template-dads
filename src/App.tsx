@@ -6,6 +6,7 @@ import { DisplaySettingsProvider } from "@/context/DisplaySettings";
 import { LayoutPreferenceProvider } from "@/context/LayoutPreference";
 import { ThemePreferenceProvider } from "@/context/ThemePreference";
 import { UnsavedChangesProvider } from "@/hooks/useUnsavedChangesWarning";
+import { PageAnnouncer } from "@/layouts/PageAnnouncer";
 import { routes } from "@/routes";
 
 // アプリ全体の Provider とルーティング。
@@ -32,6 +33,7 @@ function Root() {
             {/* 入力途中で画面を離れるときの確認。ルーターに一つだけ置く（useUnsavedChangesWarning） */}
             <UnsavedChangesProvider>
                 <Outlet />
+                <PageAnnouncer />
             </UnsavedChangesProvider>
         </AppProviders>
     );

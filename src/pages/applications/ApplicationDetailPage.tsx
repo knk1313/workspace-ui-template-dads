@@ -1,9 +1,9 @@
-import { useCallback, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router";
 import { Check, Pencil, Trash2, Undo2 } from "lucide-react";
-import { approveApplication, deleteApplications, getApplication, invalidateApplications, restoreApplications, returnApplication as returnApi } from "@/api/applications";
+import { applicationQueries, approveApplication, invalidateApplications, returnApplication as returnApi } from "@/api/applications";
 import { useMutation, useQuery } from "@/api/query";
-import type { ApplicationStatus } from "@/api/applicationTypes";
+import { DECIDABLE, RETURNABLE } from "@/api/applicationTypes";
 import { Button, ButtonLink } from "@/components/ui/Button";
 import { useConfirm } from "@/components/ui/ConfirmDialog";
 import { DropdownMenu, type DropdownMenuEntry } from "@/components/ui/DropdownMenu";
@@ -14,22 +14,20 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { Tabs } from "@/components/ui/Tabs";
 import { useToast } from "@/components/ui/Toast";
 import { useDisplaySettings } from "@/context/DisplaySettings";
+import { usePageTitle } from "@/hooks/usePageTitle";
 import { AttachmentsTab } from "./detail/AttachmentsTab";
 import { DetailSkeleton } from "./detail/DetailSkeleton";
 import { HistoryTab } from "./detail/HistoryTab";
 import { OverviewTab } from "./detail/OverviewTab";
 import { ReturnDialog } from "./detail/ReturnDialog";
+import { useUndoableDelete } from "./useUndoableDelete";
+import { listHrefOf, type ListLinkState } from "./listLink";
 import { ApplicationStatusChip } from "./list/ApplicationStatusChip";
 
 // 申請の詳細。ページ見出し（件名・状態・操作）→ 状態の通知バナー → タブ（概要 / 添付ファイル / 履歴）。
 // データは src/api/ のダミー API から読み書きする。承認・差戻し・削除は一覧やダッシュボードにも反映される。
 
-/** 承認・差戻しができる状態（決定前）。 */
-const DECIDABLE: ApplicationStatus[] = ["submitted", "reviewing", "returned"];
-/** 差戻しができる状態（審査の途中）。 */
-const RETURNABLE: ApplicationStatus[] = ["submitted", "reviewing"];
 
-type ListLinkState = { listSearch?: string } | null;
 
 export default function ApplicationDetailPage() {
     const { id = "" } = useParams();
@@ -41,14 +39,25 @@ export default function ApplicationDetailPage() {
 
     // 一覧から来たときは、パンくずの「申請一覧」で同じ絞り込み条件に戻れるようにする。
     // 関連する申請へ移っても（同じ画面のまま id だけ変わる）最初に受け取った条件を保つ。
-    const [listHref] = useState(() => `/applications${(location.state as ListLinkState)?.listSearch ?? ""}`);
+    const [listState] = useState<ListLinkState>(() => (location.state as ListLinkState) ?? null);
+    const listHref = listHrefOf(listState);
 
-    const fetchDetail = useCallback(() => getApplication(id), [id]);
-    const detail = useQuery(`applications/${id}`, fetchDetail);
+    const detail = useQuery(applicationQueries.detail(id));
     const returnMutation = useMutation(returnApi);
+    // 承認と削除も useMutation を通し、通信中はボタンに処理中を出して二度押しを防ぐ
+    const approveMutation = useMutation(approveApplication);
+    const { remove: removeApplications, pending: deletePending } = useUndoableDelete();
     // 直前の操作の結果。別の申請に移ったら出さないよう、対象の id と組にする。
     const [notice, setNotice] = useState<{ id: string; type: "approved" | "returned" } | null>(null);
     const [returnOpen, setReturnOpen] = useState(false);
+    // 承認すると「承認する」のボタンが消えてフォーカスの行き場がなくなるため、結果のバナーの見出しへ移す
+    const approvedHeadingRef = useRef<HTMLHeadingElement>(null);
+    useEffect(() => {
+        if (notice?.type === "approved") approvedHeadingRef.current?.focus();
+    }, [notice]);
+
+    const loaded = detail.data?.application;
+    usePageTitle(loaded ? loaded.title : detail.isLoading || detail.error ? "申請の詳細" : "申請が見つかりません", { pending: detail.isLoading });
 
     if (detail.isLoading) return <DetailSkeleton />;
     if (detail.error && detail.data === undefined) {
@@ -72,7 +81,7 @@ export default function ApplicationDetailPage() {
         );
     }
 
-    const { related, activity: appActivity, returnReason } = detail.data!;
+    const { related, activity: appActivity, returnReason, assigneeProfile, history } = detail.data!;
     const justApproved = notice?.id === app.id && notice.type === "approved";
     const justReturned = notice?.id === app.id && notice.type === "returned";
 
@@ -83,9 +92,9 @@ export default function ApplicationDetailPage() {
             message: `${app!.number}「${app!.title}」を承認し、申請者に通知します`,
             confirmLabel: "承認する",
         });
-        if (!ok) return;
+        if (!ok || approveMutation.pending) return;
         try {
-            await approveApplication(id);
+            await approveMutation.run(id);
             setNotice({ id, type: "approved" });
             toast({ type: "success", title: `${app!.number}を承認しました` });
         } catch (e) {
@@ -108,33 +117,14 @@ export default function ApplicationDetailPage() {
         }
     }
 
-    async function remove() {
-        const number = app!.number;
-        try {
-            const deleted = await deleteApplications([id]);
-            invalidateApplications();
-            navigate(listHref);
-            toast({
-                type: "success",
-                title: `${number}を削除しました`,
-                action: {
-                    label: "元に戻す",
-                    focus: true,
-                    onClick: () =>
-                        void restoreApplications(deleted)
-                            .then(() => toast({ type: "success", title: `${number}を元に戻しました` }))
-                            .catch((e: Error) => toast({ type: "error", title: `${number}を元に戻せませんでした`, description: e.message }))
-                            .finally(() => invalidateApplications()),
-                },
-            });
-        } catch {
-            toast({ type: "error", title: `${number}を削除できませんでした`, description: "時間をおいて、もう一度削除してください。" });
-        }
+    function remove() {
+        if (deletePending) return;
+        return removeApplications([id], app!.number, { afterDelete: () => navigate(listHref) });
     }
 
     const menuItems: DropdownMenuEntry[] = [
-        ...(RETURNABLE.includes(app.status) ? [{ label: "差戻し", icon: Undo2, onSelect: () => setReturnOpen(true) }] : []),
-        { label: "削除", icon: Trash2, danger: true, onSelect: remove },
+        ...(RETURNABLE.includes(app.status) ? [{ label: "差し戻す", icon: Undo2, onSelect: () => setReturnOpen(true) }] : []),
+        { label: "削除", icon: Trash2, danger: true, disabled: deletePending, onSelect: remove },
     ];
 
     return (
@@ -153,11 +143,11 @@ export default function ApplicationDetailPage() {
                 }
                 actions={
                     <>
-                        <ButtonLink to={`/applications/${app.id}/edit`} variant="outline" leadIcon={Pencil}>
+                        <ButtonLink to={`/applications/${app.id}/edit`} state={listState} variant="outline" leadIcon={Pencil}>
                             編集
                         </ButtonLink>
                         {DECIDABLE.includes(app.status) && (
-                            <Button leadIcon={Check} onClick={approve}>
+                            <Button leadIcon={Check} loading={approveMutation.pending} onClick={approve}>
                                 承認する
                             </Button>
                         )}
@@ -173,6 +163,7 @@ export default function ApplicationDetailPage() {
                 <NotificationBanner
                     type="success"
                     title="申請を承認しました"
+                    headingRef={approvedHeadingRef}
                     description="見本のため、申請者に承認の通知は送っていません"
                     live
                     onClose={() => setNotice(null)}
@@ -201,13 +192,13 @@ export default function ApplicationDetailPage() {
                 // 申請が変わったら概要タブから見せる
                 key={app.id}
                 items={[
-                    { value: "overview", label: "概要", panel: <OverviewTab application={app} related={related} /> },
+                    { value: "overview", label: "概要", panel: <OverviewTab application={app} related={related} staff={assigneeProfile} /> },
                     {
                         value: "attachments",
                         label: `添付ファイル（${app.attachments.length}）`,
                         panel: <AttachmentsTab attachments={app.attachments} />,
                     },
-                    { value: "history", label: "履歴", panel: <HistoryTab status={app.status} activity={appActivity} /> },
+                    { value: "history", label: "履歴", panel: <HistoryTab history={history} activity={appActivity} /> },
                 ]}
             />
 

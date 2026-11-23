@@ -2,7 +2,7 @@ import { useId, useRef, type MouseEvent, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 import { cn } from "@/lib/cn";
-import { useModalBehavior } from "@/hooks/useModalBehavior";
+import { useModalBehavior } from "./useModalBehavior";
 import { Icon } from "./Icon";
 
 // DADS ドロワー（HTML 版 drawer.css）。画面の左右端から展開するモーダルなコンテナ。

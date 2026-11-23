@@ -52,6 +52,19 @@ export default defineConfig([
         },
     },
     {
+        // 画面とレイアウトは、架空データ（src/mocks/）を直接読まず、src/api/ の関数だけを通す（docs/decisions.md D-24）。
+        // 直接読むと、src/api/ を実際の API に差し替えても、架空のデータが画面に残る。
+        // 単体テストは、見本のデータを期待値に使うため対象外にする。
+        files: ["src/pages/**/*.{ts,tsx}", "src/layouts/**/*.{ts,tsx}", "src/components/**/*.{ts,tsx}", "src/context/**/*.{ts,tsx}", "src/hooks/**/*.{ts,tsx}"],
+        ignores: ["**/*.test.{ts,tsx}"],
+        rules: {
+            "no-restricted-imports": [
+                "error",
+                { patterns: [{ group: ["@/mocks/*", "**/mocks/*"], message: "画面から src/mocks/ を直接読まず、src/api/ の関数を通してください。" }] },
+            ],
+        },
+    },
+    {
         // トークンのコントラスト検査は 16 進の色コードを例として書く。
         files: ["src/tokens/**"],
         rules: { "no-restricted-syntax": "off" },

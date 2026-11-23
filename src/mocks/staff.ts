@@ -1,12 +1,7 @@
 // 担当者（職員）の架空データ。実在の組織・人物とは関係ありません。
 // 申請の詳細画面で担当者の所属を表示するために使う。名前は applications.ts の ASSIGNEES と対応する。
 
-export type StaffProfile = {
-    name: string;
-    department: string;
-    /** 内線番号（架空）。 */
-    extension: string;
-};
+import type { StaffProfile } from "@/api/applicationTypes";
 
 export const STAFF_PROFILES: Record<string, StaffProfile> = {
     "佐藤 花子": { name: "佐藤 花子", department: "デジタル推進課", extension: "内線1201" },

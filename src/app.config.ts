@@ -39,6 +39,12 @@ export const appConfig = {
     logo: Landmark as LucideIcon,
     /** サイドバー（または上部ナビ）のナビゲーション。 */
     navigation: navigation as readonly NavSection[],
+    /** 問い合わせ先。500 エラーの画面などに出す（架空）。 */
+    support: {
+        name: "申請管理システムのヘルプデスク",
+        phone: "000-0000-0000",
+        hours: "平日9時〜17時",
+    },
     /** 日付表示の既定値。利用者は設定画面で変更できる。 */
     display: {
         locale: "ja-JP",

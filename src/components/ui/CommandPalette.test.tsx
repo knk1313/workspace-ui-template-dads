@@ -4,6 +4,7 @@ import userEvent from "@testing-library/user-event";
 import { FileText, Settings } from "lucide-react";
 import { describe, expect, it, vi } from "vitest";
 import { expectNoA11yViolations } from "@/test/axe";
+import { ModalDialog } from "./ModalDialog";
 import { CommandPalette, useCommandPaletteShortcut, type CommandItem } from "./CommandPalette";
 
 function makeItems(onSelect = vi.fn()): CommandItem[] {
@@ -57,7 +58,9 @@ describe("CommandPalette", () => {
         await user.clear(input);
         await user.type(input, "存在しない");
         expect(screen.queryByRole("option")).toBeNull();
-        expect(screen.getByText("一致する画面と申請はありません。別の言葉で検索してください。")).toBeInTheDocument();
+        expect(screen.getByRole("status")).toHaveTextContent("一致する画面と申請はありません。別の言葉で検索してください。");
+        // 0 件でも listbox は残し、入力欄の aria-controls の参照先を保つ
+        expect(document.getElementById(input.getAttribute("aria-controls")!)).toHaveAttribute("role", "listbox");
     });
 
     it("↓ ↑ で候補を移動し、Enterで実行して閉じる", async () => {
@@ -104,10 +107,35 @@ describe("CommandPalette", () => {
         await user.keyboard("{Meta>}k{/Meta}");
         const input = screen.getByRole("combobox");
         expect(input).toHaveFocus();
-        await user.tab();
-        expect(input).toHaveFocus();
+        // 閉じるボタンと入力欄の間を巡回し、ダイアログの外へは出ない
+        await user.tab({ shift: true });
+        expect(screen.getByRole("button", { name: "閉じる" })).toHaveFocus();
         await user.tab({ shift: true });
         expect(input).toHaveFocus();
+        await user.tab();
+        expect(screen.getByRole("button", { name: "閉じる" })).toHaveFocus();
+    });
+
+    it("閉じるボタンで閉じる（Escを押せないタッチ操作のスクリーンリーダーのため）", async () => {
+        const user = userEvent.setup();
+        render(<Harness items={makeItems()} />);
+        await user.keyboard("{Control>}k{/Control}");
+        await user.click(screen.getByRole("button", { name: "閉じる" }));
+        expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    });
+
+    it("ほかのモーダルが開いている間は、ショートカットで開かない", async () => {
+        const user = userEvent.setup();
+        render(
+            <>
+                <ModalDialog open onClose={() => {}} title="確認">
+                    本文
+                </ModalDialog>
+                <Harness items={makeItems()} />
+            </>,
+        );
+        await user.keyboard("{Control>}k{/Control}");
+        expect(screen.queryByRole("dialog", { name: "コマンドパレット" })).not.toBeInTheDocument();
     });
 
     it("アクセシビリティ違反がない", async () => {

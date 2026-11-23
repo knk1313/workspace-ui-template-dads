@@ -2,11 +2,14 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState, t
 
 // 配色（ライト / ダーク / OS の設定に合わせる）。設定画面で切り替え、localStorage に保存する。
 // 実際の配色は <html data-theme="light|dark"> で切り替える（src/tokens/theme-dark.css）。
-// 画面が一瞬白く光らないよう、最初の data-theme は index.html の先頭のスクリプトが付ける。キーと判定はそちらと合わせる。
+// 画面が一瞬白く光らないよう、最初の data-theme は index.html の先頭のスクリプトが付ける。判定はそちらと合わせる（キーはビルドで埋め込む）。
 export type ThemePreference = "system" | "light" | "dark";
 export type ResolvedTheme = "light" | "dark";
 
-export const THEME_STORAGE_KEY = "theme-preference";
+import { readStored, writeStored } from "@/lib/storage";
+import { THEME_STORAGE_KEY } from "./themeStorageKey";
+
+export { THEME_STORAGE_KEY };
 const DARK_QUERY = "(prefers-color-scheme: dark)";
 
 type ThemePreferenceValue = {
@@ -25,12 +28,7 @@ export function useThemePreference(): ThemePreferenceValue {
 }
 
 function load(): ThemePreference {
-    try {
-        const v = localStorage.getItem(THEME_STORAGE_KEY);
-        return v === "light" || v === "dark" ? v : "system";
-    } catch {
-        return "system";
-    }
+    return readStored<ThemePreference>(THEME_STORAGE_KEY, (v) => (v === "light" || v === "dark" ? v : undefined), "system");
 }
 
 function systemTheme(): ResolvedTheme {
@@ -57,12 +55,7 @@ export function ThemePreferenceProvider({ children }: { children: ReactNode }) {
 
     const setPreference = useCallback((next: ThemePreference) => {
         setState(next);
-        try {
-            if (next === "system") localStorage.removeItem(THEME_STORAGE_KEY);
-            else localStorage.setItem(THEME_STORAGE_KEY, next);
-        } catch {
-            // 保存できなくても、このタブの間は反映される。
-        }
+        writeStored(THEME_STORAGE_KEY, next === "system" ? null : next);
     }, []);
 
     const value = useMemo(() => ({ preference, setPreference, theme }), [preference, setPreference, theme]);

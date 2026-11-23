@@ -2,6 +2,7 @@
 // 実データに差し替えるときは、このディレクトリを API 呼び出し等に置き換える。
 
 import type { Application, ApplicationCategory, ApplicationStatus } from "@/api/applicationTypes";
+import { findApplicationContact } from "./applicationForm";
 
 export const ASSIGNEES = ["佐藤 花子", "鈴木 一郎", "高橋 美咲", "田中 健太"] as const;
 
@@ -53,6 +54,7 @@ export function generateApplications(count = 64): Application[] {
         const hasAmount = category === "subsidy" || category === "permit";
         return {
             id: `app-${pad(i + 1, 3)}`,
+            ...findApplicationContact(`app-${pad(i + 1, 3)}`),
             number: `R08-${pad(1000 + i * 3, 6)}`,
             title: titles[Math.floor(r(7) * titles.length)],
             applicant,

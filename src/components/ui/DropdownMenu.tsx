@@ -1,4 +1,4 @@
-import { useEffect, useId, useLayoutEffect, useRef, useState, type KeyboardEvent } from "react";
+import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState, type CSSProperties, type KeyboardEvent } from "react";
 import { ChevronDown, EllipsisVertical, type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { Icon } from "./Icon";
@@ -10,6 +10,8 @@ import { Icon } from "./Icon";
 //   項目: role="menuitem"（高さ 44px、hover で gray-50 + 下線、danger はエラー色、disabled は aria-disabled）
 // キーボード: ↓↑ で移動（端で折り返す）、Home / End、Enter / Space で実行、Esc で閉じてトリガーへ、Tab で閉じる、文字で先頭一致。
 // 外側クリックで閉じる。画面の下端で見切れるときは上に開く。
+// ポップアップは画面に対する位置（position: fixed）で置く。表の横スクロールの領域（overflow-x-auto）など、
+// はみ出しを切り取る要素の中に置いても、メニューが切り取られて押せなくならないようにするため。
 
 export type DropdownMenuItem = {
     label: string;
@@ -62,8 +64,8 @@ export function DropdownMenu({ label, items, style = "text", size = "md", icon, 
     const autoId = useId();
     const menuId = `${id ?? autoId}-menu`;
     const [open, setOpen] = useState(false);
-    // 画面の下端に近いトリガーだとメニューが見切れるので、その場合だけ上向きに開く。
-    const [dropUp, setDropUp] = useState(false);
+    // メニューの画面上の位置。画面の下端に近いトリガーだとメニューが見切れるので、その場合だけ上向きに開く。
+    const [position, setPosition] = useState<CSSProperties>({});
     const rootRef = useRef<HTMLDivElement>(null);
     const triggerRef = useRef<HTMLButtonElement>(null);
     const menuRef = useRef<HTMLDivElement>(null);
@@ -85,20 +87,40 @@ export function DropdownMenu({ label, items, style = "text", size = "md", icon, 
         if (restoreFocus) triggerRef.current?.focus();
     }
 
+    // トリガーの位置に合わせてメニューを置く。開いている間にスクロールや画面の大きさが変わったら置き直す。
+    const place = useCallback(() => {
+        const trigger = triggerRef.current?.getBoundingClientRect();
+        if (!trigger) return;
+        const GAP = 4;
+        const menuHeight = menuRef.current?.offsetHeight ?? 0;
+        const overflowsBelow = trigger.bottom + GAP + menuHeight > window.innerHeight;
+        const fitsAbove = trigger.top - GAP - menuHeight > 0;
+        const dropUp = overflowsBelow && fitsAbove;
+        const right = document.documentElement.clientWidth - trigger.right;
+        setPosition({
+            minWidth: trigger.width,
+            ...(dropUp ? { bottom: window.innerHeight - trigger.top + GAP } : { top: trigger.bottom + GAP }),
+            ...(align === "end" ? { right } : { left: trigger.left }),
+        });
+    }, [align]);
+
     useLayoutEffect(() => {
         if (!open) return;
-        const trigger = triggerRef.current?.getBoundingClientRect();
-        const menuHeight = menuRef.current?.offsetHeight ?? 0;
-        if (trigger) {
-            const GAP = 4;
-            const overflowsBelow = trigger.bottom + GAP + menuHeight > window.innerHeight;
-            const fitsAbove = trigger.top - GAP - menuHeight > 0;
-            setDropUp(overflowsBelow && fitsAbove);
-        }
+        place();
         const els = itemElements();
         (pendingFocus.current === "last" ? els[els.length - 1] : els[0])?.focus();
         pendingFocus.current = null;
-    }, [open]);
+    }, [open, place]);
+
+    useEffect(() => {
+        if (!open) return;
+        window.addEventListener("scroll", place, true);
+        window.addEventListener("resize", place);
+        return () => {
+            window.removeEventListener("scroll", place, true);
+            window.removeEventListener("resize", place);
+        };
+    }, [open, place]);
 
     useEffect(() => {
         if (!open) return;
@@ -218,11 +240,8 @@ export function DropdownMenu({ label, items, style = "text", size = "md", icon, 
                     role="menu"
                     aria-label={label}
                     onKeyDown={onMenuKeyDown}
-                    className={cn(
-                        "absolute z-30 max-h-popup-max min-w-full w-max overflow-y-auto rounded-8 border border-border bg-surface py-4 text-16 leading-130 tracking-0 text-text shadow-1",
-                        align === "end" ? "right-0" : "left-0",
-                        dropUp ? "bottom-full mb-1" : "top-full mt-1",
-                    )}
+                    style={position}
+                    className="fixed z-30 max-h-popup-max w-max overflow-y-auto rounded-8 border border-border bg-surface py-4 text-16 leading-130 tracking-0 text-text shadow-1"
                 >
                     {items.map((entry, i) =>
                         isItem(entry) ? (

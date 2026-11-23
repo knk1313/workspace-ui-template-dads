@@ -9,34 +9,28 @@ import { Popover } from "@/components/ui/Popover";
 import { StackedList, StackedListItem } from "@/components/ui/StackedList";
 import { Tooltip } from "@/components/ui/Tooltip";
 import { useToast } from "@/components/ui/Toast";
-import { CURRENT_USER } from "@/mocks/settings";
+import { logout } from "@/api/auth";
+import { clearQueryCache } from "@/api/query";
+import { useConfirmLeave } from "@/hooks/useUnsavedChangesWarning";
 import { useHeaderNotifications, useHeaderSearchItems } from "./headerContent";
 
 // ヘッダー右側の操作。AppShell と TopNavLayout の両方で使う。
 //   検索 = コマンドパレット（Ctrl / Cmd + K）、お知らせ = ポップオーバー、アカウント = ドロップダウンメニュー
 // 検索の候補とお知らせの中身は、アプリ固有の内容として headerContent.ts に分けている。
 
-export function HeaderActions() {
+export type HeaderActionsProps = {
+    /** ログインしている職員の名前。 */
+    userName: string;
+};
+
+export function HeaderActions({ userName }: HeaderActionsProps) {
     const navigate = useNavigate();
     const { toast } = useToast();
     const [paletteOpen, setPaletteOpen] = useState(false);
     useCommandPaletteShortcut(() => setPaletteOpen(true));
 
-    const searchItems = useHeaderSearchItems(navigate);
     const notifications = useHeaderNotifications();
-
-    const commands = useMemo<CommandItem[]>(() => {
-        const pages: CommandItem[] = appConfig.navigation.flatMap((section) =>
-            section.items.map((item) => ({
-                id: `page-${item.href}`,
-                label: item.label,
-                group: "ページ",
-                icon: item.icon,
-                onSelect: () => navigate(item.href),
-            })),
-        );
-        return [...pages, ...searchItems];
-    }, [navigate, searchItems]);
+    const { confirmLeave, allowNavigation } = useConfirmLeave();
 
     const accountItems = [
         { label: "設定", icon: Settings, onSelect: () => navigate("/settings") },
@@ -44,9 +38,19 @@ export function HeaderActions() {
         {
             label: "ログアウト",
             icon: LogOut,
-            onSelect: () => {
-                toast({ title: "ログアウトしました", type: "info" });
-                navigate("/login");
+            onSelect: async () => {
+                // 入力の途中なら、ログアウトする前に確かめる（ログアウトしたあとでは、入力を続けられないため）
+                if (!(await confirmLeave())) return;
+                try {
+                    await logout();
+                    allowNavigation();
+                    await navigate("/login");
+                    // 次にログインした人に、前の人の読み込み結果を見せない
+                    clearQueryCache();
+                    toast({ title: "ログアウトしました", type: "info" });
+                } catch (e) {
+                    toast({ type: "error", title: "ログアウトできませんでした", description: (e as Error).message });
+                }
             },
         },
     ];
@@ -71,9 +75,28 @@ export function HeaderActions() {
                 </div>
             </Popover>
             {/* sm 以上は名前付き、モバイルはアイコンだけ（ヘッダーの幅に収めるため）。 */}
-            <DropdownMenu label={CURRENT_USER.name} icon={UserRound} align="end" className="max-sm:hidden" items={accountItems} />
+            <DropdownMenu label={userName} icon={UserRound} align="end" className="max-sm:hidden" items={accountItems} />
             <DropdownMenu label="アカウント" iconOnly align="end" className="sm:hidden" items={accountItems} />
-            <CommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} items={commands} />
+            {/* 検索の候補は、開いたときに初めて読み込む（全画面で常に読み込まないため） */}
+            {paletteOpen && <HeaderCommandPalette onClose={() => setPaletteOpen(false)} />}
         </>
     );
+}
+
+function HeaderCommandPalette({ onClose }: { onClose: () => void }) {
+    const navigate = useNavigate();
+    const searchItems = useHeaderSearchItems(navigate);
+    const commands = useMemo<CommandItem[]>(() => {
+        const pages: CommandItem[] = appConfig.navigation.flatMap((section) =>
+            section.items.map((item) => ({
+                id: `page-${item.href}`,
+                label: item.label,
+                group: "ページ",
+                icon: item.icon,
+                onSelect: () => navigate(item.href),
+            })),
+        );
+        return [...pages, ...searchItems];
+    }, [navigate, searchItems]);
+    return <CommandPalette open onClose={onClose} items={commands} />;
 }

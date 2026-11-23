@@ -57,6 +57,18 @@ describe("DatePicker", () => {
         expect(onChange).toHaveBeenLastCalledWith("");
     });
 
+    it("解釈できない文字に書き換えると、前の日付を残さずにその文字列を渡す", async () => {
+        const user = userEvent.setup();
+        const onChange = vi.fn();
+        render(<Controlled onChange={onChange} initial="2026-12-01" />);
+        const input = screen.getByRole("textbox", { name: "開催日" });
+        await user.clear(input);
+        await user.type(input, "2026-02-30");
+        await user.tab();
+        expect(onChange).toHaveBeenLastCalledWith("2026-02-30");
+        expect(input).toHaveValue("2026-02-30");
+    });
+
     it("カレンダーボタンでダイアログを開き、gridにその月を表示する", async () => {
         const user = userEvent.setup();
         render(<Controlled />);

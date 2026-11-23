@@ -50,6 +50,9 @@ describe("Combobox", () => {
         await user.type(input, "区");
         expect(input).toHaveAttribute("aria-expanded", "true");
         expect(screen.getAllByRole("option")).toHaveLength(4);
+        // 件数を読み上げる。FormField の中では、リストボックスにもラベルの名前が付く
+        expect(screen.getByRole("status")).toHaveTextContent("4件の候補があります");
+        expect(screen.getByRole("listbox", { name: "市区町村" })).toBeInTheDocument();
         await user.clear(input);
         await user.type(input, "新");
         expect(screen.getAllByRole("option")).toHaveLength(1);
@@ -65,7 +68,9 @@ describe("Combobox", () => {
         render(<Controlled />);
         await user.type(screen.getByRole("combobox"), "zzz");
         expect(screen.queryAllByRole("option")).toHaveLength(0);
-        expect(screen.getByText("該当する選択肢がありません")).toBeInTheDocument();
+        expect(screen.getAllByText("該当する選択肢がありません")).toHaveLength(2);
+        // 見えるメッセージとは別に、読み上げのリージョンでも知らせる
+        expect(screen.getByRole("status")).toHaveTextContent("該当する選択肢がありません");
     });
 
     it("↓↑ で候補を移動し（aria-activedescendant）、Enterで確定、Escで閉じる", async () => {

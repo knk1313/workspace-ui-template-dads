@@ -9,8 +9,9 @@ import { Input } from "@/components/ui/Input";
 import { RadioGroup } from "@/components/ui/RadioGroup";
 import { Switch } from "@/components/ui/Switch";
 import { Textarea } from "@/components/ui/Textarea";
-import { ASSIGNEES } from "@/mocks/applications";
-import { CATEGORY_LABELS, type ApplicationCategory } from "@/api/applicationTypes";
+import { CATEGORY_LABELS, type Application, type ApplicationCategory } from "@/api/applicationTypes";
+import { formatFileSize } from "@/components/ui/FileUpload";
+import { useStaffOptions } from "../useStaffOptions";
 import { fieldId } from "./fields";
 import {
     ACCEPTED_FILE_TYPES,
@@ -32,13 +33,16 @@ export type ApplicationFormFieldsProps = {
     onChange: <K extends FieldName>(field: K, value: ApplicationFormValues[K]) => void;
     /** 希望日に選べる最小の日付（今日）。 */
     minDate: string;
+    /** 編集画面で扱わない形式の既存の添付ファイル。変えられないことと、更新しても残ることを示す。 */
+    keptAttachments?: Application["attachments"];
 };
 
 const CATEGORY_OPTIONS = (Object.keys(CATEGORY_LABELS) as ApplicationCategory[]).map((value) => ({ value, label: CATEGORY_LABELS[value] }));
-const ASSIGNEE_OPTIONS = ASSIGNEES.map((name) => ({ value: name, label: name }));
 
-export function ApplicationFormFields({ values, errors, onChange, minDate }: ApplicationFormFieldsProps) {
+export function ApplicationFormFields({ values, errors, onChange, minDate, keptAttachments = [] }: ApplicationFormFieldsProps) {
     const priorityHelpId = useId();
+    const keptHelpId = useId();
+    const { options: assigneeOptions } = useStaffOptions(values.assignee);
     const errorOf = (field: FieldName) => errors.find((e) => e.field === field)?.message;
     const amountRequired = requiresAmount(values.category);
     const attachmentRequired = requiresAttachment(values.category);
@@ -153,7 +157,7 @@ export function ApplicationFormFields({ values, errors, onChange, minDate }: App
                         supportText="名前の一部を入力すると候補を絞り込めます"
                         errorText={errorOf("assignee")}
                     >
-                        <Combobox name="assignee" options={ASSIGNEE_OPTIONS} value={values.assignee} onChange={(v) => onChange("assignee", v)} />
+                        <Combobox name="assignee" options={assigneeOptions} value={values.assignee} onChange={(v) => onChange("assignee", v)} />
                     </FormField>
                 </FormLayout>
                 <div className="flex flex-col gap-2">
@@ -184,7 +188,20 @@ export function ApplicationFormFields({ values, errors, onChange, minDate }: App
                         accept={ACCEPTED_FILE_TYPES}
                         files={values.attachments}
                         onChange={(files) => onChange("attachments", files)}
+                        aria-describedby={keptAttachments.length > 0 ? keptHelpId : undefined}
                     />
+                    {keptAttachments.length > 0 && (
+                        <div id={keptHelpId} className="mt-4 flex flex-col gap-1 text-16 leading-170 tracking-2 text-text">
+                            <p className="m-0">このほかに、ここでは変更できない形式の添付ファイルがあります。更新しても残ります。</p>
+                            <ul className="m-0 flex flex-col gap-1 pl-6">
+                                {keptAttachments.map((f, i) => (
+                                    <li key={`${f.name}-${f.size}-${i}`}>
+                                        {f.name} <span className="text-text-muted nums">（{formatFileSize(f.size)}）</span>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    )}
                 </FormField>
                 <FormField
                     id={fieldId("memo")}

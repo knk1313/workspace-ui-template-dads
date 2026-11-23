@@ -27,12 +27,17 @@ test.describe("申請一覧の表", () => {
         const header = page.getByRole("columnheader", { name: /受付番号/ });
         await page.getByRole("button", { name: /^受付番号・件名/ }).click();
         await expect(header).toHaveAttribute("aria-sort", "ascending");
+        // 並べ替えた結果を API から読み込み終わるまで待つ
+        await waitForLoaded(page);
         const asc = await numbers(page);
+        expect(asc).toHaveLength(20);
         expect([...asc].sort()).toEqual(asc);
 
         await page.getByRole("button", { name: /^受付番号・件名/ }).click();
         await expect(header).toHaveAttribute("aria-sort", "descending");
+        await waitForLoaded(page);
         const desc = await numbers(page);
+        expect(desc).toHaveLength(20);
         expect([...desc].sort().reverse()).toEqual(desc);
     });
 
@@ -41,7 +46,9 @@ test.describe("申請一覧の表", () => {
         await expect(page.getByText("全64件中1〜20件")).toBeVisible();
         await page.getByRole("navigation", { name: "ページ送り" }).getByRole("button", { name: /2/ }).first().click();
         await expect(page.getByText("全64件中21〜40件")).toBeVisible();
+        await waitForLoaded(page);
         const second = await numbers(page);
+        expect(second).toHaveLength(20);
         expect(second).not.toEqual(first);
         await expect(page.getByRole("navigation", { name: "ページ送り" }).locator("[aria-current='page']")).toHaveText(/2/);
     });
@@ -50,6 +57,29 @@ test.describe("申請一覧の表", () => {
         test.skip(isMobile(page), "PC幅だけ");
         const overflow = await page.locator("table").evaluate((t) => t.parentElement!.scrollWidth - t.parentElement!.clientWidth);
         expect(overflow).toBeLessThanOrEqual(0);
+    });
+
+    test("行の操作メニューは表の外へはみ出しても切り取られず、どの項目も押せる", async ({ page }) => {
+        const triggers = page.getByRole("button", { name: /^.+の操作$/ });
+        for (const trigger of [triggers.first(), triggers.last()]) {
+            await trigger.scrollIntoViewIfNeeded();
+            await trigger.click();
+            const menu = page.getByRole("menu");
+            for (const item of await menu.getByRole("menuitem").all()) {
+                // 切り取られていれば、その場所で一番上にある要素が項目ではなくなる
+                const onTop = await item.evaluate((el) => {
+                    const r = el.getBoundingClientRect();
+                    const hit = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
+                    return hit !== null && el.contains(hit);
+                });
+                expect(onTop, `「${await item.textContent()}」が隠れている`).toBe(true);
+            }
+            await page.keyboard.press("Escape");
+            await expect(menu).toHaveCount(0);
+        }
+        await triggers.first().click();
+        await page.getByRole("menuitem", { name: "詳細を見る" }).click();
+        await expect(page).toHaveURL(/\/applications\/[^/]+$/);
     });
 
     test("行を選ぶと一括操作が現れ、担当者変更のモーダルはフォーカスを閉じ込め、Escで閉じて元のボタンへ戻る", async ({ page }) => {
@@ -95,7 +125,7 @@ test.describe("申請一覧の表", () => {
 test("申請詳細：差戻しのモーダルは理由が空だとエラーを出し、入力すると警告バナーが出る", async ({ page }) => {
     await page.goto("/applications/app-001");
     await page.getByRole("button", { name: "その他の操作" }).click();
-    const item = page.getByRole("menuitem", { name: "差戻し" });
+    const item = page.getByRole("menuitem", { name: "差し戻す" });
     test.skip((await item.count()) === 0, "この申請の状態では差戻しできない");
     await item.click();
     const dialog = page.getByRole("dialog");
@@ -205,4 +235,26 @@ test("キーボードだけで新規申請を完了できる", async ({ page }) 
     await tabTo(page, page.getByRole("button", { name: "申請する" }));
     await page.keyboard.press("Enter");
     await expect(page.getByText("申請の受付完了")).toBeFocused();
+});
+
+test("申請を更新すると、詳細の画面を先頭から表示し、本文へフォーカスを移す", async ({ page }) => {
+    await open(page, "/applications/app-044");
+    await page.getByRole("link", { name: "編集", exact: true }).click();
+    await page.getByRole("checkbox", { name: /記載内容に誤りがない/ }).check();
+    await page.getByRole("button", { name: "確認へ進む" }).click();
+    await expect(page.getByRole("heading", { name: "入力内容の確認" })).toBeFocused();
+    await page.getByRole("button", { name: "更新する" }).click();
+    await expect(page).toHaveURL(/\/applications\/app-044$/);
+    await waitForLoaded(page);
+    await expect(page.locator("main")).toBeFocused();
+    expect(await page.evaluate(() => window.scrollY)).toBe(0);
+});
+
+test("詳細で削除すると、一覧へ移っても「元に戻す」のフォーカスを奪わない", async ({ page }) => {
+    await open(page, "/applications/app-036");
+    await page.getByRole("button", { name: "その他の操作" }).click();
+    await page.getByRole("menuitem", { name: "削除" }).click();
+    await expect(page).toHaveURL(/\/applications$/);
+    await waitForLoaded(page);
+    await expect(page.getByRole("button", { name: "元に戻す" })).toBeFocused();
 });

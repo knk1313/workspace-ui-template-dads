@@ -31,6 +31,8 @@ All data and text on screen are fictional samples. No real API or backend is inc
 
 ## Setup
 
+Node.js 22.22.2 or later in the 22 line, 24.15.0 or later in the 24 line, or 26 or later is required. Node.js 24 is recommended (see `.nvmrc`).
+
 ```bash
 nvm use
 npm install
@@ -46,8 +48,8 @@ npm run build
 
 1. Change the app name and logo in `src/app.config.ts`.
 2. Commit your changes, then run `npm run remove-samples`. It removes the sample screens, the sample API and data, and their tests, leaving a home page, settings, login and error pages. Run `npm run check`, `npm run test:e2e` and `npm run test:visual:update` afterwards.
-3. Replace the functions in `src/api/` with real API calls. Keep the return types so the screens do not need to change.
-4. To change the brand colour, replace the eight "primary" tokens in `src/tokens/theme.css` with steps of one hue (for example `key-900` → `green-900`) and run `npm run test`; colours that are too light fail the contrast tests.
+3. Replace the functions in `src/api/` with real API calls. Keep the return types so the screens do not need to change. Screens require sign-in (`src/layouts/AppLayout.tsx`); in the sample, any email address and password work except `fail@example.jp`. The sample session is only a flag in the browser, so enforce permissions in your API.
+4. To change the brand colour, replace every token in `src/tokens/theme.css` that uses `key-*` with steps of one hue (for example `key-900` → `green-900`): the eight "primary" tokens, plus `surface-hover`, `surface-selected`, `surface-highlight`, `info` and `info-surface`. Dark mode (`src/tokens/theme-dark.css`) uses `blue-*` directly, so replace those steps there as well. Run `npm run test`; colours that are too light fail the contrast tests.
 
 See the Japanese [README](README.md) for the component list, directory layout and details.
 

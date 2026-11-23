@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
-import { useNavigate } from "react-router";
+import { useLocation, useNavigate, useNavigationType } from "react-router";
 import { appConfig } from "@/app.config";
 import { Button } from "@/components/ui/Button";
 import { Card, CardBody } from "@/components/ui/Card";
@@ -10,18 +10,31 @@ import { Input } from "@/components/ui/Input";
 import { Link } from "@/components/ui/Link";
 import { NotificationBanner } from "@/components/ui/NotificationBanner";
 import { useToast } from "@/components/ui/Toast";
-import { LOGIN_FAILURE_EMAIL } from "@/mocks/settings";
+import { authQueries, login } from "@/api/auth";
+import { setQueryData, useMutation } from "@/api/query";
+import type { LoginState } from "@/layouts/AppLayout";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 // ログイン画面（シェルなし）。アプリケーションシェルの外にあるため、自前で <main id="main"> を持つ。
-// 認証はサンプルで、LOGIN_FAILURE_EMAIL のときだけ失敗として扱い、それ以外は 600ms 待ってからホームへ移る。
-// 実際のアプリでは onSubmit の中を認証 API の呼び出しに置き換える。
-
-const SIGN_IN_DELAY_MS = 600;
+// 認証は src/api/auth.ts の login を通す（見本では fail@example.jp のときだけ失敗として扱う）。
+// 実際のアプリでは、login の中身を認証の API の呼び出しに置き換える。
 
 type LoginErrors = { email?: string; password?: string };
 
 export default function LoginPage() {
+    // 移ってきたときは見出しへフォーカスを移すので、画面の名前を二重に読み上げない
+    usePageTitle("ログイン", { announced: false });
     const navigate = useNavigate();
+    const location = useLocation();
+    // ログアウトや、ログインを求められて移ってきたときは、見出しへフォーカスを移す（直接開いたときは動かさない）
+    const navigationType = useNavigationType();
+    const headingRef = useRef<HTMLHeadingElement>(null);
+    const arrived = useRef(false);
+    useEffect(() => {
+        if (arrived.current) return;
+        arrived.current = true;
+        if (navigationType !== "POP") headingRef.current?.focus();
+    }, [navigationType]);
     const { toast } = useToast();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -29,20 +42,18 @@ export default function LoginPage() {
     const [remember, setRemember] = useState(false);
     const [errors, setErrors] = useState<LoginErrors>({});
     const [authFailed, setAuthFailed] = useState(false);
-    const [loading, setLoading] = useState(false);
+    const signIn = useMutation(login);
+    const loading = signIn.pending;
     const emailRef = useRef<HTMLInputElement>(null);
     const passwordRef = useRef<HTMLInputElement>(null);
     const bannerRef = useRef<HTMLHeadingElement>(null);
-    const timerRef = useRef<number | undefined>(undefined);
-
-    useEffect(() => () => window.clearTimeout(timerRef.current), []);
 
     // 認証失敗のバナーが出たら、そこへフォーカスを移して読み上げさせる。
     useEffect(() => {
         if (authFailed) bannerRef.current?.focus();
     }, [authFailed]);
 
-    const onSubmit = (e: FormEvent<HTMLFormElement>) => {
+    const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         if (loading) return;
         const next: LoginErrors = {};
@@ -53,16 +64,20 @@ export default function LoginPage() {
         if (next.email) return emailRef.current?.focus();
         if (next.password) return passwordRef.current?.focus();
 
-        setLoading(true);
-        timerRef.current = window.setTimeout(() => {
-            setLoading(false);
-            if (email.trim().toLowerCase() === LOGIN_FAILURE_EMAIL) {
+        try {
+            const user = await signIn.run({ email: email.trim(), password, remember });
+            if (!user) {
                 setAuthFailed(true);
                 return;
             }
+            setQueryData(authQueries.me, () => user);
             toast({ type: "success", title: "ログインしました" });
-            navigate("/");
-        }, SIGN_IN_DELAY_MS);
+            // ログインを求められた画面へ戻る（「戻る」でログイン画面に入り直さないよう置き換える）
+            navigate((location.state as LoginState)?.from ?? "/", { replace: true });
+        } catch (err) {
+            // 通信の失敗は、入力の誤りと区別して知らせる（入力はそのまま残す）
+            toast({ type: "error", title: "ログインできませんでした", description: (err as Error).message });
+        }
     };
 
     return (
@@ -75,7 +90,11 @@ export default function LoginPage() {
                                 <Icon icon={appConfig.logo} size="lg" className="text-primary" />
                                 {appConfig.name}
                             </p>
-                            <h1 className="m-0 text-std-28B-150 text-text-strong">ログイン</h1>
+                            <h1 ref={headingRef} tabIndex={-1} className="m-0 text-std-28B-150 text-text-strong">
+                                ログイン
+                            </h1>
+                            {/* 見本用。自分のアプリにするときは消す */}
+                            <p className="m-0 text-std-16N-170 text-text-muted">見本のため、どのメールアドレスとパスワードでもログインできます</p>
                         </div>
 
                         {authFailed && (

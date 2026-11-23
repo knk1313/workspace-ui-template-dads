@@ -132,7 +132,11 @@ describe("DropdownMenu", () => {
         const { user, rerender } = setup({ style: "outlined", size: "sm", align: "end" });
         expect(trigger()).toHaveClass("border", "tap-area", "min-h-9");
         await user.click(trigger());
-        expect(screen.getByRole("menu")).toHaveClass("right-0");
+        // 表の横スクロールの領域などで切り取られないよう、画面に対する位置で置き、右端をトリガーに揃える
+        const menu = screen.getByRole("menu");
+        expect(menu).toHaveClass("fixed");
+        expect(menu.style.right).not.toBe("");
+        expect(menu.style.left).toBe("");
         rerender(
             <div>
                 <DropdownMenu label="操作" items={[]} style="filled" />

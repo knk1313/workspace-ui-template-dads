@@ -1,4 +1,5 @@
 import type { ApplicationCategory } from "@/api/applicationTypes";
+import { parseIso } from "@/components/ui/DatePicker";
 
 // 申請フォームの入力値と検証（純粋関数）。画面から切り離して単体テストできるようにする。
 // DADS のバリデーション方針: 送信時にまとめて検証し、入力中やフォーカスアウトではエラーを出さない。
@@ -129,15 +130,17 @@ function isAcceptedFile(file: File): boolean {
 /**
  * 入力値を検証し、エラーをフォームの並び順で返す。エラーがなければ空配列。
  * today は "YYYY-MM-DD"（テストで日付を固定できるよう引数で受け取る）。
+ * savedDesiredDate は、編集する申請に保存してある希望日。この日付のままなら、今日より前でもエラーにしない
+ * （希望日が過ぎた申請でも、ほかの欄を直して保存できるようにするため）。
  */
-export function validateApplicationForm(values: ApplicationFormValues, today: string = todayIso()): FieldError[] {
+export function validateApplicationForm(values: ApplicationFormValues, today: string = todayIso(), savedDesiredDate?: string): FieldError[] {
     const errors: Partial<Record<FieldName, string>> = {};
 
     const title = values.title.trim();
     if (title === "") errors.title = "件名を入力してください";
     else if (countChars(title) > TITLE_MAX) errors.title = `件名を${TITLE_MAX}文字以内で入力してください（現在${countChars(title)}文字）`;
 
-    if (values.category === "") errors.category = "種別を選択してください";
+    if (values.category === "") errors.category = "種別を選んでください";
 
     const amount = normalizeAmount(values.amount);
     if (amount === null) {
@@ -154,14 +157,14 @@ export function validateApplicationForm(values: ApplicationFormValues, today: st
 
     const email = values.email.trim();
     if (email === "") errors.email = "メールアドレスを入力してください";
-    else if (!isValidEmail(email)) errors.email = "メールアドレスを「name@example.jp」のように、@ とドメインを含めて入力してください";
+    else if (!isValidEmail(email)) errors.email = "メールアドレスを「name@example.jp」のように、@とドメインを含めて入力してください";
 
     if (values.phone.trim() !== "" && !isValidPhone(values.phone)) {
         errors.phone = "電話番号は数字とハイフンで、市外局番から入力してください（例：03-1234-5678）";
     }
 
-    if (values.desiredDate === "") errors.desiredDate = "希望日を西暦の年月日で入力してください（例：2026-12-01）";
-    else if (values.desiredDate < today) errors.desiredDate = `希望日は今日（${today}）以降の日付を入力してください`;
+    if (values.desiredDate === "" || !parseIso(values.desiredDate)) errors.desiredDate = "希望日を西暦の年月日で入力してください（例：2026-12-01）";
+    else if (values.desiredDate < today && values.desiredDate !== savedDesiredDate) errors.desiredDate = `希望日は今日（${today}）以降の日付を入力してください`;
 
     const rejected = values.attachments.filter((f) => !isAcceptedFile(f));
     const oversized = values.attachments.filter((f) => isAcceptedFile(f) && f.size > FILE_SIZE_MAX);
@@ -177,7 +180,7 @@ export function validateApplicationForm(values: ApplicationFormValues, today: st
         errors.memo = `メモを${MEMO_MAX}文字以内にしてください（${countChars(values.memo) - MEMO_MAX}文字超過）`;
     }
 
-    if (!values.agreed) errors.agreed = "内容を確認のうえ、「記載内容に誤りがないことを確かめた」にチェックを入れてください";
+    if (!values.agreed) errors.agreed = "記載内容を確かめてから、「記載内容に誤りがないことを確かめた」にチェックを入れてください";
 
     return FIELD_ORDER.flatMap((field) => (errors[field] ? [{ field, message: errors[field] }] : []));
 }

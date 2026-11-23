@@ -4,7 +4,7 @@ import { cn } from "@/lib/cn";
 // ツールチップ（WAI-ARIA APG の Tooltip パターン。docs/decisions.md D-11）。
 // アイコンだけのボタンの補足など、短い文字列をホバー / フォーカスで表示する。
 //   - 子要素（フォーカス可能な 1 つの要素）に aria-describedby を付け、テキストは常に支援技術へ渡す（タッチ端末でも読める）
-//   - hover / focus で短い遅延の後に表示、離れたら消す。Esc で消す
+//   - hover / focus で短い遅延の後に表示、離れたら消す。Esc で消す。ツールチップの上にポインターを動かしても消さない
 //   - 見た目は solid-gray-900 の面に白文字（14px は補足用途として許容）
 // ツールチップにしか書かれていない情報が操作に必須にならないようにする（ラベルや aria-label を先に用意する）。
 
@@ -74,20 +74,24 @@ export function Tooltip({ content, children, delay = 150, placement = "top", cla
         <span ref={wrapperRef} className={cn("relative inline-flex", className)} onMouseEnter={show} onMouseLeave={hide} onFocus={show} onBlur={hide}>
             {child}
             {/* 非表示のときも DOM に残し（sr-only）、aria-describedby で常に参照できるようにする。 */}
+            {/*
+              ポインターをツールチップの上へ動かしても消えないよう、ツールチップはラッパーの中に置き、ポインターの操作を受ける（WCAG 1.4.13）。
+              ボタンとのすき間は、外側の透明な余白（pb-1 / pt-1）で埋める（margin にすると、すき間で mouseleave が起きて消える）。
+            */}
             <span
                 id={id}
                 role="tooltip"
                 className={cn(
                     visible
                         ? cn(
-                              "pointer-events-none absolute z-30 w-max max-w-xs rounded-4 bg-text-strong px-2 py-1 text-14 leading-130 tracking-0 text-text-inverse",
-                              side === "top" ? "bottom-full mb-1" : "top-full mt-1",
+                              "absolute z-30 w-max max-w-xs",
+                              side === "top" ? "bottom-full pb-1" : "top-full pt-1",
                               align === "center" ? "left-1/2 -translate-x-1/2" : align === "end" ? "right-0" : "left-0",
                           )
                         : "sr-only",
                 )}
             >
-                {content}
+                <span className={cn(visible && "block rounded-4 bg-text-strong px-2 py-1 text-14 leading-130 tracking-0 text-text-inverse")}>{content}</span>
             </span>
         </span>
     );

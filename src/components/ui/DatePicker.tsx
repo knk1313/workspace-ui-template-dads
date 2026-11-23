@@ -15,8 +15,12 @@ import { CONTROL_HEIGHT, Input } from "./Input";
 // 矢印キーで日、PageUp / PageDown で月（Shift で年）、Home / End で週の端、Enter / Space で選択、Esc で閉じて入力欄に戻る。
 
 export type DatePickerProps = {
-    /** "YYYY-MM-DD" または ""（未入力）。 */
+    /** "YYYY-MM-DD" または ""（未入力）。解釈できない入力のあとは、その文字列のまま。 */
     value: string;
+    /**
+     * 欄を離れたときに、正規化した "YYYY-MM-DD" を渡す。
+     * 解釈できない文字列は、そのまま渡す（前の日付が残ったまま送信されないよう、呼び出し側の検証でエラーにするため）。
+     */
     onChange: (value: string) => void;
     /** 選択できる最小の日付（"YYYY-MM-DD"）。 */
     min?: string;
@@ -199,8 +203,12 @@ export function DatePicker({
         if (iso) {
             setText(iso);
             if (iso !== value) onChange(iso);
+            return;
         }
-        // 解釈できない文字列はそのまま残し、エラー表示は FormField の errorText に任せる
+        // 解釈できない文字列は欄に残し、そのまま値として渡す。
+        // 渡さないと前の日付が値に残り、欄の表示と違う日付で送信されてしまう。エラー表示は FormField の errorText に任せる。
+        const raw = text.trim();
+        if (raw !== value) onChange(raw);
     };
 
     const select = (ymd: Ymd) => {

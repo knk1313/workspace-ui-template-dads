@@ -38,6 +38,13 @@
     box-shadow: 0 0 0 2px var(--color-focus-ring);
   }
 
+  /* 本文（main）は、画面を移ったときと「本文へスキップ」でフォーカスを受けるだけで、操作するものではない。
+     画面全体を囲む枠は出さない。 */
+  main:focus-visible {
+    outline: none;
+    box-shadow: none;
+  }
+
   /* クリックできるものは pointer にする（Tailwind v4 の button 既定は default のため）。 */
   button:not(:disabled),
   [role="button"]:not([aria-disabled="true"]),

@@ -1,4 +1,5 @@
 import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from "react";
+import { readStored, writeStored } from "@/lib/storage";
 
 // アプリケーションシェルの型（サイドバー型 / 上部ナビゲーション型）。設定画面で切り替え、localStorage に保存する。
 export type LayoutKind = "sidebar" | "topnav";
@@ -16,22 +17,14 @@ export function useLayoutPreference(): LayoutPreferenceValue {
 }
 
 function load(): LayoutKind {
-    try {
-        return localStorage.getItem(LAYOUT_STORAGE_KEY) === "topnav" ? "topnav" : "sidebar";
-    } catch {
-        return "sidebar";
-    }
+    return readStored<LayoutKind>(LAYOUT_STORAGE_KEY, (v) => (v === "topnav" ? "topnav" : undefined), "sidebar");
 }
 
 export function LayoutPreferenceProvider({ children }: { children: ReactNode }) {
     const [layout, setState] = useState<LayoutKind>(load);
     const setLayout = useCallback((next: LayoutKind) => {
         setState(next);
-        try {
-            localStorage.setItem(LAYOUT_STORAGE_KEY, next);
-        } catch {
-            // 保存できなくても、このタブの間は反映される。
-        }
+        writeStored(LAYOUT_STORAGE_KEY, next);
     }, []);
     const value = useMemo(() => ({ layout, setLayout }), [layout, setLayout]);
     return <LayoutPreferenceContext.Provider value={value}>{children}</LayoutPreferenceContext.Provider>;

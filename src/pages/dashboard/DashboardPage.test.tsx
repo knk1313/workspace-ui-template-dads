@@ -35,6 +35,10 @@ describe("DashboardPage", () => {
         const { user } = await renderLoaded("/");
         await user.selectOptions(screen.getByLabelText("表示期間"), "lastMonth");
         expect(screen.getByText(/対象期間：先月（2026年9月1日〜9月30日）/)).toBeInTheDocument();
+        // 見本の集計値は今月の分だけなので、数字が変わらないことを知らせる
+        expect(screen.getByRole("heading", { name: /見本のため、どの期間を選んでも/ })).toBeInTheDocument();
+        await user.selectOptions(screen.getByLabelText("表示期間"), "thisMonth");
+        expect(screen.queryByRole("heading", { name: /見本のため、どの期間を選んでも/ })).not.toBeInTheDocument();
     });
 
     it("CSVのダウンロードは見本である旨をトーストで知らせる", async () => {
@@ -97,6 +101,14 @@ describe("DashboardPage", () => {
         const section = screen.getByRole("region", { name: "最近の操作" });
         expect(within(section).getAllByRole("listitem").length).toBeGreaterThan(0);
         expect(within(section).getByRole("link", { name: /R08-001012/ })).toHaveAttribute("href", "/applications/app-005");
+    });
+
+    it("ヘッダーの検索は、開いたときに最近の申請を候補に出す", async () => {
+        const { user } = await renderLoaded("/");
+        expect(screen.queryByRole("dialog", { name: "コマンドパレット" })).not.toBeInTheDocument();
+        await user.click(screen.getByRole("button", { name: "検索" }));
+        const dialog = screen.getByRole("dialog", { name: "コマンドパレット" });
+        expect(await within(dialog).findAllByRole("option", { name: /^R08-\d{6}「/ })).toHaveLength(20);
     });
 
     it("axeの違反がない", async () => {

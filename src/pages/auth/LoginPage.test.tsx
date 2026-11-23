@@ -2,10 +2,11 @@ import { screen, waitFor } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { expectNoA11yViolations } from "@/test/axe";
 import { renderApp } from "@/test/renderApp";
+import { setMockOptions } from "@/api/mock";
 
 describe("LoginPage", () => {
     it("シェルなしで、自前のmainとh1を持つ", () => {
-        renderApp("/login");
+        renderApp("/login", { loggedIn: false });
         expect(screen.getByRole("main")).toHaveAttribute("id", "main");
         expect(screen.getByRole("heading", { level: 1, name: "ログイン" })).toBeInTheDocument();
         expect(screen.queryByRole("banner")).toBeNull();
@@ -14,7 +15,7 @@ describe("LoginPage", () => {
     });
 
     it("空欄で送信すると各項目にエラーを出し、最初の項目にフォーカスを移す", async () => {
-        const { user } = renderApp("/login");
+        const { user } = renderApp("/login", { loggedIn: false });
         await user.click(screen.getByRole("button", { name: "ログイン" }));
         expect(screen.getByText("＊メールアドレスを入力してください")).toBeInTheDocument();
         expect(screen.getByText("＊パスワードを入力してください")).toBeInTheDocument();
@@ -22,7 +23,7 @@ describe("LoginPage", () => {
     });
 
     it("認証に失敗するとバナーを出してフォーカスを移す", async () => {
-        const { user } = renderApp("/login");
+        const { user } = renderApp("/login", { loggedIn: false });
         await user.type(screen.getByRole("textbox", { name: "メールアドレス" }), "fail@example.jp");
         await user.type(screen.getByLabelText("パスワード"), "password");
         await user.click(screen.getByRole("button", { name: "ログイン" }));
@@ -32,7 +33,7 @@ describe("LoginPage", () => {
     });
 
     it("成功するとホームへ移り、トーストを出す", async () => {
-        const { user } = renderApp("/login");
+        const { user } = renderApp("/login", { loggedIn: false });
         await user.type(screen.getByRole("textbox", { name: "メールアドレス" }), "sato.hanako@example.jp");
         await user.type(screen.getByLabelText("パスワード"), "password");
         await user.click(screen.getByRole("button", { name: "ログイン" }));
@@ -42,8 +43,19 @@ describe("LoginPage", () => {
         expect(screen.getByRole("banner")).toBeInTheDocument();
     });
 
+    it("通信に失敗したときは、入力の誤りと区別して知らせる", async () => {
+        setMockOptions({ fail: true, slow: false });
+        const { user } = renderApp("/login", { loggedIn: false });
+        await user.type(screen.getByRole("textbox", { name: "メールアドレス" }), "sato@example.jp");
+        await user.type(screen.getByLabelText("パスワード", { selector: "input" }), "password");
+        await user.click(screen.getByRole("button", { name: "ログイン" }));
+        expect(await screen.findByText("ログインできませんでした")).toBeInTheDocument();
+        expect(screen.queryByRole("heading", { name: "メールアドレスかパスワードが違います" })).not.toBeInTheDocument();
+        setMockOptions({ fail: false, slow: false });
+    });
+
     it("「パスワードを表示」でパスワードの表示を切り替える", async () => {
-        const { user } = renderApp("/login");
+        const { user } = renderApp("/login", { loggedIn: false });
         const password = screen.getByLabelText("パスワード");
         expect(password).toHaveAttribute("type", "password");
         await user.click(screen.getByRole("checkbox", { name: "パスワードを表示" }));
@@ -53,7 +65,7 @@ describe("LoginPage", () => {
     });
 
     it("アクセシビリティ違反がない", async () => {
-        const { container } = renderApp("/login");
+        const { container } = renderApp("/login", { loggedIn: false });
         await expectNoA11yViolations(container);
     });
 });

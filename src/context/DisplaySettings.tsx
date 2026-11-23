@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from "react";
 import { appConfig } from "@/app.config";
 import { formatDateTime, type DateDisplay } from "@/lib/format";
+import { parseJson, readStored, writeStored } from "@/lib/storage";
 
 // 設定画面の選択肢。
 export const LOCALE_OPTIONS = [
@@ -39,20 +40,19 @@ const LOCALE_VALUES = LOCALE_OPTIONS.map((o) => o.value);
 // 選択肢にある値だけを採用し、それ以外は項目ごとに既定値へ戻す。
 export function loadDisplaySettings(): DateDisplay {
     const fallback = appConfig.display;
-    try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        if (!raw) return fallback;
-        const saved: unknown = JSON.parse(raw);
-        if (typeof saved !== "object" || saved === null) return fallback;
-        const { locale, timeZone } = saved as Record<string, unknown>;
-        return {
-            locale: isOption(LOCALE_VALUES, locale) ? locale : fallback.locale,
-            timeZone: isOption(TIME_ZONE_OPTIONS, timeZone) ? timeZone : fallback.timeZone,
-        };
-    } catch {
-        // localStorage が使えない環境や、JSON として読めない値の場合は既定値にする。
-        return fallback;
-    }
+    return readStored<DateDisplay>(
+        STORAGE_KEY,
+        (raw) => {
+            const saved = parseJson(raw);
+            if (typeof saved !== "object" || saved === null) return undefined;
+            const { locale, timeZone } = saved as Record<string, unknown>;
+            return {
+                locale: isOption(LOCALE_VALUES, locale) ? locale : fallback.locale,
+                timeZone: isOption(TIME_ZONE_OPTIONS, timeZone) ? timeZone : fallback.timeZone,
+            };
+        },
+        fallback,
+    );
 }
 
 // 日付の表示形式（ロケール・タイムゾーン）を画面全体で共有する。
@@ -61,11 +61,7 @@ export function DisplaySettingsProvider({ children }: { children: ReactNode }) {
 
     const setSettings = useCallback((next: DateDisplay) => {
         setSettingsState(next);
-        try {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-        } catch {
-            // 保存できなくても、このタブの間は反映される。
-        }
+        writeStored(STORAGE_KEY, JSON.stringify(next));
     }, []);
 
     const value = useMemo<DisplaySettingsValue>(

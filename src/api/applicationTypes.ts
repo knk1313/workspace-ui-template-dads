@@ -14,6 +14,14 @@ export const STATUS_LABELS: Record<ApplicationStatus, string> = {
     rejected: "不承認",
 };
 
+/**
+ * 承認できる状態（決定前）。画面のボタンの出し分けと、API の検証の両方で使う。
+ * 差し戻した申請（returned）も、出し直しを待たずに承認できる（docs/decisions.md D-33）。
+ */
+export const DECIDABLE: ApplicationStatus[] = ["submitted", "reviewing", "returned"];
+/** 差戻しができる状態（審査の途中）。 */
+export const RETURNABLE: ApplicationStatus[] = ["submitted", "reviewing"];
+
 export const CATEGORY_LABELS: Record<ApplicationCategory, string> = {
     subsidy: "補助金",
     permit: "許認可",
@@ -33,6 +41,12 @@ export type Application = {
     status: ApplicationStatus;
     /** 申請額（円）。届出など金額のないものは 0。 */
     amount: number;
+    /** 申請者の連絡先のメールアドレス。審査の結果を知らせる。 */
+    email: string;
+    /** 申請者の電話番号。未入力は ""。 */
+    phone: string;
+    /** 希望日（"YYYY-MM-DD"）。 */
+    desiredDate: string;
     /** 担当者。 */
     assignee: string;
     /** ISO 8601 */
@@ -64,15 +78,54 @@ export type HistoryItem = {
     status: "done" | "current" | "upcoming";
 };
 
+/** 一覧で並べ替えに使える列。 */
+export type ApplicationSortKey = "number" | "title" | "applicant" | "category" | "status" | "amount" | "assignee" | "updatedAt";
+
+/** 申請の一覧の検索条件。絞り込み・並べ替え・ページ送りは API の側で行う。 */
+export type ApplicationListParams = {
+    /** 受付番号・件名・申請者の部分一致（全角英数字も可）。 */
+    q?: string;
+    category?: ApplicationCategory | "";
+    status?: ApplicationStatus | "";
+    assignee?: string;
+    /** 並べ替え。null なら受付の新しい順（API の既定の順）。 */
+    sort?: { key: ApplicationSortKey; direction: "asc" | "desc" } | null;
+    /** 1 から数える。 */
+    page: number;
+    pageSize: number;
+};
+
+/** 申請の一覧の 1 ページ分。 */
+export type ApplicationListPage = {
+    items: Application[];
+    /** 条件に合う申請の総数（ページ送りの表示に使う）。 */
+    total: number;
+};
+
 /** 申請の作成・更新で送る内容。 */
-export type ApplicationInput = Pick<Application, "title" | "category" | "amount" | "applicant" | "organization" | "assignee"> & {
+export type ApplicationInput = Pick<
+    Application,
+    "title" | "category" | "amount" | "applicant" | "organization" | "email" | "phone" | "desiredDate" | "assignee"
+> & {
     attachments: Application["attachments"];
     memo?: string;
+};
+
+/** 職員（担当者）。 */
+export type StaffProfile = {
+    name: string;
+    department: string;
+    /** 内線番号。 */
+    extension: string;
 };
 
 /** 申請の詳細画面に必要な情報。 */
 export type ApplicationDetail = {
     application: Application;
+    /** 担当者の所属と連絡先。 */
+    assigneeProfile: StaffProfile;
+    /** 手続きの進み具合（受付 → 書類確認 → 審査 → 決定）。 */
+    history: HistoryItem[];
     /** 同じ申請者のほかの申請。 */
     related: Application[];
     activity: ActivityItem[];

@@ -1,4 +1,5 @@
 import { defineConfig, devices } from "@playwright/test";
+import { LOGGED_IN } from "./e2e/session";
 
 // E2E テスト（主要ページの表示、ナビゲーション、フォーム、テーブル、モーダル、モバイル幅、axe）。
 // `npm run test:e2e`。初回は `npm run test:e2e:install` で Chromium を入れる。
@@ -14,6 +15,7 @@ export default defineConfig({
     reporter: process.env.CI ? [["github"], ["list"]] : "list",
     use: {
         baseURL: "http://localhost:4173",
+        storageState: LOGGED_IN,
         trace: "on-first-retry",
         locale: "ja-JP",
         timezoneId: "Asia/Tokyo",

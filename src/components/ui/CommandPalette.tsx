@@ -1,16 +1,18 @@
 import { Fragment, useEffect, useId, useMemo, useRef, useState, type KeyboardEvent } from "react";
-import { Search, type LucideIcon } from "lucide-react";
+import { Search, X, type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { Icon } from "./Icon";
-import { useFocusTrap } from "./useFocusTrap";
+import { IconButton } from "./IconButton";
+import { hasOpenModal, useModalBehavior } from "./useModalBehavior";
 
 // コマンドパレット（ページやコマンドの検索）。DADS に該当コンポーネントがないため、
 // WAI-ARIA APG の Dialog（モーダル）+ Combobox（リストボックス付き）パターンで設計し、見た目は DADS のトークンで統一する（docs/decisions.md D-11）。
-//   - role="dialog" aria-modal、暗幕、フォーカストラップ、Esc / 暗幕クリックで閉じる、閉じたら元の要素にフォーカスを戻す。
+//   - role="dialog" aria-modal、暗幕、フォーカストラップ、背景の inert、Esc / 閉じるボタン / 暗幕クリックで閉じる、閉じたら元の要素にフォーカスを戻す。
+//     （タッチ操作のスクリーンリーダーは Esc を押せないため、閉じるボタンを必ず置く）
 //   - 入力は role="combobox"（aria-controls / aria-activedescendant / aria-expanded）。プレースホルダーは使わず、ラベルを視覚的に表示する。
 //   - 候補は role="listbox" / role="option"。グループは role="group" + aria-labelledby。
 //   - ↓ ↑ で候補を移動（端で折り返し）、Home / End で先頭 / 末尾、Enter で実行。該当なしのときはメッセージを表示する。
-//   - useCommandPaletteShortcut(onOpen) で Ctrl+K / Cmd+K から開く。
+//   - useCommandPaletteShortcut(onOpen) で Ctrl+K / Cmd+K から開く。ほかのモーダルが開いている間は開かない。
 
 export type CommandItem = {
     id: string;
@@ -49,6 +51,8 @@ export function useCommandPaletteShortcut(onOpen: () => void): void {
     useEffect(() => {
         function onKeyDown(e: globalThis.KeyboardEvent) {
             if ((e.metaKey || e.ctrlKey) && !e.altKey && !e.shiftKey && e.key.toLowerCase() === "k") {
+                // ダイアログの上に重ねて開くと、inert の背景の中に開いてしまうため開かない
+                if (hasOpenModal()) return;
                 e.preventDefault();
                 ref.current();
             }
@@ -67,7 +71,7 @@ export function CommandPalette({ open, onClose, items, label = "ページやコ�
     const [query, setQuery] = useState("");
     const [activeIndex, setActiveIndex] = useState(0);
 
-    useFocusTrap({ active: open, onEscape: onClose, containerRef: dialogRef, initialFocusRef: inputRef });
+    useModalBehavior({ open, onClose, containerRef: dialogRef, initialFocusRef: inputRef, inertOutside: true });
 
     // 閉じたら入力と選択位置を初期化する（次に開いたとき前回の検索語が残らないように）。
     // effect ではなく描画中に前回の open と比べて調整する。
@@ -143,7 +147,7 @@ export function CommandPalette({ open, onClose, items, label = "ページやコ�
 
     return (
         <div className="fixed inset-0 z-50 flex items-start justify-center bg-scrim p-4 pt-16 md:pt-24">
-            {/* 暗幕クリックで閉じる。装飾なのでボタンにはしない（Esc と閉じるボタンがある）。 */}
+            {/* 暗幕クリックで閉じる。装飾なのでボタンにはしない（Esc とパネルの閉じるボタンがある）。 */}
             <div className="absolute inset-0" onClick={onClose} aria-hidden="true" />
             <div
                 ref={dialogRef}
@@ -156,9 +160,12 @@ export function CommandPalette({ open, onClose, items, label = "ページやコ�
                 )}
             >
                 <div className="flex flex-col gap-2 border-b border-border p-4">
-                    <label htmlFor={inputId} className="text-16 font-bold text-text-strong">
-                        {label}
-                    </label>
+                    <div className="flex items-center justify-between gap-2">
+                        <label htmlFor={inputId} className="text-16 font-bold text-text-strong">
+                            {label}
+                        </label>
+                        <IconButton icon={X} label="閉じる" onClick={onClose} className="-my-2 -mr-2" />
+                    </div>
                     <div className="relative">
                         <Icon icon={Search} size="lg" className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-text-muted" />
                         <input
@@ -184,52 +191,54 @@ export function CommandPalette({ open, onClose, items, label = "ページやコ�
                     <p className="m-0 text-14 leading-130 text-text-muted">上下の矢印キーで選び、Enterで開き、Escで閉じます</p>
                 </div>
                 <div className="min-h-0 flex-1 overflow-y-auto py-2">
-                    {filtered.length === 0 ? (
-                        <p className="m-0 px-4 py-6 text-center text-text-muted">{emptyMessage}</p>
-                    ) : (
-                        <div id={listId} role="listbox" aria-label={label}>
-                            {groups.map(([group, groupItems], gi) => {
-                                const groupId = `${baseId}-group-${gi}`;
-                                const options = groupItems.map((item) => {
-                                    const selected = item === active;
-                                    return (
-                                        <div
-                                            key={item.id}
-                                            id={optionId(item)}
-                                            role="option"
-                                            aria-selected={selected}
-                                            onMouseDown={(e) => e.preventDefault()}
-                                            onMouseMove={() => {
-                                                const index = filtered.indexOf(item);
-                                                if (index !== activeIndex) setActiveIndex(index);
-                                            }}
-                                            onClick={() => run(item)}
-                                            className={cn(
-                                                "flex min-h-11 cursor-pointer items-start gap-2 px-4 py-2 text-16 leading-170",
-                                                selected ? "bg-primary-surface font-bold text-primary" : "text-text hover:bg-surface-muted",
-                                            )}
-                                        >
-                                            {item.icon && (
-                                                <span className="flex h-lh shrink-0 items-center">
-                                                    <Icon icon={item.icon} size="md" />
-                                                </span>
-                                            )}
-                                            <span className="min-w-0 break-words">{item.label}</span>
-                                        </div>
-                                    );
-                                });
-                                if (!group) return <Fragment key={groupId}>{options}</Fragment>;
+                    {/* 絞り込んだ結果の件数（0 件のときはその旨）を読み上げる */}
+                    <p role="status" className="sr-only">
+                        {filtered.length === 0 ? emptyMessage : `${filtered.length}件の候補があります`}
+                    </p>
+                    {filtered.length === 0 && <p className="m-0 px-4 py-6 text-center text-text-muted">{emptyMessage}</p>}
+                    {/* 0 件のときも listbox は残す（入力欄の aria-controls の参照先を保つ） */}
+                    <div id={listId} role="listbox" aria-label={label}>
+                        {groups.map(([group, groupItems], gi) => {
+                            const groupId = `${baseId}-group-${gi}`;
+                            const options = groupItems.map((item) => {
+                                const selected = item === active;
                                 return (
-                                    <div key={groupId} role="group" aria-labelledby={groupId}>
-                                        <div id={groupId} role="presentation" className="px-4 pt-3 pb-1 text-14 leading-130 font-bold text-text-muted">
-                                            {group}
-                                        </div>
-                                        {options}
+                                    <div
+                                        key={item.id}
+                                        id={optionId(item)}
+                                        role="option"
+                                        aria-selected={selected}
+                                        onMouseDown={(e) => e.preventDefault()}
+                                        onMouseMove={() => {
+                                            const index = filtered.indexOf(item);
+                                            if (index !== activeIndex) setActiveIndex(index);
+                                        }}
+                                        onClick={() => run(item)}
+                                        className={cn(
+                                            "flex min-h-11 cursor-pointer items-start gap-2 px-4 py-2 text-16 leading-170",
+                                            selected ? "bg-primary-surface font-bold text-primary" : "text-text hover:bg-surface-muted",
+                                        )}
+                                    >
+                                        {item.icon && (
+                                            <span className="flex h-lh shrink-0 items-center">
+                                                <Icon icon={item.icon} size="md" />
+                                            </span>
+                                        )}
+                                        <span className="min-w-0 break-words">{item.label}</span>
                                     </div>
                                 );
-                            })}
-                        </div>
-                    )}
+                            });
+                            if (!group) return <Fragment key={groupId}>{options}</Fragment>;
+                            return (
+                                <div key={groupId} role="group" aria-labelledby={groupId}>
+                                    <div id={groupId} role="presentation" className="px-4 pt-3 pb-1 text-14 leading-130 font-bold text-text-muted">
+                                        {group}
+                                    </div>
+                                    {options}
+                                </div>
+                            );
+                        })}
+                    </div>
                 </div>
             </div>
         </div>

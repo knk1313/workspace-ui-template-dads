@@ -36,7 +36,7 @@
 | グラフ | Recharts 3（`src/components/charts/`のラッパーからだけ使う） |
 | フォント | `@fontsource-variable/noto-sans-jp` |
 | テスト | Vitest、Testing Library、axe-core、Playwright、`@axe-core/playwright` |
-| 検査 | ESLint 9、`scripts/check-design-tokens.mjs`（色コードと任意の値の直書きを見つける）、`scripts/check-playwright-image.mjs` |
+| 検査 | ESLint 10、`scripts/check-design-tokens.mjs`（色コードと任意の値の直書きを見つける）、`scripts/check-playwright-image.mjs` |
 
 ## はじめ方
 
@@ -68,18 +68,18 @@ npm run dev               # http://localhost:5173
 
 画面は、`src/api/`の関数だけを通してデータを読み書きします。今はダミーのAPIです。データは画面を移っても残り、再読み込みすると初期値に戻ります。
 
-- **読み込み**：`useQuery`（`src/api/query.ts`）で、読み込み中とエラーと再読み込みを、全画面で同じ形にしています。一度読み込んだ結果は、画面に戻ったときにすぐ表示し、裏で読み込み直します。
+- **読み込み**：`useQuery`（`src/api/query.ts`）で、読み込み中とエラーと再読み込みを、全画面で同じ形にしています。一度読み込んだ結果は、画面に戻ったときにすぐ表示し、裏で読み込み直します。読み込みのキーと関数の組（`applicationQueries`など）は`src/api/`の各ファイルで決め、画面はそれを`useQuery`に渡すだけにしています。
 - **読み込めなかったとき**：エラーのバナーと「再読み込み」のボタン（`LoadError`）を出します。
 - **保存と送信**：`useMutation`で処理中の表示を出し、二重に送らないようにします。失敗しても、入力した内容は消しません。
 - **削除**：確認ダイアログを出さずにすぐ削除し、トーストの「元に戻す」で取り消せるようにしています。確認ダイアログを出すのは、取り消せない操作（アカウントの削除など）だけです。
 - **入力途中の離脱**：保存していない変更があるまま画面を離れようとすると、確認を出します。仕組みは`useUnsavedChangesWarning`にあります。
 - **失敗と遅延の見本**：設定の「表示」にある「動作の確認」で、通信を失敗させたり遅くしたりできます。エラーの表示と読み込み中の表示を確かめるときに使います。
 
-実際のAPIに置き換えるときは、`src/api/applications.ts`と`src/api/settings.ts`の各関数の中身を`fetch`などに差し替えます。戻り値の型（`src/api/applicationTypes.ts`と`src/api/types.ts`）を保てば、画面は変えなくて済みます。
+実際のAPIに置き換えるときは、`src/api/applications.ts`、`src/api/dashboard.ts`、`src/api/settings.ts`の各関数の中身を`fetch`などに差し替えます。戻り値の型（`src/api/applicationTypes.ts`、`src/api/dashboard.ts`、`src/api/types.ts`）を保てば、画面は変えなくて済みます。ログインと利用者の情報は`src/api/auth.ts`にまとめています。ログインしていないとログイン画面へ移ります（`src/layouts/AppLayout.tsx`。404と500の画面は除きます）。見本では、`fail@example.jp`のほかは、どのメールアドレスとパスワードでもログインできます。画面は`src/mocks/`を直接読みません（ESLintで止めます）。
 
 ## 部品
 
-部品はすべて`src/components/`にあります。使い方は、各ファイルの冒頭のコメント、Propsの型、同じ場所にある`*.test.tsx`を見てください。組み合わせ方は、見本の画面が参考になります。分類ごとの部品は次のとおりです。
+部品はすべて`src/components/`にあります。使い方は、各ファイルの冒頭のコメント、Propsの型、同じ場所にある`*.test.tsx`を見てください。ほかの部品の中で使う小さな部品（`FormField`、`Icon`、`RadioGroup`、`Spinner`、グラフの模様とツールチップ）は、専用のテストを置かず、それを使う部品のテストで確かめています。組み合わせ方は、見本の画面が参考になります。分類ごとの部品は次のとおりです。
 
 | 分類 | 部品（`src/components/ui/`） |
 | --- | --- |
@@ -101,7 +101,7 @@ npm run dev               # http://localhost:5173
 ```bash
 npm run typecheck          # 型の検査
 npm run lint               # ESLint、デザイントークンの検査、PlaywrightのDockerイメージの版の検査
-npm run test               # 単体テスト（全部品と全画面。axeとトークンのコントラストを含む）
+npm run test               # 単体テスト（部品と全画面。axeとトークンのコントラストを含む）
 npm run test:e2e:install   # 初回だけ：PlaywrightのChromiumを入れる
 npm run test:e2e           # E2E（エンドツーエンドのテスト。desktopとmobileの2つの幅）
 npm run test:visual        # 見た目の回帰テスト（Dockerが要る）
@@ -150,7 +150,7 @@ scripts/                   # 検査のスクリプトと、見本の画面を消
 2. **見本の画面を消す**：変更をすべてコミットしてから、`npm run remove-samples`を実行します。
 3. **画面を足す**：`src/pages/`に画面を作り、`src/routes.tsx`にルートを足します。ナビゲーションに出すときは、`src/app.config.ts`の`navigation`にも足します。E2Eで検査できるよう、`e2e/routes.ts`にも足します。
 4. **データをつなぐ**：`src/api/`の関数の中身を、実際のAPIの呼び出しに差し替えます。
-5. **色を変える**：`src/tokens/theme.css`の「プライマリー」の八つのトークンを、同じ色相の段階でまとめて差し替えます。たとえば緑にするときは、`key-900`を`green-900`に、`key-1000`を`green-1000`にします。変えたら、`npm run test`でコントラストの検査が通るかを確かめ、`npm run test:visual:update`で基準画像を撮り直します。`green-500`のように明るすぎる色は、文字のコントラストが足りないため、検査で止まります。緑は成功を表す色にも使っているため、見分けが付くかも確かめてください。ダークモードの色は`src/tokens/theme-dark.css`にあり、同じように差し替えます。
+5. **色を変える**：`src/tokens/theme.css`で`key-*`を使っているトークンを、同じ色相の段階でまとめて差し替えます。「プライマリー」の八つのほかに、行のホバーと選択（`surface-hover`、`surface-selected`）、ダッシュボードの強調の面（`surface-highlight`）、情報の色（`info`、`info-surface`）も`key-*`です。情報の色を青のまま残したいときは、`blue-*`に書き換えてから差し替えます。たとえば緑にするときは、`key-900`を`green-900`に、`key-1000`を`green-1000`にします。変えたら、`npm run test`でコントラストの検査が通るかを確かめ、`npm run test:visual:update`で基準画像を撮り直します。`green-500`のように明るすぎる色は、文字のコントラストが足りないため、検査で止まります。緑は成功を表す色にも使っているため、見分けが付くかも確かめてください。ダークモードの色は`src/tokens/theme-dark.css`にあります。こちらは`key-*`ではなく`blue-*`を直接使っているため、プライマリー、面、リンク、情報、グラフ、増減の色のうち`blue-*`の段を、同じ色相の段に差し替えます。
 
 見本の画面を消すと、ダッシュボード、申請の画面、申請のAPIとデータ、見本の画面の検査が消えます。ホーム、設定、ログイン、404、500の画面は残ります。消したあとは、次のコマンドで動くことを確かめ、見た目の回帰テストの基準画像を撮り直します。
 

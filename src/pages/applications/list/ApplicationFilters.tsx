@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import { SlidersHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Card, CardBody } from "@/components/ui/Card";
@@ -7,9 +7,9 @@ import { Drawer } from "@/components/ui/Drawer";
 import { FormField } from "@/components/ui/FormField";
 import { SearchBox } from "@/components/ui/SearchBox";
 import { Select } from "@/components/ui/Select";
-import { useMediaQuery } from "@/layouts/useMediaQuery";
-import { ASSIGNEES } from "@/mocks/applications";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { CATEGORY_LABELS, STATUS_LABELS } from "@/api/applicationTypes";
+import { useStaffOptions } from "../useStaffOptions";
 import type { ApplicationQuery, FilterKey } from "./useApplicationQuery";
 
 // 一覧の絞り込み。キーワード検索は常に表示し、種別・状態・担当者は
@@ -22,7 +22,6 @@ const MD_QUERY = "(min-width: 48rem)";
 const CATEGORY_OPTIONS = Object.entries(CATEGORY_LABELS).map(([value, label]) => ({ value, label }));
 const STATUS_OPTIONS = Object.entries(STATUS_LABELS).map(([value, label]) => ({ value, label }));
 // 選択肢が少ない（5 件以下）ため、3 つの絞り込みはすべてセレクトボックスにそろえる（DADS: 少数の選択肢はセレクト）。
-const ASSIGNEE_OPTIONS = ASSIGNEES.map((name) => ({ value: name, label: name }));
 
 type Props = {
     query: ApplicationQuery;
@@ -35,6 +34,7 @@ type Props = {
 };
 
 function FilterFields({ query, onFilterChange, idPrefix }: Pick<Props, "query" | "onFilterChange"> & { idPrefix: string }) {
+    const { options: assigneeOptions } = useStaffOptions(query.assignee);
     return (
         <>
             <FormField label="種別" id={`${idPrefix}-category`}>
@@ -44,7 +44,7 @@ function FilterFields({ query, onFilterChange, idPrefix }: Pick<Props, "query" |
                 <Select block placeholder="すべて" options={STATUS_OPTIONS} value={query.status} onChange={(e) => onFilterChange("status", e.target.value)} />
             </FormField>
             <FormField label="担当者" id={`${idPrefix}-assignee`}>
-                <Select block placeholder="すべて" options={ASSIGNEE_OPTIONS} value={query.assignee} onChange={(e) => onFilterChange("assignee", e.target.value)} />
+                <Select block placeholder="すべて" options={assigneeOptions} value={query.assignee} onChange={(e) => onFilterChange("assignee", e.target.value)} />
             </FormField>
         </>
     );
@@ -69,6 +69,23 @@ export function ApplicationFilters({ query, resultCount, loading = false, onFilt
         query.status && { key: "status" as const, label: `状態：${STATUS_LABELS[query.status]}` },
         query.assignee && { key: "assignee" as const, label: `担当者：${query.assignee}` },
     ].filter((c): c is { key: FilterKey; label: string } => Boolean(c));
+    // チップの削除ボタンは押すとチップごと消えるため、消したあとでフォーカスを移す先を決めておく
+    // （同じ位置の次のチップ → 一つ前のチップ → 「絞り込み条件はありません」の文）
+    const chipListRef = useRef<HTMLUListElement>(null);
+    const noChipsRef = useRef<HTMLParagraphElement>(null);
+    const focusAfterRemove = useRef<number | null>(null);
+    const removeChip = (index: number, key: FilterKey) => {
+        focusAfterRemove.current = index;
+        onFilterChange(key, "");
+    };
+    const chipKeys = chips.map((c) => c.key).join(",");
+    useLayoutEffect(() => {
+        const index = focusAfterRemove.current;
+        if (index === null) return;
+        focusAfterRemove.current = null;
+        const buttons = chipListRef.current?.querySelectorAll<HTMLButtonElement>("button");
+        (buttons?.[index] ?? buttons?.[index - 1] ?? noChipsRef.current)?.focus();
+    }, [chipKeys]);
     // ドロワーに入れた条件の数（キーワードはドロワーの外にあるので数えない）
     const drawerFilterCount = chips.filter((c) => c.key !== "q").length;
 
@@ -133,15 +150,17 @@ export function ApplicationFilters({ query, resultCount, loading = false, onFilt
 
             <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
                 {chips.length > 0 ? (
-                    <ul aria-label="適用中の条件" className="m-0 flex list-none flex-wrap items-center gap-2 p-0">
-                        {chips.map((chip) => (
+                    <ul ref={chipListRef} aria-label="適用中の条件" className="m-0 flex list-none flex-wrap items-center gap-2 p-0">
+                        {chips.map((chip, i) => (
                             <li key={chip.key} className="flex">
-                                <ChipTag label={chip.label} onRemove={() => onFilterChange(chip.key, "")} />
+                                <ChipTag label={chip.label} onRemove={() => removeChip(i, chip.key)} />
                             </li>
                         ))}
                     </ul>
                 ) : (
-                    <p className="m-0 text-16 text-text-muted">絞り込み条件はありません</p>
+                    <p ref={noChipsRef} tabIndex={-1} className="m-0 text-16 text-text-muted focus-visible:focus-ring">
+                        絞り込み条件はありません
+                    </p>
                 )}
                 {/* 条件を変えるたびに件数を読み上げる */}
                 <p role="status" className="m-0 text-16 text-text nums">

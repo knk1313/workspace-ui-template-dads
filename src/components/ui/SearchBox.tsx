@@ -1,4 +1,4 @@
-import { useId, type FormEvent, type Ref } from "react";
+import { useId, useRef, type FormEvent, type Ref } from "react";
 import { Search, X } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { Button } from "./Button";
@@ -51,6 +51,19 @@ export function SearchBox({
 }: SearchBoxProps) {
     const autoId = useId();
     const inputId = id ?? autoId;
+    const inputRef = useRef<HTMLInputElement | null>(null);
+    // 外から渡された ref と、内側で使う ref の両方に入力欄を渡す
+    const setInputRef = (el: HTMLInputElement | null) => {
+        inputRef.current = el;
+        if (typeof ref === "function") ref(el);
+        else if (ref) ref.current = el;
+    };
+
+    const clear = () => {
+        onClear?.();
+        // 消去ボタンは入力が空になると消えるため、フォーカスを入力欄へ移す（行き場を失わないように）
+        inputRef.current?.focus();
+    };
 
     const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -66,7 +79,7 @@ export function SearchBox({
                 <div className="relative flex min-w-0 flex-1">
                     <Icon icon={Search} size="lg" className="pointer-events-none absolute inset-y-0 left-4 z-10 my-auto text-text-muted" />
                     <input
-                        ref={ref}
+                        ref={setInputRef}
                         id={inputId}
                         type="search"
                         name={name}
@@ -79,7 +92,7 @@ export function SearchBox({
                         <button
                             type="button"
                             aria-label="入力内容を消去"
-                            onClick={onClear}
+                            onClick={clear}
                             className="absolute inset-y-0 right-0 flex w-11 items-center justify-center rounded-8 text-text hover:bg-surface-muted focus-visible:focus-ring"
                         >
                             <Icon icon={X} size="md" />

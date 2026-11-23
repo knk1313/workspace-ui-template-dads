@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { Trash2 } from "lucide-react";
 import { describe, expect, it } from "vitest";
@@ -36,9 +36,20 @@ describe("Tooltip", () => {
         const { user } = setup();
         await user.hover(button());
         await waitFor(() => expect(tooltip()).not.toHaveClass("sr-only"));
-        expect(tooltip()).toHaveClass("bg-text-strong", "text-text-inverse", "rounded-4", "text-14");
+        expect(tooltip().firstElementChild).toHaveClass("bg-text-strong", "text-text-inverse", "rounded-4", "text-14");
         await user.unhover(button());
         expect(tooltip()).toHaveClass("sr-only");
+    });
+
+    it("ポインターをツールチップの上へ動かしても消えない", async () => {
+        const { user } = setup();
+        await user.hover(button());
+        await waitFor(() => expect(tooltip()).not.toHaveClass("sr-only"));
+        // ボタンからツールチップへ動かす（どちらもラッパーの中なので、ラッパーからは離れない）
+        fireEvent.mouseOut(button(), { relatedTarget: tooltip() });
+        fireEvent.mouseOver(tooltip(), { relatedTarget: button() });
+        expect(tooltip()).not.toHaveClass("sr-only");
+        expect(tooltip()).not.toHaveClass("pointer-events-none");
     });
 
     it("フォーカスで表示し、Escで隠し、フォーカスが外れても隠す", async () => {

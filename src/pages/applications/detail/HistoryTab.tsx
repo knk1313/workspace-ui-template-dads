@@ -3,21 +3,20 @@ import { ActivityFeed, type ActivityItem } from "@/components/ui/ActivityFeed";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Timeline } from "@/components/ui/Timeline";
 import { useDisplaySettings } from "@/context/DisplaySettings";
-import { historyFor } from "@/mocks/activity";
-import { type ActivityItem as ActivityRecord } from "@/api/applicationTypes";
-import type { ApplicationStatus } from "@/api/applicationTypes";
+import type { ActivityItem as ActivityRecord, HistoryItem } from "@/api/applicationTypes";
 
 // 履歴タブ。手続きの進み具合（タイムライン）と、職員の操作履歴（アクティビティ）を並べる。
 
 type Props = {
-    status: ApplicationStatus;
+    /** 手続きの進み具合（詳細の API が返す）。 */
+    history: HistoryItem[];
     activity: ActivityRecord[];
 };
 
-export function HistoryTab({ status, activity }: Props) {
+export function HistoryTab({ history, activity }: Props) {
     const { formatDateTime } = useDisplaySettings();
 
-    const timeline = historyFor(status).map((h) => ({
+    const timeline = history.map((h) => ({
         id: h.id,
         title: h.title,
         description: h.description,

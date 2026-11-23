@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
-import { getMockOptions, setMockOptions, type MockOptions } from "@/api/mock";
-import { setQueryData, useMutation, useQuery } from "@/api/query";
-import { getNotificationSettings, getProfile, saveNotificationSettings, saveProfile } from "@/api/settings";
+import { getQueryData, setQueryData, useMutation, useQuery } from "@/api/query";
+import { invalidateCurrentUser } from "@/api/auth";
+import { saveNotificationSettings, saveProfile, settingsQueries } from "@/api/settings";
 import type { NotificationSettings, Profile } from "@/api/types";
 import { useSearchParams } from "react-router";
 import { ActionPanel } from "@/components/ui/ActionPanel";
@@ -28,10 +28,11 @@ import { Textarea } from "@/components/ui/Textarea";
 import { useToast } from "@/components/ui/Toast";
 import { LOCALE_OPTIONS, TIME_ZONE_OPTIONS, useDisplaySettings } from "@/context/DisplaySettings";
 import { useLayoutPreference, type LayoutKind } from "@/context/LayoutPreference";
+import { MockApiOptions } from "./MockApiOptions";
 import { useThemePreference, type ThemePreference } from "@/context/ThemePreference";
 import { useUnsavedChangesWarning } from "@/hooks/useUnsavedChangesWarning";
 import { formatDateTime } from "@/lib/format";
-import { DEPARTMENTS, PROFILE, SAMPLE_DATETIME } from "@/mocks/settings";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 // 設定画面。タブで「アカウント」「通知」「表示」に分け、各タブの中は設定画面型のフォーム
 // （FormSection layout="settings": md 以上で左に見出し・説明、右に項目）にする。
@@ -44,10 +45,13 @@ type TabValue = (typeof TAB_VALUES)[number];
 const IMAGE_ACCEPT = "image/png,image/jpeg";
 const IMAGE_MAX_BYTES = 2 * 1024 * 1024;
 const BIO_MAX = 200;
+/** 日付の形式の「表示の例」に使う日時（ISO 8601）。 */
+const SAMPLE_DATETIME = "2026-10-24T09:30:00Z";
 // 形式の厳密な検査はサーバー側で行う前提で、明らかな入力誤り（@ やドメインの欠落）だけを見る。
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default function SettingsPage() {
+    usePageTitle("設定");
     // 選択中のタブは URL（?tab=）に持つ。画面レイアウトを保存するとシェルが入れ替わってこの画面が描き直されるため、
     // コンポーネントの state に持つと「表示」タブから「アカウント」タブに戻ってしまう。
     const [searchParams, setSearchParams] = useSearchParams();
@@ -82,7 +86,7 @@ export default function SettingsPage() {
 
 /* ───────────── アカウント ───────────── */
 
-type ProfileErrors = { name?: string; email?: string; image?: string };
+type ProfileErrors = { name?: string; email?: string; bio?: string; image?: string };
 
 /** 読み込み中のフォームの形。 */
 function FormSkeleton({ label }: { label: string }) {
@@ -102,7 +106,7 @@ function FormSkeleton({ label }: { label: string }) {
 }
 
 function AccountTab() {
-    const profile = useQuery("settings/profile", getProfile);
+    const profile = useQuery(settingsQueries.profile);
     return (
         <div className="flex flex-col gap-6">
             {profile.error && !profile.data ? (
@@ -120,6 +124,9 @@ function AccountTab() {
 function ProfileForm({ initial }: { initial: Profile }) {
     const { toast } = useToast();
     const save = useMutation(saveProfile);
+    const departments = useQuery(settingsQueries.departments);
+    // 読み込むまでは、今の所属だけを選択肢にする（空の選択肢で今の値が消えて見えないように）
+    const departmentOptions = (departments.data ?? [initial.department]).map((d) => ({ value: d, label: d }));
     const [saved, setSaved] = useState(initial);
     const [name, setName] = useState(initial.name);
     const [email, setEmail] = useState(initial.email);
@@ -129,6 +136,7 @@ function ProfileForm({ initial }: { initial: Profile }) {
     const [errors, setErrors] = useState<ProfileErrors>({});
     const nameRef = useRef<HTMLInputElement>(null);
     const emailRef = useRef<HTMLInputElement>(null);
+    const bioRef = useRef<HTMLTextAreaElement>(null);
     const [preview, setPreviewFile] = useObjectUrl();
 
     const onImageChange = (files: File[]) => {
@@ -151,19 +159,26 @@ function ProfileForm({ initial }: { initial: Profile }) {
         const next: ProfileErrors = { image: errors.image };
         if (!name.trim()) next.name = "表示名を入力してください";
         if (!email.trim()) next.email = "メールアドレスを入力してください";
-        else if (!EMAIL_PATTERN.test(email.trim())) next.email = "メールアドレスを「name@example.jp」の形式で入力してください";
+        else if (!EMAIL_PATTERN.test(email.trim())) next.email = "メールアドレスを「name@example.jp」のように、@とドメインを含めて入力してください";
+        const bioLength = Array.from(bio).length;
+        if (bioLength > BIO_MAX) next.bio = `自己紹介を${BIO_MAX}文字以内にしてください（${bioLength - BIO_MAX}文字超過）`;
         setErrors(next);
         // 最初の誤りにフォーカスを移し、何を直せばよいかをその場で読めるようにする。
         if (next.name) return nameRef.current?.focus();
         if (next.email) return emailRef.current?.focus();
+        if (next.bio) return bioRef.current?.focus();
         if (next.image) return;
         try {
-            const result = await save.run({ name: name.trim(), email: email.trim(), department, bio });
-            setQueryData<Profile>("settings/profile", () => result);
+            const result = await save.run({ name: name.trim(), email: email.trim(), department, bio }, images[0]);
+            setQueryData(settingsQueries.profile, () => result);
+            // ヘッダーの利用者の名前と画像も、保存した内容で読み込み直す
+            invalidateCurrentUser();
             setSaved(result);
             setName(result.name);
             setEmail(result.email);
             setImages([]);
+            // 保存した画像は result.imageUrl で出すので、選んだときのプレビューは片付ける
+            setPreviewFile(undefined);
             toast({ type: "success", title: "プロフィールを保存しました" });
         } catch {
             // 入力はそのまま残し、もう一度「保存する」を押せばやり直せる
@@ -195,17 +210,17 @@ function ProfileForm({ initial }: { initial: Profile }) {
                                 block
                                 value={department}
                                 onChange={(e) => setDepartment(e.target.value)}
-                                options={DEPARTMENTS.map((d) => ({ value: d, label: d }))}
+                                options={departmentOptions}
                             />
                         </FormField>
-                        <FormField label="自己紹介" requirement="optional" supportText={`担当業務などを${BIO_MAX}文字以内で書いてください`}>
-                            <Textarea name="bio" rows={4} counterMax={BIO_MAX} value={bio} onChange={(e) => setBio(e.target.value)} />
+                        <FormField label="自己紹介" requirement="optional" supportText={`担当業務などを${BIO_MAX}文字以内で書いてください`} errorText={errors.bio}>
+                            <Textarea ref={bioRef} name="bio" rows={4} counterMax={BIO_MAX} value={bio} onChange={(e) => setBio(e.target.value)} />
                         </FormField>
                         <FormField label="プロフィール画像" requirement="optional" supportText="PNGかJPEGの画像で、2 MBまでです" errorText={errors.image}>
                             {/* アバター（48px）とファイル選択ボタン（48px）は高さが同じなので、上端で揃えると中央も揃う。
                                 選択後にファイル一覧が下に伸びてもアバターが中央へずれないようitems-startにする。 */}
                             <div className="flex items-start gap-4">
-                                <Avatar name={name.trim() || PROFILE.name} src={preview} size="lg" />
+                                <Avatar name={name.trim() || saved.name} src={preview ?? saved.imageUrl} size="lg" />
                                 <FileUpload files={images} onChange={onImageChange} accept={IMAGE_ACCEPT} dropArea={false} buttonLabel="画像を選択" className="min-w-0 flex-1" />
                             </div>
                         </FormField>
@@ -287,10 +302,10 @@ function revoke(url: string | undefined) {
 
 /* ───────────── 通知 ───────────── */
 
-const NOTIFICATIONS_KEY = "settings/notifications";
+const NOTIFICATIONS = settingsQueries.notifications;
 
 function NotificationsTab() {
-    const settings = useQuery(NOTIFICATIONS_KEY, getNotificationSettings);
+    const settings = useQuery(NOTIFICATIONS);
     if (settings.error && !settings.data) return <LoadError subject="通知の設定" error={settings.error} onRetry={settings.reload} />;
     if (!settings.data) return <FormSkeleton label="通知の設定" />;
     return <NotificationsForm settings={settings.data} />;
@@ -313,16 +328,23 @@ function NotificationsForm({ settings }: { settings: NotificationSettings }) {
     const dirty = byEmail !== settings.channels.email || inApp !== settings.channels.inApp;
     useUnsavedChangesWarning(dirty, { title: "通知方法の変更を破棄して移動する" });
 
-    const toggle = async (key: EventKey, value: boolean) => {
-        const previous = settings;
-        const next = { ...settings, [key]: value };
-        setQueryData<NotificationSettings>(NOTIFICATIONS_KEY, () => next);
-        try {
-            await saveNotificationSettings(next);
-        } catch {
-            setQueryData<NotificationSettings>(NOTIFICATIONS_KEY, () => previous);
-            toast({ type: "error", title: "通知の設定を変更できませんでした", description: "時間をおいて、もう一度切り替えてください。" });
-        }
+    // 続けて切り替えたときに保存の順番が入れ替わらないよう、保存は一つずつ順に行う
+    const saving = useRef<Promise<void>>(Promise.resolve());
+
+    const toggle = (key: EventKey, value: boolean) => {
+        setQueryData(NOTIFICATIONS, (prev) => ({ ...(prev ?? settings), [key]: value }));
+        const save = async () => {
+            try {
+                // 保存するのは、その時点の画面の状態（先に切り替えたほかの項目も含む）
+                await saveNotificationSettings({ ...settings, ...getQueryData(NOTIFICATIONS) });
+            } catch {
+                // 失敗した項目だけを元に戻す（丸ごと戻すと、あとから切り替えた項目まで戻ってしまう）
+                setQueryData(NOTIFICATIONS, (prev) => ({ ...(prev ?? settings), [key]: !value }));
+                toast({ type: "error", title: "通知の設定を変更できませんでした", description: "時間をおいて、もう一度切り替えてください。" });
+            }
+        };
+        saving.current = saving.current.then(save);
+        return saving.current;
     };
 
     const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -336,7 +358,7 @@ function NotificationsForm({ settings }: { settings: NotificationSettings }) {
         setChannelError(undefined);
         try {
             const result = await saveChannels.run({ ...settings, channels: { email: byEmail, inApp } });
-            setQueryData<NotificationSettings>(NOTIFICATIONS_KEY, () => result);
+            setQueryData(NOTIFICATIONS, () => result);
             toast({ type: "success", title: "通知方法を保存しました" });
         } catch {
             toast({ type: "error", title: "通知方法を保存できませんでした", description: "時間をおいて、もう一度保存してください。" });
@@ -457,44 +479,6 @@ function DisplayTab() {
             </Card>
             <MockApiOptions />
         </div>
-    );
-}
-
-// 見本用: ダミー API の通信を失敗させたり遅くしたりして、エラー表示・再試行・読み込み中・保存中の表示を確かめる。
-// 自分のアプリにするときは、src/api/mock.ts と一緒に削除する。
-function MockApiOptions() {
-    const [options, setOptions] = useState<MockOptions>(getMockOptions);
-    const update = (next: MockOptions) => {
-        setMockOptions(next);
-        setOptions(next);
-    };
-    return (
-        <Card as="section">
-            <CardHeader
-                title="動作の確認（見本用）"
-                description="通信の失敗や遅延を起こして、エラーの表示や読み込み中の表示を確かめられます。ブラウザーのタブを閉じると元に戻ります。"
-            />
-            <CardBody>
-                <ul className="m-0 flex list-none flex-col gap-2 p-0">
-                    <li>
-                        <Switch
-                            className="flex w-full max-w-sm justify-between"
-                            label="通信を失敗させる"
-                            checked={options.fail}
-                            onChange={(fail) => update({ ...options, fail })}
-                        />
-                    </li>
-                    <li>
-                        <Switch
-                            className="flex w-full max-w-sm justify-between"
-                            label="通信を遅くする（3秒）"
-                            checked={options.slow}
-                            onChange={(slow) => update({ ...options, slow })}
-                        />
-                    </li>
-                </ul>
-            </CardBody>
-        </Card>
     );
 }
 

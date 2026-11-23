@@ -3,7 +3,7 @@ import { useLocation } from "react-router";
 import { X, type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { IconButton } from "@/components/ui/IconButton";
-import { useFocusTrap } from "@/components/ui/useFocusTrap";
+import { useModalBehavior } from "@/components/ui/useModalBehavior";
 import { Brand } from "./ShellHeader";
 
 // モバイル（lg 未満）のメニューを入れるドロワー（DADS ドロワー + モバイルメニュー）。
@@ -32,7 +32,8 @@ export function MobileDrawer({ open, onClose, id, children, appName, logo, width
     const closeRef = useRef<HTMLButtonElement>(null);
     const { pathname } = useLocation();
 
-    useFocusTrap({ active: open, onEscape: onClose, containerRef: panelRef, initialFocusRef: closeRef });
+    // 画面全体に出すときは背景を inert にする（親の中に収める見本の表示では、ページ全体を止めないよう付けない）
+    useModalBehavior({ open, onClose, containerRef: panelRef, initialFocusRef: closeRef, inertOutside: !contained });
 
     // 経路が変わったら閉じる（初回描画では閉じない）。
     const lastPath = useRef(pathname);

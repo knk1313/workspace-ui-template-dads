@@ -31,7 +31,10 @@ const REMOVE = [
     "src/pages/applications",
     "src/pages/dashboard",
     "src/api/applications.ts",
+    "src/api/applications.test.ts",
     "src/api/applicationTypes.ts",
+    "src/api/dashboard.ts",
+    "src/pages/sampleRoutes.tsx",
     "src/mocks/applications.ts",
     "src/mocks/activity.ts",
     "src/mocks/applicationForm.ts",
@@ -49,10 +52,12 @@ import { ButtonLink } from "@/components/ui/Button";
 import { Card, CardBody } from "@/components/ui/Card";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { PageHeader } from "@/components/ui/PageHeader";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 // ホーム。自分のアプリの最初の画面に書き換える。
-// 画面を足すときは、src/pages/ に画面を作り、src/routes.tsx にルートを、src/app.config.ts の navigation に項目を足す。
+// 画面を足すときは、src/pages/ に画面を作り（名前は usePageTitle で付ける）、src/routes.tsx にルートを、src/app.config.ts の navigation に項目を足す。
 export default function HomePage() {
+    usePageTitle("ホーム");
     return (
         <div className="flex flex-col gap-6">
             <PageHeader title="ホーム" description="ここに、アプリの最初の画面を作ります" />
@@ -82,79 +87,11 @@ describe("HomePage", () => {
     it("見出しと、最初の画面の作り方を表示する", async () => {
         const { container } = renderApp("/");
         expect(screen.getByRole("heading", { level: 1, name: "ホーム" })).toBeInTheDocument();
+        expect(document.title).toMatch(/^ホーム \\| /);
         expect(screen.getByRole("link", { name: "設定を開く" })).toHaveAttribute("href", "/settings");
         await expectNoA11yViolations(container);
     });
 });
-`,
-    "src/routes.tsx": `import type { RouteObject } from "react-router";
-import { AppLayout } from "@/layouts/AppLayout";
-import HomePage from "@/pages/home/HomePage";
-import SettingsPage from "@/pages/settings/SettingsPage";
-import LoginPage from "@/pages/auth/LoginPage";
-import NotFoundPage from "@/pages/errors/NotFoundPage";
-import ServerErrorPage from "@/pages/errors/ServerErrorPage";
-
-// 画面のルーティング。ナビゲーションに出す画面は src/app.config.ts の navigation にも足す。
-//   /login       ログイン（シェルなし）
-//   /            ホーム
-//   /settings    設定
-//   /error/500   500 エラー画面のプレビュー
-//   *            404
-export const routes: RouteObject[] = [
-    { path: "/login", element: <LoginPage /> },
-    {
-        element: <AppLayout />,
-        children: [
-            { index: true, element: <HomePage /> },
-            { path: "settings", element: <SettingsPage /> },
-            { path: "error/500", element: <ServerErrorPage /> },
-            { path: "*", element: <NotFoundPage /> },
-        ],
-    },
-];
-`,
-    "src/layouts/headerContent.ts": `import type { CommandItem } from "@/components/ui/CommandPalette";
-
-// ヘッダーの検索（コマンドパレット）とお知らせに出す、アプリ固有の内容。
-// 検索の候補を足したり、お知らせを API から読み込んだりするときは、このファイルを書き換える。
-
-export type HeaderNotification = { id: string; title: string; description?: string; href?: string };
-
-export type HeaderNotifications = {
-    items: HeaderNotification[];
-    isLoading: boolean;
-    error: Error | undefined;
-};
-
-const NO_ITEMS: CommandItem[] = [];
-const NO_NOTIFICATIONS: HeaderNotifications = { items: [], isLoading: false, error: undefined };
-
-/** 検索で、ナビゲーションの画面に加えて出す候補。 */
-export function useHeaderSearchItems(navigate: (to: string) => void): CommandItem[] {
-    void navigate; // 候補を足すときは、onSelect で navigate("/…") を呼ぶ
-    return NO_ITEMS;
-}
-
-/** お知らせ。 */
-export function useHeaderNotifications(): HeaderNotifications {
-    return NO_NOTIFICATIONS;
-}
-`,
-    "e2e/routes.ts": `// E2E と見た目の回帰テストで、すべての画面に対して行う検査の対象。
-// 画面を足したら、ここにも足す（h1 は画面の見出し。読み込むまで決まらないときは null）。
-
-export type PageRoute = { name: string; path: string; h1: string | null };
-
-export const PAGES: PageRoute[] = [
-    { name: "home", path: "/", h1: "ホーム" },
-    { name: "settings-profile", path: "/settings", h1: "設定" },
-    { name: "settings-notifications", path: "/settings?tab=notifications", h1: "設定" },
-    { name: "settings-display", path: "/settings?tab=display", h1: "設定" },
-    { name: "login", path: "/login", h1: "ログイン" },
-    { name: "not-found", path: "/no-such-page", h1: "ページが見つかりません" },
-    { name: "server-error", path: "/error/500", h1: "ページを表示できません" },
-];
 `,
 };
 
@@ -174,6 +111,19 @@ for (const [path, content] of Object.entries(WRITE)) {
     writeFileSync(path, content);
     console.log(`書いた: ${path}`);
 }
+
+// ルート・ヘッダーの内容・E2E の対象は、見本の部分を読み込む行だけを置き換える（ファイル全体の写しを持たないため、
+// テンプレートの共通の部分を変えても、このスクリプトを直さずに済む）
+replaceIn("src/routes.tsx", /import \{ sampleRoutes \} from "@\/pages\/sampleRoutes";/, `import HomePage from "@/pages/home/HomePage";`);
+replaceIn("src/routes.tsx", /^( *)\.\.\.sampleRoutes,$/m, "$1{ index: true, element: <HomePage /> },");
+replaceIn("src/routes.tsx", /^\/\/ +（見本） .*\n/m, "//   /            ホーム\n");
+console.log("書き換えた: src/routes.tsx（見本のルート → ホーム）");
+replaceIn("src/layouts/headerContent.ts", /from "@\/pages\/applications\/headerContent";/, `from "./headerContentEmpty";`);
+console.log("書き換えた: src/layouts/headerContent.ts（何も出さない版に切り替え）");
+replaceIn("e2e/routes.ts", /^\/\/ 見本の申請管理の画面は.*\n/m, "");
+replaceIn("e2e/routes.ts", /import \{ SAMPLE_PAGES \} from "\.\/samples\/routes";\n\n/, "");
+replaceIn("e2e/routes.ts", /^( *)\.\.\.SAMPLE_PAGES,$/m, `$1{ name: "home", path: "/", h1: "ホーム" },`);
+console.log("書き換えた: e2e/routes.ts（見本の画面 → ホーム）");
 
 replaceIn(
     "src/app.config.ts",

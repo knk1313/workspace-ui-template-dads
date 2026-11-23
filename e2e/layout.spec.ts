@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { waitForLoaded } from "./helpers";
+import { isMobile, waitForLoaded } from "./helpers";
 import { PAGES } from "./routes";
 import { findMisalignments, findObscuredFocus } from "./layout";
 
@@ -21,6 +21,8 @@ for (const path of PATHS) {
     test(`${path}: Tabで移動したフォーカスが固定ヘッダーの下に隠れない`, async ({ page }) => {
         await page.goto(path);
         await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+        // 操作の途中で中身が届くと、フォーカスした要素の位置がずれ、測るたびに結果が変わる
+        await waitForLoaded(page);
         expect(await findObscuredFocus(page, 40, "Tab"), "Tab").toEqual([]);
         // ページの末尾から戻るとき（上方向へのスクロール）に隠れやすい
         await page.evaluate(() => {
@@ -30,3 +32,31 @@ for (const path of PATHS) {
         expect(await findObscuredFocus(page, 40, "Shift+Tab"), "Shift+Tab").toEqual([]);
     });
 }
+
+test("サイドバーを開閉する途中で、ラベルが折り返されない", async ({ page }) => {
+    test.skip(isMobile(page), "サイドバーが出るPC幅だけ");
+    await page.goto("/settings");
+    await waitForLoaded(page);
+    const nav = page.getByRole("navigation", { name: "メインナビゲーション" });
+    await expect(nav).toBeVisible();
+    const normal = await nav.getByRole("link").evaluateAll((els) => Math.max(...els.map((el) => el.getBoundingClientRect().height)));
+
+    for (const name of ["サイドバーを折りたたむ", "サイドバーを広げる"]) {
+        // 押してからアニメーションが終わるまで、フレームごとに項目の高さ（折り返すと高くなる）とサイドバーの幅を測る
+        const frames = await page.getByRole("button", { name }).evaluate(async (button) => {
+            const aside = button.closest("aside")!;
+            const frames: { width: number; height: number }[] = [];
+            (button as HTMLElement).click();
+            const start = performance.now();
+            while (performance.now() - start < 500) {
+                await new Promise((resolve) => requestAnimationFrame(resolve));
+                const heights = Array.from(aside.querySelectorAll("nav a"), (el) => el.getBoundingClientRect().height);
+                frames.push({ width: aside.parentElement!.getBoundingClientRect().width, height: Math.max(...heights) });
+            }
+            return frames;
+        });
+        // 幅が変わる途中を測れていること（測れていなければ、この検査は意味がない）
+        expect(new Set(frames.map((f) => Math.round(f.width))).size).toBeGreaterThan(2);
+        expect(Math.max(...frames.map((f) => f.height))).toBeLessThanOrEqual(normal);
+    }
+});

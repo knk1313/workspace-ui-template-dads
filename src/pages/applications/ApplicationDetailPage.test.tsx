@@ -1,5 +1,6 @@
-import { screen, within } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { act, screen, waitFor, within } from "@testing-library/react";
+import { approveApplication, createApplication } from "@/api/applications";
+import { describe, expect, it, vi } from "vitest";
 import { APPLICATIONS } from "@/mocks/applications";
 import { expectNoA11yViolations } from "@/test/axe";
 import { renderApp } from "@/test/renderApp";
@@ -56,13 +57,52 @@ describe("ApplicationDetailPage", () => {
         expect(screen.getByText(`${reviewing.number}を承認しました`)).toBeInTheDocument();
         // 決定済みになったので承認ボタンは出さない
         expect(screen.queryByRole("button", { name: "承認する" })).not.toBeInTheDocument();
+        // ボタンが消えたので、フォーカスは結果のバナーの見出しへ移す
+        await waitFor(() => expect(screen.getByRole("heading", { name: "申請を承認しました" })).toHaveFocus());
+    });
+
+    it("ブラウザーのタブの名前を、申請の件名にする。画面を移ると変わる", async () => {
+        const { router } = await renderDetail(`/applications/${reviewing.id}`);
+        await waitFor(() => expect(document.title).toBe(`${reviewing.title} | 申請管理システム`));
+        await act(() => router.navigate("/applications"));
+        await waitFor(() => expect(document.title).toBe("申請一覧 | 申請管理システム"));
+    });
+
+    it("同じ名前の添付ファイルが2つあっても、両方を表示する", async () => {
+        const created = await createApplication({
+            title: "同じ名前の添付",
+            category: "other",
+            amount: 0,
+            applicant: "山田 太郎",
+            organization: "個人",
+            email: "yamada@example.jp",
+            phone: "",
+            desiredDate: "2099-12-01",
+            assignee: "",
+            attachments: [
+                { name: "scan.pdf", size: 1024 },
+                { name: "scan.pdf", size: 2048 },
+            ],
+        });
+        const spy = vi.spyOn(console, "error").mockImplementation(() => {});
+        const { user } = await renderDetail(`/applications/${created.id}`);
+        await user.click(screen.getByRole("tab", { name: /^添付ファイル/ }));
+        expect(screen.getAllByRole("button", { name: "scan.pdfをダウンロード" })).toHaveLength(2);
+        // key が重なると React が警告を出す
+        expect(spy.mock.calls.some((args) => String(args[0]).includes("same key"))).toBe(false);
+        spy.mockRestore();
+    });
+
+    it("承認済みの申請をもう一度承認しようとすると、APIが断る", async () => {
+        await approveApplication(reviewing.id);
+        await expect(approveApplication(reviewing.id)).rejects.toThrow(/すでに承認された/);
     });
 
     it("差戻しダイアログ：開くと見出しにフォーカスし、未入力で送るとエラー、Escで閉じてトリガーへ戻る", async () => {
         const { user } = await renderDetail(`/applications/${reviewing.id}`);
         const trigger = screen.getByRole("button", { name: "その他の操作" });
         await user.click(trigger);
-        await user.click(screen.getByRole("menuitem", { name: "差戻し" }));
+        await user.click(screen.getByRole("menuitem", { name: "差し戻す" }));
 
         const dialog = screen.getByRole("dialog", { name: "申請を差し戻す" });
         expect(within(dialog).getByRole("heading", { name: "申請を差し戻す" })).toHaveFocus();
@@ -81,7 +121,7 @@ describe("ApplicationDetailPage", () => {
     it("理由を入力して差し戻すと、差戻しのバナーに理由を表示する", async () => {
         const { user } = await renderDetail(`/applications/${reviewing.id}`);
         await user.click(screen.getByRole("button", { name: "その他の操作" }));
-        await user.click(screen.getByRole("menuitem", { name: "差戻し" }));
+        await user.click(screen.getByRole("menuitem", { name: "差し戻す" }));
         const dialog = screen.getByRole("dialog", { name: "申請を差し戻す" });
         await user.type(within(dialog).getByRole("textbox", { name: /差戻しの理由/ }), "添付書類の押印が不足しています。");
         await user.click(within(dialog).getByRole("button", { name: "差し戻す" }));

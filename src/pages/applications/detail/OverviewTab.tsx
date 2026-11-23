@@ -3,8 +3,7 @@ import { Card, CardBody, CardHeader } from "@/components/ui/Card";
 import { DescriptionList } from "@/components/ui/DescriptionList";
 import { StackedList, StackedListItem } from "@/components/ui/StackedList";
 import { useDisplaySettings } from "@/context/DisplaySettings";
-import { CATEGORY_LABELS, type Application } from "@/api/applicationTypes";
-import { findStaff } from "@/mocks/staff";
+import { CATEGORY_LABELS, type Application, type StaffProfile } from "@/api/applicationTypes";
 import { ApplicationStatusChip } from "../list/ApplicationStatusChip";
 import { formatAmount } from "../list/format";
 
@@ -17,11 +16,12 @@ type Props = {
     application: Application;
     /** 同じ申請者の他の申請（画面内の状態から渡す）。 */
     related: Application[];
+    /** 担当者の所属と連絡先（詳細の API が返す）。 */
+    staff: StaffProfile;
 };
 
-export function OverviewTab({ application: app, related }: Props) {
+export function OverviewTab({ application: app, related, staff }: Props) {
     const { formatDateTime } = useDisplaySettings();
-    const staff = findStaff(app.assignee);
     const amount = formatAmount(app.amount);
 
     return (
