@@ -196,7 +196,7 @@ function ApplicationForm({ mode, application }: { mode: "create" | "edit"; appli
     };
 
     const goToConfirm = () => {
-        const found = validateApplicationForm(values, today);
+        const found = validateApplicationForm(values, today, application?.desiredDate);
         setErrors(found);
         setSubmitCount((n) => n + 1);
         if (found.length === 0) {

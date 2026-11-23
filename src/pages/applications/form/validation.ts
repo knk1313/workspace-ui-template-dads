@@ -130,8 +130,10 @@ function isAcceptedFile(file: File): boolean {
 /**
  * 入力値を検証し、エラーをフォームの並び順で返す。エラーがなければ空配列。
  * today は "YYYY-MM-DD"（テストで日付を固定できるよう引数で受け取る）。
+ * savedDesiredDate は、編集する申請に保存してある希望日。この日付のままなら、今日より前でもエラーにしない
+ * （希望日が過ぎた申請でも、ほかの欄を直して保存できるようにするため）。
  */
-export function validateApplicationForm(values: ApplicationFormValues, today: string = todayIso()): FieldError[] {
+export function validateApplicationForm(values: ApplicationFormValues, today: string = todayIso(), savedDesiredDate?: string): FieldError[] {
     const errors: Partial<Record<FieldName, string>> = {};
 
     const title = values.title.trim();
@@ -162,7 +164,7 @@ export function validateApplicationForm(values: ApplicationFormValues, today: st
     }
 
     if (values.desiredDate === "" || !parseIso(values.desiredDate)) errors.desiredDate = "希望日を西暦の年月日で入力してください（例：2026-12-01）";
-    else if (values.desiredDate < today) errors.desiredDate = `希望日は今日（${today}）以降の日付を入力してください`;
+    else if (values.desiredDate < today && values.desiredDate !== savedDesiredDate) errors.desiredDate = `希望日は今日（${today}）以降の日付を入力してください`;
 
     const rejected = values.attachments.filter((f) => !isAcceptedFile(f));
     const oversized = values.attachments.filter((f) => isAcceptedFile(f) && f.size > FILE_SIZE_MAX);

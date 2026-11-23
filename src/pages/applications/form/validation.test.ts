@@ -63,6 +63,9 @@ describe("validateApplicationForm", () => {
     it("希望日は今日以降", () => {
         expect(fields({ ...VALID, desiredDate: TODAY })).toEqual([]);
         expect(messageOf({ ...VALID, desiredDate: "2026-11-02" }, "desiredDate")).toBe("希望日は今日（2026-11-03）以降の日付を入力してください");
+        // 編集では、保存してある希望日のままなら過去でもよい。別の過去の日付に変えたらエラー
+        expect(validateApplicationForm({ ...VALID, desiredDate: "2026-10-01" }, TODAY, "2026-10-01")).toEqual([]);
+        expect(validateApplicationForm({ ...VALID, desiredDate: "2026-10-02" }, TODAY, "2026-10-01").map((e) => e.field)).toEqual(["desiredDate"]);
     });
 
     it("解釈できない希望日はエラーにする", () => {
