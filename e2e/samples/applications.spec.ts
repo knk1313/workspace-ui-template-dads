@@ -59,6 +59,29 @@ test.describe("申請一覧の表", () => {
         expect(overflow).toBeLessThanOrEqual(0);
     });
 
+    test("行の操作メニューは表の外へはみ出しても切り取られず、どの項目も押せる", async ({ page }) => {
+        const triggers = page.getByRole("button", { name: /^.+の操作$/ });
+        for (const trigger of [triggers.first(), triggers.last()]) {
+            await trigger.scrollIntoViewIfNeeded();
+            await trigger.click();
+            const menu = page.getByRole("menu");
+            for (const item of await menu.getByRole("menuitem").all()) {
+                // 切り取られていれば、その場所で一番上にある要素が項目ではなくなる
+                const onTop = await item.evaluate((el) => {
+                    const r = el.getBoundingClientRect();
+                    const hit = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
+                    return hit !== null && el.contains(hit);
+                });
+                expect(onTop, `「${await item.textContent()}」が隠れている`).toBe(true);
+            }
+            await page.keyboard.press("Escape");
+            await expect(menu).toHaveCount(0);
+        }
+        await triggers.first().click();
+        await page.getByRole("menuitem", { name: "詳細を見る" }).click();
+        await expect(page).toHaveURL(/\/applications\/[^/]+$/);
+    });
+
     test("行を選ぶと一括操作が現れ、担当者変更のモーダルはフォーカスを閉じ込め、Escで閉じて元のボタンへ戻る", async ({ page }) => {
         await page.locator("table tbody tr").first().getByRole("checkbox").check();
         const region = page.getByRole("region", { name: "選択中の項目の操作" });
