@@ -1,6 +1,6 @@
 # Changelog
 
-## 未リリース
+## 0.6.2：Rechartsの更新
 
 ### 変更
 
