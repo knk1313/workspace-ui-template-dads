@@ -5,7 +5,7 @@
     "type": "git",
     "url": "git+https://github.com/knk1313/workspace-ui-template-dads.git"
   },
-  "version": "0.5.0",
+  "version": "0.6.0",
   "license": "UNLICENSED",
   "private": true,
   "type": "module",
