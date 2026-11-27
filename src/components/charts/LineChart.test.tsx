@@ -25,7 +25,9 @@ describe("LineChart", () => {
         expect(screen.getByRole("heading", { level: 3, name: /申請件数の月次推移/ })).toHaveTextContent("単位：件");
     });
 
-    it("Recharts の重なり順のg（フォーカスのイベントを持つ）を、Tabの順から外す", async () => {
+    // Recharts 3.11.0 までは、この g が Tab で止まる要素になっていた（3.11.1 で修正。それまでは ChartFrame で回避していた）。
+    // 版を戻したり、Recharts の修正が外れたりしたときに気付けるよう、確かめ続ける。
+    it("Recharts の重なり順のg（フォーカスのイベントを持つ）は、Tabの順に入らない", async () => {
         const { container } = render(<LineChart title="推移" data={data} xKey="month" series={series} size={size} />);
         await waitFor(() => expect(container.querySelectorAll('g[class^="recharts-zIndex-layer"]').length).toBeGreaterThan(0));
         for (const g of container.querySelectorAll('g[class^="recharts-zIndex-layer"]')) expect(g).toHaveAttribute("tabindex", "-1");
