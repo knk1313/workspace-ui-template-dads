@@ -31,6 +31,7 @@ import {
     type FieldName,
 } from "./form/validation";
 import { usePageTitle } from "@/hooks/usePageTitle";
+import { minWidth } from "@/tokens/breakpoints";
 
 // 申請の作成・編集フォーム（/applications/new、/applications/:id/edit）。
 // 入力 → 確認 → 完了 の 3 ステップ（編集は 入力 → 確認 で、更新後は詳細画面へ戻る）。
@@ -159,7 +160,7 @@ function ApplicationForm({ mode, application }: { mode: "create" | "edit"; appli
     const submitting = create.pending || update.pending;
     const [submitError, setSubmitError] = useState<string>();
     // 横並びのステップは 375px 幅に収まらず「完了」が隠れるため、md 未満は縦並びにする（DADS もモバイルは縦を推奨）
-    const isWide = useMediaQuery("(min-width: 48rem)");
+    const isWide = useMediaQuery(minWidth("md"));
 
     const [initial, setInitial] = useState(() => initialValues(application));
     // 編集画面で扱わない形式の既存の添付ファイル。表示だけして、更新するときにそのまま送り返す

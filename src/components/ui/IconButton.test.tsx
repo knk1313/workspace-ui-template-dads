@@ -24,7 +24,7 @@ describe("IconButton", () => {
 
     it("size / variant / toneに応じたクラスを付ける", () => {
         const { rerender } = render(<IconButton icon={X} label="A" />);
-        expect(screen.getByRole("button")).toHaveClass("size-target", "rounded-8", "hover:bg-surface-muted");
+        expect(screen.getByRole("button")).toHaveClass("size-target", "rounded-button", "hover:bg-surface-muted");
         rerender(<IconButton icon={X} label="A" size="sm" variant="outline" tone="error" />);
         expect(screen.getByRole("button")).toHaveClass("tap-area", "size-9", "border", "text-error");
     });

@@ -9,9 +9,10 @@ import { defineConfig, globalIgnores } from "eslint/config";
 // 色コードや任意値クラスの網羅的な検査は scripts/check-design-tokens.mjs が行う（npm run lint に含まれる）。
 const DESIGN_RULES = [
     {
-        // トークン以外の影（shadow-sm / shadow-xl / shadow-[…] など）。DADS のエレベーションは shadow-1 〜 shadow-8。
-        pattern: String.raw`(^|[\s:!])shadow-(?!([1-8]|none)\b)`,
-        message: "影は DADS のエレベーション（shadow-1 〜 shadow-8）を使ってください。",
+        // トークン以外の影（shadow-sm / shadow-xl / shadow-[…] など）。部品は src/tokens/local.css の役割の影を使う。
+        // DADS の段（shadow-1 〜 shadow-8）の直書きは scripts/check-design-tokens.mjs が検出する。役割を足したらここにも足す。
+        pattern: String.raw`(^|[\s:!])shadow-(?!(card-hover|popup|drawer|dialog|toast|none)\b)`,
+        message: "影は src/tokens/local.css の役割の影（shadow-popup / shadow-dialog など）を使ってください。",
     },
     {
         // Tailwind 既定のパレット色（bg-gray-100 / text-white-ish など）。DADS のグレーは solid-gray-* / opacity-gray-*。

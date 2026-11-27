@@ -22,6 +22,7 @@ import { useQuery } from "@/api/query";
 import { STATUS_LABELS, type ActivityItem, type Application, type ApplicationStatus } from "@/api/applicationTypes";
 import { dashboardQueries, type DashboardPeriod } from "@/api/dashboard";
 import { usePageTitle } from "@/hooks/usePageTitle";
+import { minWidth } from "@/tokens/breakpoints";
 
 // ダッシュボード（ダッシュボードデザインの実践ガイドブック / docs/chart-guide.md の画面構成）。
 //   左上から右下へ「全体 → 部分」: 期間の切り替え（上部）→ KPI（左上を強調）→ 推移 → 内訳 → 最新の一覧（右下 = 最も詳細）。
@@ -62,8 +63,8 @@ const ACTIVITY_ICON: Record<ActivityItem["type"], LucideIcon> = {
 
 const RECENT_COUNT = 8;
 
-/** sm（40rem = 640px）。これより狭いとドーナツの外側のラベルがカードからはみ出す。 */
-const SM_QUERY = "(min-width: 40rem)";
+/** sm。これより狭いとドーナツの外側のラベルがカードからはみ出す。 */
+const SM_QUERY = minWidth("sm");
 
 const yen = new Intl.NumberFormat("ja-JP");
 

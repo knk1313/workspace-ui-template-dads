@@ -7,7 +7,8 @@ import { describe, expect, it } from "vitest";
 //   テキスト: 4.5:1 以上（DADS はサイズに関わらず 4.5:1 を要求する）
 //   非テキスト（枠線・アイコン・グラフの色面・フォーカス）: 3:1 以上
 // disabled 状態と chart-seq-4 / 5 は要件の対象外（docs/decisions.md D-12）。
-// ライト（theme.css）と、それを上書きするダーク（theme-dark.css）の両方を検査する。
+// ライト（theme.css と local.css）と、それを上書きするダーク（theme-dark.css）の両方を検査する。
+// local.css でキーカラーやリンクの色を差し替えたときも、この検査で要件を満たすかを確かめる。
 
 // Vite は new URL("./x", import.meta.url) をアセット参照に変換するため、パスは自前で組み立てる。
 const here = dirname(fileURLToPath(import.meta.url));
@@ -22,7 +23,7 @@ function collect(files: string[], base = new Map<string, string>()): Map<string,
     return map;
 }
 
-const LIGHT = collect(["primitives.css", "theme.css"]);
+const LIGHT = collect(["primitives.css", "theme.css", "local.css"]);
 const DARK = collect(["theme-dark.css"], LIGHT);
 
 function resolveIn(raw: Map<string, string>, name: string, depth = 0): string {

@@ -13,9 +13,9 @@
   --color-surface: var(--color-solid-gray-900);
   --color-surface-muted: var(--color-solid-gray-800);
   --color-surface-strong: var(--color-solid-gray-800);
-  --color-surface-hover: var(--color-blue-1200);
-  --color-surface-selected: var(--color-blue-1100);
-  --color-surface-highlight: var(--color-blue-700);
+  --color-surface-hover: var(--color-key-1200);
+  --color-surface-selected: var(--color-key-1100);
+  --color-surface-highlight: var(--color-key-700);
   --color-on-highlight: var(--color-white);
   --color-scrim: var(--color-opacity-gray-800);
   --color-scrim-light: var(--color-opacity-gray-500);
@@ -43,16 +43,16 @@
   --color-control-active: var(--color-solid-gray-536);
 
   /* --- プライマリー（暗い地で読めるよう、明るい段を使う。塗りの上の文字は黒） --- */
-  --color-primary: var(--color-blue-300);
-  --color-primary-hover: var(--color-blue-200);
-  --color-primary-active: var(--color-blue-100);
-  --color-primary-strong: var(--color-blue-200);
-  --color-primary-surface: var(--color-blue-1200);
-  --color-primary-surface-hover: var(--color-blue-1100);
-  --color-primary-outline-hover: var(--color-blue-1100);
-  --color-primary-outline-active: var(--color-blue-1000);
+  --color-primary: var(--color-key-300);
+  --color-primary-hover: var(--color-key-200);
+  --color-primary-active: var(--color-key-100);
+  --color-primary-strong: var(--color-key-200);
+  --color-primary-surface: var(--color-key-1200);
+  --color-primary-surface-hover: var(--color-key-1100);
+  --color-primary-outline-hover: var(--color-key-1100);
+  --color-primary-outline-active: var(--color-key-1000);
 
-  /* --- リンク --- */
+  /* --- リンク（ライトの値は local.css。リンクの色を変えるときは両方を変える） --- */
   --color-link: var(--color-blue-300);
   --color-link-hover: var(--color-blue-200);
   --color-link-active: var(--color-orange-300);

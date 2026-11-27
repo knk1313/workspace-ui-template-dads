@@ -13,7 +13,7 @@ describe("NotificationBanner", () => {
         const svg = container.querySelector("svg");
         expect(svg).toHaveAttribute("aria-hidden", "true");
         expect(svg).toHaveClass("text-success");
-        expect(container.firstElementChild).toHaveClass("border-success", "border-3", "rounded-12", "bg-surface");
+        expect(container.firstElementChild).toHaveClass("border-success", "border-3", "rounded-banner", "bg-surface");
         expect(container.firstElementChild).not.toHaveAttribute("role");
     });
 
@@ -27,7 +27,7 @@ describe("NotificationBanner", () => {
         expect(container.firstElementChild).toHaveClass("border-error");
         rerender(<NotificationBanner type="warning" style="color-chip" title="A" />);
         expect(container.firstElementChild).toHaveClass("border-warning", "border-2", "border-l-8", "border-l-warning-chip");
-        expect(container.firstElementChild).not.toHaveClass("rounded-12");
+        expect(container.firstElementChild).not.toHaveClass("rounded-banner");
         rerender(<NotificationBanner type="info" title="A" />);
         expect(container.firstElementChild).toHaveClass("border-info");
         rerender(<NotificationBanner type="neutral" title="A" />);

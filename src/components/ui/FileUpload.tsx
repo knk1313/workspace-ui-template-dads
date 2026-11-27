@@ -133,7 +133,7 @@ export function FileUpload({ files, onChange, accept, multiple = false, dropArea
                     }}
                     onDrop={onDrop}
                     className={cn(
-                        "rounded-8 border border-dashed p-8",
+                        "rounded-card border border-dashed p-8",
                         dragOver ? "border-primary bg-primary-surface" : "bg-surface-muted",
                         !dragOver && (isInvalid ? "border-error" : "border-border-on-canvas"),
                     )}

@@ -57,9 +57,9 @@ export function StatCard({ label, value, unit, delta, note, highlight = false, i
         <section
             aria-labelledby={labelId}
             className={cn(
-                "relative flex flex-col gap-2 rounded-8 border p-4 md:p-6",
+                "relative flex flex-col gap-2 rounded-card border p-4 md:p-6",
                 highlight ? "border-transparent bg-surface-highlight text-on-highlight" : "border-border-on-canvas bg-surface text-text",
-                href && "hover:shadow-1",
+                href && "hover:shadow-card-hover",
                 className,
             )}
         >
@@ -67,7 +67,7 @@ export function StatCard({ label, value, unit, delta, note, highlight = false, i
                 <p id={labelId} className="m-0 text-16 font-bold leading-150">
                     {href ? (
                         // タイトルだけをリンクにし、擬似要素でカード全体に領域を広げる（カード全体を <a> にしない）
-                        <Link to={href} className={cn("after:absolute after:inset-0 after:rounded-8", highlight && "text-on-highlight hover:text-on-highlight")}>
+                        <Link to={href} className={cn("after:absolute after:inset-0 after:rounded-card", highlight && "text-on-highlight hover:text-on-highlight")}>
                             {label}
                         </Link>
                     ) : (

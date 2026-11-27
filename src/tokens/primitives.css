@@ -11,6 +11,7 @@
  *   --border-radius-*        -> --radius-*
  *   --elevation-*            -> --shadow-*
  * Tailwind 既定のパレット・文字サイズ・角丸・影はここで無効化し、DADS の値だけを使えるようにする。
+ * キーカラー（--color-key-*）、書体、部品ごとの角丸と影は local.css で、ここの値から選ぶ。
  * 色コードを書いてよいのは src/tokens/ 配下だけ（scripts/check-design-tokens.mjs で検査）。
  */
 @theme {
@@ -180,26 +181,11 @@
   --color-warning-yellow-2: var(--color-yellow-900);
   --color-warning-orange-1: var(--color-orange-600);
   --color-warning-orange-2: var(--color-orange-800);
-  --color-key-50: var(--color-blue-50);
-  --color-key-100: var(--color-blue-100);
-  --color-key-200: var(--color-blue-200);
-  --color-key-300: var(--color-blue-300);
-  --color-key-400: var(--color-blue-400);
-  --color-key-500: var(--color-blue-500);
-  --color-key-600: var(--color-blue-600);
-  --color-key-700: var(--color-blue-700);
-  --color-key-800: var(--color-blue-800);
-  --color-key-900: var(--color-blue-900);
-  --color-key-1000: var(--color-blue-1000);
-  --color-key-1100: var(--color-blue-1100);
-  --color-key-1200: var(--color-blue-1200);
 
   /* --- フォント --- */
-  --font-*: initial;
+  --font-*: initial; /* 書体（--font-sans / --font-mono）は local.css */
   --font-weight-400: 400;
   --font-weight-700: 700;
-  --font-sans: "Noto Sans JP Variable", "Noto Sans JP", -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
-  --font-mono: "Noto Sans Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
 
   /* --- 文字サイズ（DADS 定義のみ。14px 未満は定義しない） --- */
   --text-*: initial;

@@ -50,7 +50,7 @@ describe("Toast", () => {
         expect(within(region).getByText("保存しました")).toBeInTheDocument();
         expect(within(region).getByText("一覧に反映されます")).toBeInTheDocument();
         const item = within(region).getByText("保存しました").closest("[data-type]");
-        expect(item).toHaveClass("border-success", "rounded-8", "shadow-3");
+        expect(item).toHaveClass("border-success", "rounded-dialog", "shadow-toast");
         expect(item?.querySelector("svg")).toHaveAttribute("aria-hidden", "true");
     });
 

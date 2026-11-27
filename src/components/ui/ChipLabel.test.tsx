@@ -10,7 +10,7 @@ describe("ChipLabel", () => {
         const chip = screen.getByText("受付中").parentElement!;
         expect(chip).toHaveAttribute("data-style", "outlined");
         expect(chip).toHaveAttribute("data-color", "gray");
-        expect(chip).toHaveClass("min-h-8", "rounded-8", "text-16", "leading-none", "tracking-2", "border", "bg-surface", "border-solid-gray-700", "text-solid-gray-800", "px-1.75", "py-0.75");
+        expect(chip).toHaveClass("min-h-8", "rounded-chip", "text-16", "leading-none", "tracking-2", "border", "bg-surface", "border-solid-gray-700", "text-solid-gray-800", "px-1.75", "py-0.75");
     });
 
     it("styleごとにDADSの色（非テキスト / 背景 / 文字 / 濃い文字）を割り当てる", () => {
@@ -86,7 +86,7 @@ describe("ChipLabel", () => {
 
     it("classNameで拡張できる", () => {
         render(<ChipLabel className="ml-2">A</ChipLabel>);
-        expect(screen.getByText("A").parentElement).toHaveClass("ml-2", "rounded-8");
+        expect(screen.getByText("A").parentElement).toHaveClass("ml-2", "rounded-chip");
     });
 
     it("アクセシビリティ違反がない", async () => {

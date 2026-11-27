@@ -107,7 +107,7 @@ const BAR_WIDTHS = ["w-4/5", "w-3/5", "w-2/3"] as const;
 const SUB_WIDTHS = ["w-full", "w-4/5", "w-11/12"] as const;
 
 function SkeletonBlock({ className }: { className?: string }) {
-    return <span data-skeleton="" className={cn("block animate-pulse rounded-4 bg-surface-strong motion-reduce:animate-none", className)} />;
+    return <span data-skeleton="" className={cn("block animate-pulse rounded-inline bg-surface-strong motion-reduce:animate-none", className)} />;
 }
 
 function SkeletonLine({ width, align }: { width: string; align?: CellAlign }) {
@@ -123,7 +123,7 @@ function ColumnSkeleton({ kind, align, variant }: { kind: NonNullable<DataTableC
     if (kind === "chip")
         return (
             <TableCellLine align={align}>
-                <SkeletonBlock className="h-8 w-16 rounded-8" />
+                <SkeletonBlock className="h-8 w-16 rounded-chip" />
             </TableCellLine>
         );
     if (kind === "lines")
@@ -276,7 +276,7 @@ export function DataTable<T>({
                 </p>
             )}
             {selectable && selectedIds.length > 0 && (
-                <div role="region" aria-label="選択中の項目の操作" className={cn("flex flex-wrap items-center gap-x-4 gap-y-2 rounded-8 bg-primary-surface px-4 py-2 text-16 text-text", flush && "mx-6")}>
+                <div role="region" aria-label="選択中の項目の操作" className={cn("flex flex-wrap items-center gap-x-4 gap-y-2 rounded-card bg-primary-surface px-4 py-2 text-16 text-text", flush && "mx-6")}>
                     <p className="m-0 font-bold nums">{selectedIds.length}件選択中</p>
                     <Button variant="text" size="sm" onClick={() => setSelectedIds([])}>
                         選択を解除
@@ -324,7 +324,7 @@ export function DataTable<T>({
                                             type="button"
                                             onClick={() => handleSort(column.key)}
                                             className={cn(
-                                                "inline-flex max-w-full items-start gap-0.5 rounded-4 border-0 bg-transparent p-0 py-2 text-left font-bold text-inherit underline decoration-1 underline-offset-3 hover:underline-thick focus-visible:focus-ring-fill",
+                                                "inline-flex max-w-full items-start gap-0.5 rounded-inline border-0 bg-transparent p-0 py-2 text-left font-bold text-inherit underline decoration-1 underline-offset-3 hover:underline-thick focus-visible:focus-ring-fill",
                                                 size === "dense" && "py-2.75",
                                                 column.align === "right" && "flex-row-reverse text-right",
                                             )}

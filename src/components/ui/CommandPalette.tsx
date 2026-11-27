@@ -155,7 +155,7 @@ export function CommandPalette({ open, onClose, items, label = "ページやコ�
                 aria-modal="true"
                 aria-label="コマンドパレット"
                 className={cn(
-                    "relative flex max-h-full w-full max-w-160 flex-col overflow-hidden rounded-8 border border-border bg-surface text-text shadow-3",
+                    "relative flex max-h-full w-full max-w-160 flex-col overflow-hidden rounded-dialog border border-border bg-surface text-text shadow-dialog",
                     className,
                 )}
             >
@@ -185,7 +185,7 @@ export function CommandPalette({ open, onClose, items, label = "ページやコ�
                                 setActiveIndex(0);
                             }}
                             onKeyDown={onKeyDown}
-                            className="h-control-md w-full rounded-8 border border-border-strong bg-surface py-3 pr-4 pl-12 text-16 text-text-strong hover:border-border-emphasis focus-visible:focus-ring"
+                            className="h-control-md w-full rounded-input border border-border-strong bg-surface py-3 pr-4 pl-12 text-16 text-text-strong hover:border-border-emphasis focus-visible:focus-ring"
                         />
                     </div>
                     <p className="m-0 text-14 leading-130 text-text-muted">上下の矢印キーで選び、Enterで開き、Escで閉じます</p>

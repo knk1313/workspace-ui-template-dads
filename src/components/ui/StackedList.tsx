@@ -52,7 +52,7 @@ export function StackedListItem({ title, description, meta, leading, href, onCli
                             type="button"
                             onClick={onClick}
                             className={cn(
-                                "border-0 bg-transparent p-0 text-left font-bold text-link underline decoration-1 underline-offset-3 hover:text-link-hover hover:underline-thick focus-visible:rounded-4 focus-visible:focus-ring-fill",
+                                "border-0 bg-transparent p-0 text-left font-bold text-link underline decoration-1 underline-offset-3 hover:text-link-hover hover:underline-thick focus-visible:rounded-inline focus-visible:focus-ring-fill",
                                 expand,
                             )}
                         >

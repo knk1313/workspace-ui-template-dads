@@ -16,7 +16,7 @@ export function SkipLink({ targetId = "main" }: SkipLinkProps) {
     return (
         <a
             href={`#${targetId}`}
-            className="sr-only z-50 rounded-8 bg-surface px-4 py-3 text-16 font-bold text-link focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus-visible:focus-ring"
+            className="sr-only z-50 rounded-button bg-surface px-4 py-3 text-16 font-bold text-link focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus-visible:focus-ring"
         >
             本文へスキップ
         </a>
@@ -38,7 +38,7 @@ export function HamburgerButton({ open, controls, label = "メニュー", classN
             aria-expanded={open}
             aria-controls={controls}
             className={cn(
-                "flex min-h-11 shrink-0 items-center gap-1 rounded-6 px-3 py-1 text-16 leading-100 tracking-2 text-text transition-colors",
+                "flex min-h-11 shrink-0 items-center gap-1 rounded-button-sm px-3 py-1 text-16 leading-100 tracking-2 text-text transition-colors",
                 "hover:bg-surface-muted hover:underline hover:underline-offset-3 focus-visible:focus-ring-fill",
                 className,
             )}
@@ -62,7 +62,7 @@ export function Brand({ name, logo, href = "/", className }: BrandProps) {
         <Link
             to={href}
             className={cn(
-                "flex min-h-11 min-w-0 items-center gap-2 rounded-4 px-1 text-18 leading-130 font-bold tracking-0 text-text-strong no-underline hover:underline focus-visible:focus-ring-fill",
+                "flex min-h-11 min-w-0 items-center gap-2 rounded-inline px-1 text-18 leading-130 font-bold tracking-0 text-text-strong no-underline hover:underline focus-visible:focus-ring-fill",
                 className,
             )}
         >

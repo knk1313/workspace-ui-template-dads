@@ -24,7 +24,7 @@ const SIZES: Record<AvatarSize, string> = {
 
 const SHAPES: Record<AvatarShape, string> = {
     circle: "rounded-full",
-    square: "rounded-8",
+    square: "rounded-avatar",
 };
 
 /** 名前からイニシャルを作る。「山田 太郎」（半角または全角スペース区切り）→「山太」、「Taro Yamada」→「TY」、「山田」→「山」、「Taro」→「TA」。 */

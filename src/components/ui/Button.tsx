@@ -28,10 +28,10 @@ const BASE =
     "inline-flex max-w-full items-center justify-center gap-1 whitespace-normal break-words text-center font-bold leading-none tracking-2 no-underline underline-offset-3 transition-colors";
 
 const SIZE: Record<ButtonSize, string> = {
-    lg: "min-h-14 min-w-34 rounded-8 px-4 py-3 text-16",
-    md: "min-h-12 min-w-24 rounded-8 px-4 py-2 text-16",
-    sm: "tap-area min-h-9 min-w-20 rounded-6 px-3 py-0.5 text-16",
-    xs: "tap-area min-h-7 min-w-18 rounded-4 px-2 py-0.5 text-14",
+    lg: "min-h-14 min-w-34 rounded-button px-4 py-3 text-16",
+    md: "min-h-12 min-w-24 rounded-button px-4 py-2 text-16",
+    sm: "tap-area min-h-9 min-w-20 rounded-button-sm px-3 py-0.5 text-16",
+    xs: "tap-area min-h-7 min-w-18 rounded-button-xs px-2 py-0.5 text-14",
 };
 
 const VARIANT: Record<ButtonTone, Record<ButtonVariant, string>> = {

@@ -105,7 +105,7 @@ export function ModalDialog({
                 aria-labelledby={titleId}
                 aria-describedby={children ? bodyId : undefined}
                 className={cn(
-                    "flex max-h-full w-full max-w-full flex-col gap-3 rounded-8 border border-border-emphasis bg-surface text-16 leading-170 tracking-2 text-text shadow-3 break-words md:gap-4",
+                    "flex max-h-full w-full max-w-full flex-col gap-3 rounded-dialog border border-border-emphasis bg-surface text-16 leading-170 tracking-2 text-text shadow-dialog break-words md:gap-4",
                     SIZE[size],
                     className,
                 )}
@@ -118,7 +118,7 @@ export function ModalDialog({
                         <button
                             type="button"
                             onClick={onClose}
-                            className="tap-area -mr-3 flex shrink-0 items-center gap-1 rounded-6 px-3 pt-1 pb-1.5 text-16 leading-none tracking-2 text-text hover:bg-surface-muted hover:underline hover:underline-offset-3 focus-visible:focus-ring-fill"
+                            className="tap-area -mr-3 flex shrink-0 items-center gap-1 rounded-button-sm px-3 pt-1 pb-1.5 text-16 leading-none tracking-2 text-text hover:bg-surface-muted hover:underline hover:underline-offset-3 focus-visible:focus-ring-fill"
                         >
                             <Icon icon={X} size="lg" className="mt-0.5 text-text-strong" />
                             {closeLabel}

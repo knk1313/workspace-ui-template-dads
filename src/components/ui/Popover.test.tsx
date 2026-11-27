@@ -38,7 +38,7 @@ describe("Popover", () => {
         await user.click(trigger());
         const dialog = screen.getByRole("dialog", { name: "絞り込み条件" });
         expect(dialog).not.toHaveAttribute("aria-modal");
-        expect(dialog).toHaveClass("rounded-8", "border-border", "bg-surface", "p-4", "shadow-1", "left-0");
+        expect(dialog).toHaveClass("rounded-popup", "border-border", "bg-surface", "p-4", "shadow-popup", "left-0");
         expect(trigger()).toHaveAttribute("aria-expanded", "true");
         expect(trigger()).toHaveAttribute("aria-controls", dialog.id);
         expect(screen.getByLabelText("担当者")).toHaveFocus();

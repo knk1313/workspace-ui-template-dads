@@ -44,7 +44,7 @@ export type GridListItemProps = Omit<HTMLAttributes<HTMLLIElement>, "title"> & {
 
 export function GridListItem({ title, description, meta, leading, actions, href, className, ...props }: GridListItemProps) {
     return (
-        <li className={cn("relative flex flex-col gap-2 rounded-8 border border-border bg-surface p-4", href && "hover:shadow-1", className)} {...props}>
+        <li className={cn("relative flex flex-col gap-2 rounded-card border border-border bg-surface p-4", href && "hover:shadow-card-hover", className)} {...props}>
             {(leading || meta) && (
                 <div className="flex items-center gap-2 text-text-muted">
                     {leading}
@@ -53,7 +53,7 @@ export function GridListItem({ title, description, meta, leading, actions, href,
             )}
             <p className="m-0 text-17 font-bold leading-150">
                 {href ? (
-                    <Link to={href} className="after:absolute after:inset-0 after:rounded-8">
+                    <Link to={href} className="after:absolute after:inset-0 after:rounded-card">
                         {title}
                     </Link>
                 ) : (

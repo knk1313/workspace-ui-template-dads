@@ -36,7 +36,7 @@ describe("Drawer", () => {
         await openDrawer();
         const dialog = screen.getByRole("dialog", { name: "絞り込み" });
         expect(dialog).toHaveAttribute("aria-modal", "true");
-        expect(dialog).toHaveClass("w-drawer", "shadow-2", "bg-surface");
+        expect(dialog).toHaveClass("w-drawer", "shadow-drawer", "bg-surface");
         expect(dialog.parentElement).toHaveClass("bg-scrim-light", "justify-end");
         expect(screen.getByRole("button", { name: "閉じる" })).toHaveFocus();
         expect(screen.getByRole("heading", { level: 2, name: "絞り込み" })).toBeInTheDocument();

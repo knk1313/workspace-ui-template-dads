@@ -9,6 +9,7 @@ import { SearchBox } from "@/components/ui/SearchBox";
 import { Select } from "@/components/ui/Select";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { CATEGORY_LABELS, STATUS_LABELS } from "@/api/applicationTypes";
+import { minWidth } from "@/tokens/breakpoints";
 import { useStaffOptions } from "../useStaffOptions";
 import type { ApplicationQuery, FilterKey } from "./useApplicationQuery";
 
@@ -16,8 +17,8 @@ import type { ApplicationQuery, FilterKey } from "./useApplicationQuery";
 // md 以上ではカードに並べ、モバイルでは「絞り込み」ボタンで開くドロワーに入れる（画面の縦幅を一覧に使うため）。
 // 適用中の条件はチップタグで並べ、1 つずつ外せるようにする。
 
-/** md ブレークポイント（48rem = 768px）。 */
-const MD_QUERY = "(min-width: 48rem)";
+/** md ブレークポイント。 */
+const MD_QUERY = minWidth("md");
 
 const CATEGORY_OPTIONS = Object.entries(CATEGORY_LABELS).map(([value, label]) => ({ value, label }));
 const STATUS_OPTIONS = Object.entries(STATUS_LABELS).map(([value, label]) => ({ value, label }));

@@ -52,7 +52,7 @@ export type ChipLabelProps = Omit<HTMLAttributes<HTMLSpanElement>, "style" | "co
 export function chipLabelClassName(style: ChipLabelStyle, color: ChipLabelColor, className?: string): string {
     const c = COLORS[color];
     return cn(
-        "inline-flex min-h-8 max-w-full items-center gap-1 rounded-8 text-16 font-normal leading-none tracking-2 break-words",
+        "inline-flex min-h-8 max-w-full items-center gap-1 rounded-chip text-16 font-normal leading-none tracking-2 break-words",
         style === "text" ? "px-2 py-1" : "px-1.75 py-0.75",
         style === "text" && c.text,
         style === "outlined" && cn("border bg-surface", c.border, c.text),

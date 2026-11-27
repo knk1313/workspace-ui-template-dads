@@ -207,14 +207,14 @@ export function Combobox({
                     if (open) close();
                     else openList();
                 }}
-                className="absolute inset-y-0 right-0 flex w-11 items-center justify-center rounded-8 text-text"
+                className="absolute inset-y-0 right-0 flex w-11 items-center justify-center rounded-input text-text"
             >
                 <Icon icon={ChevronDown} size="sm" className={cn("transition-transform", open && "rotate-180")} />
             </button>
             {/* 閉じているときも DOM に残す（aria-controls の参照先を保つ）。hidden 属性で非表示にする。 */}
             <div
                 hidden={!open}
-                className="absolute left-0 top-full z-30 mt-1 w-full min-w-fit rounded-8 border border-border bg-surface py-4 shadow-1 max-h-popup-max overflow-y-auto"
+                className="absolute left-0 top-full z-30 mt-1 w-full min-w-fit rounded-popup border border-border bg-surface py-4 shadow-popup max-h-popup-max overflow-y-auto"
             >
                 {/* FormField の中では aria-label がないので、ラベルの要素で名前を付ける */}
                 <ul

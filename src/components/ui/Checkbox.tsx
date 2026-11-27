@@ -42,7 +42,7 @@ export function Checkbox({ children, size, indeterminate = false, invalid, class
             <span className={cn("flex shrink-0 items-center", children && "h-lh")}>
                 <span
                     className={cn(
-                        "relative flex shrink-0 items-center justify-center rounded-4",
+                        "relative flex shrink-0 items-center justify-center rounded-checkbox",
                         s.box,
                         !disabled && "hover:bg-text-disabled",
                     )}
@@ -59,7 +59,7 @@ export function Checkbox({ children, size, indeterminate = false, invalid, class
                         aria-invalid={isInvalid || undefined}
                         aria-describedby={props["aria-describedby"] ?? field?.describedBy}
                         className={cn(
-                            "peer m-0 appearance-none rounded-4 border-solid bg-surface bg-clip-padding",
+                            "peer m-0 appearance-none rounded-checkbox border-solid bg-surface bg-clip-padding",
                             s.input,
                             isInvalid ? "border-error hover:border-error-hover checked:border-error checked:bg-error indeterminate:border-error indeterminate:bg-error" : "border-border-strong hover:border-border-emphasis checked:border-primary checked:bg-primary checked:hover:border-primary-strong checked:hover:bg-primary-strong indeterminate:border-primary indeterminate:bg-primary",
                             "focus-visible:focus-ring",

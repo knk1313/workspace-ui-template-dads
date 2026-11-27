@@ -8,7 +8,7 @@ import { Icon } from "./Icon";
 // 下線 1px（hover 3px）+ リンクカラー。色だけで区別しない。訪問済みはマゼンタ。
 // 新規タブで開くリンクは末尾にアイコンを置き、代替テキスト「新しいタブで開きます」を付ける。
 export const LINK_CLASS =
-    "text-link underline decoration-1 underline-offset-3 hover:text-link-hover hover:underline-thick active:text-link-active active:decoration-1 visited:text-link-visited focus-visible:focus-ring-fill focus-visible:rounded-4";
+    "text-link underline decoration-1 underline-offset-3 hover:text-link-hover hover:underline-thick active:text-link-active active:decoration-1 visited:text-link-visited focus-visible:focus-ring-fill focus-visible:rounded-inline";
 
 export type LinkProps = Omit<RouterLinkProps, "className"> & { className?: string; ref?: Ref<HTMLAnchorElement> };
 

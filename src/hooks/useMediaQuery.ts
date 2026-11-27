@@ -1,11 +1,12 @@
 import { useCallback, useSyncExternalStore } from "react";
+import { minWidth } from "@/tokens/breakpoints";
 
 // メディアクエリの一致を購読する。レイアウトの切り替え（lg 以上でサイドバー常時表示など）に使う。
-//   const isDesktop = useMediaQuery("(min-width: 64rem)");
+//   const isDesktop = useMediaQuery(minWidth("lg"));
 // matchMedia がない環境（テスト用 DOM など）では false を返す。
 
-/** lg ブレークポイント（64rem = 1024px）。サイドバー / 水平メニューの常時表示に切り替える幅。 */
-export const DESKTOP_QUERY = "(min-width: 64rem)";
+/** lg ブレークポイント。サイドバー / 水平メニューの常時表示に切り替える幅。 */
+export const DESKTOP_QUERY = minWidth("lg");
 
 export function useMediaQuery(query: string): boolean {
     const subscribe = useCallback(

@@ -112,7 +112,7 @@ function monthGrid(y: number, m: number): (Ymd | null)[][] {
 }
 
 const NAV_BUTTON =
-    "flex size-11 shrink-0 items-center justify-center rounded-6 border border-current bg-surface text-primary hover:bg-primary-outline-hover hover:text-primary-hover active:bg-primary-outline-active focus-visible:focus-ring";
+    "flex size-11 shrink-0 items-center justify-center rounded-button-sm border border-current bg-surface text-primary hover:bg-primary-outline-hover hover:text-primary-hover active:bg-primary-outline-active focus-visible:focus-ring";
 
 export function DatePicker({
     value,
@@ -316,7 +316,7 @@ export function DatePicker({
                         // Tab でダイアログの外に出たら閉じる（非モーダルのため）
                         if (e.relatedTarget && rootRef.current && !rootRef.current.contains(e.relatedTarget as Node)) setOpen(false);
                     }}
-                    className="absolute left-0 top-full z-30 mt-1 flex w-max flex-col rounded-8 border border-border bg-surface text-16 leading-none tracking-2 text-text shadow-1"
+                    className="absolute left-0 top-full z-30 mt-1 flex w-max flex-col rounded-popup border border-border bg-surface text-16 leading-none tracking-2 text-text shadow-popup"
                 >
                     <div className="flex items-center justify-between gap-2 p-4">
                         <button type="button" aria-label="前の月" onClick={() => setView(({ y, m }) => addMonths({ y, m, d: 1 }, -1))} className={NAV_BUTTON}>

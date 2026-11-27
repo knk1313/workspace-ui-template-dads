@@ -21,7 +21,7 @@ export function Panel({ children, title, titleAs: Heading = "h3", padding = "md"
     const Component = title ? "section" : "div";
     return (
         <Component
-            className={cn("flex min-w-0 flex-col gap-3 rounded-8 bg-surface-muted text-text", PADDING[padding], className)}
+            className={cn("flex min-w-0 flex-col gap-3 rounded-card bg-surface-muted text-text", PADDING[padding], className)}
             aria-labelledby={title ? headingId : undefined}
             {...props}
         >

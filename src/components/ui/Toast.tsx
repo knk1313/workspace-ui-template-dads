@@ -180,7 +180,7 @@ function ToastView({ item, dismiss }: { item: ToastItem; dismiss: (id: number) =
         <div
             ref={rootRef}
             data-type={item.type}
-            className={cn("pointer-events-auto flex items-start gap-2 rounded-8 border-2 bg-surface p-4 pr-2 text-16 leading-170 tracking-2 text-text shadow-3", color.frame)}
+            className={cn("pointer-events-auto flex items-start gap-2 rounded-dialog border-2 bg-surface p-4 pr-2 text-16 leading-170 tracking-2 text-text shadow-toast", color.frame)}
             onMouseEnter={() => setPaused(true)}
             onMouseLeave={() => setPaused(false)}
             onFocus={() => setPaused(true)}
@@ -214,7 +214,7 @@ function ToastView({ item, dismiss }: { item: ToastItem; dismiss: (id: number) =
                 type="button"
                 onClick={onDismiss}
                 aria-label="通知を閉じる"
-                className="-my-2 flex size-11 shrink-0 items-center justify-center rounded-6 text-text-strong hover:bg-surface-muted focus-visible:focus-ring-fill"
+                className="-my-2 flex size-11 shrink-0 items-center justify-center rounded-button-sm text-text-strong hover:bg-surface-muted focus-visible:focus-ring-fill"
             >
                 <Icon icon={X} size="lg" />
             </button>

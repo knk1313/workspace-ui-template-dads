@@ -49,7 +49,7 @@ export function Breadcrumb({ items, collapseOnMobile = false, label = "パンく
                                         type="button"
                                         aria-label="省略した階層を表示"
                                         onClick={() => setExpanded(true)}
-                                        className="rounded-4 px-1 text-text underline decoration-1 underline-offset-3 hover:underline-thick focus-visible:focus-ring-fill"
+                                        className="rounded-inline px-1 text-text underline decoration-1 underline-offset-3 hover:underline-thick focus-visible:focus-ring-fill"
                                     >
                                         …
                                     </button>
@@ -59,7 +59,7 @@ export function Breadcrumb({ items, collapseOnMobile = false, label = "パンく
                             {current ? (
                                 <span aria-current={isLast ? "page" : undefined}>{item.label}</span>
                             ) : (
-                                <Link to={item.href!} state={item.state} className="rounded-4">
+                                <Link to={item.href!} state={item.state} className="rounded-inline">
                                     {item.label}
                                 </Link>
                             )}

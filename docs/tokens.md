@@ -4,11 +4,45 @@
 
 | ファイル | 内容 |
 | --- | --- |
-| `primitives.css` | DADS design-tokens 2.0.1 のプリミティブ（色、フォント、文字サイズ、行高、角丸、エレベーション）。Tailwind 既定値はここで無効化 |
-| `theme.css` | セマンティック別名（面・文字・線・プライマリー・リンク・フォーカス・意味色・無効・データ可視化・寸法）と独自ユーティリティ |
+| `primitives.css` | DADS design-tokens 2.0.1 のプリミティブ（色、文字サイズ、行高、角丸、エレベーション）。Tailwind 既定値はここで無効化 |
+| `theme.css` | セマンティック別名（面・文字・線・プライマリー・フォーカス・意味色・無効・データ可視化・寸法）と独自ユーティリティ |
+| `local.css` | ローカルデザインシステムの入口。キーカラー、リンクの色、書体、本文の既定値、画面の余白、部品ごとの角丸と影、ブレークポイント、段組みの幅 |
+| `breakpoints.ts` | JSから使うブレークポイント（`minWidth("md")`）。`local.css`と同じ値にする |
 | `theme-dark.css` | ダークモードのときに、`theme.css` の色のセマンティック別名を上書きする値 |
 | `typography.css` | DADS テキストスタイル（`text-std-16N-170` など 56 種） |
 | `contrast.test.ts` | トークンの組み合わせごとのコントラスト検査（`npm test`） |
+| `local.test.ts` | `local.css`の値がDADSの要件を満たすかの検査（`npm test`） |
+
+## ローカルデザインシステムとして調整する
+
+DADSは、導入先に合わせて基本デザインを編集し、「ローカルデザインシステム」を作ることを想定している（[ローカルデザインシステムの作成](https://design.digital.go.jp/dads/guidance/local-design-system/)）。このテンプレートでは、編集する7項目の値を`src/tokens/local.css`に集めた。既定の値はDADS（デジタル庁ウェブサイトベース）のままで、導入先に合わせて書き換える起点にする。
+
+| 項目 | `local.css`のトークン | 守る要件 | 検査 |
+| --- | --- | --- | --- |
+| カラー | `--color-key-50`〜`1200`（キーカラーの13段） | テキストは4.5:1以上、枠線などは3:1以上。意味色の色相（エラーは赤、成功は緑）とフォーカスの色は変えない | `contrast.test.ts`、`local.test.ts` |
+| タイポグラフィ | `--font-sans`、`--font-mono`、`--body-font-size`、`--body-line-height`、`--body-letter-spacing` | 本文は16px以上、行の高さは1.5以上。14px未満は使わない | `local.test.ts` |
+| 余白 | `--spacing`（1段 = 4px）、`--spacing-page-x`、`--spacing-page-x-wide`、`--spacing-page-y` | 値に規則性を持たせる（8pxの倍数）。タップ領域は44px以上 | `local.test.ts` |
+| 角の形状 | `--radius-button`、`--radius-input`、`--radius-card`など部品ごとの14種 | `primitives.css`の`--radius-4`〜`32`から選ぶ | `local.test.ts`、`npm run lint` |
+| ドロップシャドウとエレベーション | `--shadow-popup`、`--shadow-drawer`、`--shadow-dialog`など役割ごとの5種 | ダイアログはhoverで浮く要素より2段以上高くする。影を付けても3:1の枠線を付ける | `local.test.ts` |
+| リンクテキスト | `--color-link`、`--color-link-hover`、`--color-link-active`、`--color-link-visited` | 4.5:1以上。青以外にしてもよいが、下線は外さない | `contrast.test.ts` |
+| レイアウト | `--breakpoint-*`、`--container-content`、`--container-wide` | リキッドレイアウトにする。見た目の配置と読み上げの順をそろえる | `local.test.ts`（`breakpoints.ts`との一致） |
+
+### 手順
+
+1. ブランドやコミュニケーションの方針を先に決める。DADSは、方針、スタイル、UIコンポーネントの順に調整することを勧めている
+2. `src/tokens/local.css`の値を書き換える
+   - キーカラーをDADSのプリセットに替えるときは、`--color-key-*`の`blue`を`green`などの色相名に置き換える。ブランドカラーにするときは、同じ色相の13段を明るい順に色コードで書く
+   - リンクの色を変えるときは、ダークモードの値（`theme-dark.css`の「リンク」）も変える
+   - ブレークポイントを変えるときは、`src/tokens/breakpoints.ts`も同じ値にする
+3. `npm run check`を実行する。要件を外れた組み合わせは、テストの名前（例：`テキスト on-highlight / 背景 surface-highlight`）で示される。外れた組み合わせは、`theme.css`か`theme-dark.css`でその別名が指す段を変えて直す
+4. `npm run test:visual:update`で見た目の基準画像を撮り直し、差分を目で確かめる
+
+`local.css`に置いていない値は、DADSの要件のために固定している。
+
+- フォーカスの色（`--color-focus`、`--color-focus-ring`）は、DADSが変更を禁止している
+- タップ領域（`--spacing-target`）は44pxより小さくしない
+- 余白の1段（`--spacing`）は、操作部品の高さにも効くため変えない。画面の余白は`--spacing-page-*`で変える
+- 部品のコード（`src/components/ui/`）のWAI-ARIAの指定と、強制カラーモードへの対応は外さない
 
 ## 色（プリミティブ）
 
@@ -53,7 +87,8 @@
 
 ## タイポグラフィ
 
-- フォント: `font-sans`（Noto Sans JP Variable → システムフォント）、`font-mono`（Noto Sans Mono）
+- フォント: `font-sans`（Noto Sans JP Variable → システムフォント）、`font-mono`（Noto Sans Mono）。値は`local.css`
+- 本文の既定値: `local.css`の`--body-font-size`（1rem）、`--body-line-height`（1.7）、`--body-letter-spacing`（0.02em）を`body`に当てる
 - 文字サイズ: `text-14` `text-16` `text-17` `text-18` `text-20` `text-22` `text-24` `text-26` `text-28` `text-32` `text-36` `text-45` `text-48` `text-57` `text-64`（Tailwind の `text-sm` 等は無効）
 - 行高: `leading-100` `leading-120` `leading-130` `leading-140` `leading-150` `leading-160` `leading-170` `leading-175`
 - 文字間隔: `tracking-0` `tracking-1`（0.01em） `tracking-2`（0.02em）
@@ -63,8 +98,37 @@
 
 ## 角丸・影・線
 
-- 角丸: `rounded-4` `rounded-6` `rounded-8` `rounded-12` `rounded-16` `rounded-24` `rounded-32` `rounded-full`
-- 影（エレベーション）: `shadow-1`〜`shadow-8`（ダイアログ 3、ドロワー 2、メニュー 1。カードは影なし）
+部品では、`local.css`の役割のトークンを使う。DADSの段（`rounded-8`、`shadow-1`など）を部品に直接書くと、`npm run lint`で検出される。
+
+| 役割 | 角丸 | 既定 |
+| --- | --- | --- |
+| ボタンのlgとmd、アイコンボタン、メニューのボタン | `rounded-button` | 8 |
+| ボタンのsm、閉じるボタン | `rounded-button-sm` | 6 |
+| ボタンのxs | `rounded-button-xs` | 4 |
+| 入力欄、セレクト、テキストエリア | `rounded-input` | 8 |
+| チェックボックス | `rounded-checkbox` | 4 |
+| カード、パネル、ドロップ領域 | `rounded-card` | 8 |
+| メニュー、リストボックス、カレンダー、ポップオーバー | `rounded-popup` | 8 |
+| モーダルダイアログ、コマンドパレット、トースト | `rounded-dialog` | 8 |
+| ノティフィケーションバナー | `rounded-banner` | 12 |
+| チップラベル、入力欄の「必須」 | `rounded-chip` | 8 |
+| ツールチップ | `rounded-tooltip` | 4 |
+| サイドナビゲーションの項目 | `rounded-nav-item` | 8 |
+| アバター（四角） | `rounded-avatar` | 8 |
+| リンクのフォーカス、スケルトンの行 | `rounded-inline` | 4 |
+| 円（ラジオボタン、スイッチなど） | `rounded-full` | - |
+
+| 役割 | 影 | 既定の高さレベル |
+| --- | --- | --- |
+| リンクになっているカードのhover | `hover:shadow-card-hover` | 1 |
+| メニュー、リストボックス、ポップオーバー、グラフのツールチップ | `shadow-popup` | 1 |
+| ドロワー | `shadow-drawer` | 2 |
+| モーダルダイアログ、コマンドパレット | `shadow-dialog` | 3 |
+| トースト | `shadow-toast` | 3 |
+
+カードは影を付けず、枠線で区切る（`docs/decisions.md` D-07）。DADSの段は`primitives.css`の`--radius-4`〜`32`と`--shadow-1`〜`8`にある。役割を足すときは`local.css`に書き、影なら`eslint.config.js`の許可する名前にも足す。
+
+- 線幅: Tailwind の `border` `border-2` `border-3` `border-4`
 - 線幅: Tailwind の `border` `border-2` `border-3` `border-4`
 
 ## 寸法
@@ -82,7 +146,13 @@
 | `chart` / `chart-sm` | 256 / 160px | グラフの高さ |
 | `icon-sm` / `icon-md` / `icon-lg` / `icon-xl` | 16 / 20 / 24 / 44px | アイコン |
 
-余白は Tailwind のスペーシングスケール（4px 刻み）を使い、DADS の 8px 基準に合わせて 2 / 4 / 6 / 8 / 12 / 16 を基本とする。ブレークポイントは Tailwind 既定（`md` 768px を DADS の 1 ブレークポイントとして扱う）。
+## 余白とレイアウト
+
+- 余白: Tailwindの余白の1段は`local.css`の`--spacing`（4px）。DADSの基準の8pxは2段にあたり、部品の中の余白は2、4、6、8、12、16段を基本にする
+- 画面の余白: `px-page-x`（16px）、`md:px-page-x-wide`（32px）、`py-page-y`（24px）。`AppShell`、`TopNavLayout`、`Container`が使う
+- 段組みの幅: `max-w-content`（52rem。読み物・フォーム）、`max-w-wide`（80rem。一覧・ダッシュボード）
+- ブレークポイント: `sm` 40rem、`md` 48rem、`lg` 64rem、`xl` 80rem、`2xl` 96rem（`local.css`の`--breakpoint-*`）。モバイルとデスクトップの切り替えは`md`、サイドバーの常時表示は`lg`（`docs/decisions.md` D-05）
+- JSで画面の幅を見るときは、`useMediaQuery(minWidth("md"))`のように`src/tokens/breakpoints.ts`を使う。メディアクエリの幅を直接書くと、`npm run lint`で検出される
 
 ## 独自ユーティリティ
 

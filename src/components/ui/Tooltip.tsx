@@ -91,7 +91,7 @@ export function Tooltip({ content, children, delay = 150, placement = "top", cla
                         : "sr-only",
                 )}
             >
-                <span className={cn(visible && "block rounded-4 bg-text-strong px-2 py-1 text-14 leading-130 tracking-0 text-text-inverse")}>{content}</span>
+                <span className={cn(visible && "block rounded-tooltip bg-text-strong px-2 py-1 text-14 leading-130 tracking-0 text-text-inverse")}>{content}</span>
             </span>
         </span>
     );

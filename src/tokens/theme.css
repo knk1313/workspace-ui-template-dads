@@ -50,12 +50,7 @@
   --color-primary-outline-hover: var(--color-key-200);
   --color-primary-outline-active: var(--color-key-300);
 
-  /* --- リンク --- */
-  --color-link: var(--color-blue-1000);
-  --color-link-hover: var(--color-blue-900);
-  /* DADS は orange-800。地（canvas）で 4.33:1 のため 1 段濃い orange-900 を使う */
-  --color-link-active: var(--color-orange-900);
-  --color-link-visited: var(--color-magenta-900);
+  /* --- リンク（local.css） --- */
 
   /* --- フォーカス（DADS: Yellow-300 と Black の 2 重構造。変更禁止） --- */
   --color-focus: var(--color-black);

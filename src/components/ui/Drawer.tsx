@@ -71,7 +71,7 @@ export function Drawer({
                 aria-label={title ? undefined : ariaLabel}
                 data-placement={placement}
                 className={cn(
-                    "flex h-full w-drawer max-w-full flex-col bg-surface text-16 leading-170 tracking-2 text-text shadow-2",
+                    "flex h-full w-drawer max-w-full flex-col bg-surface text-16 leading-170 tracking-2 text-text shadow-drawer",
                     size === "lg" && "md:w-lg",
                     className,
                 )}
@@ -88,7 +88,7 @@ export function Drawer({
                     <button
                         type="button"
                         onClick={onClose}
-                        className="tap-area flex shrink-0 items-center gap-1 rounded-6 px-3 pt-1 pb-1.5 text-16 leading-none tracking-2 text-text hover:bg-surface-muted hover:underline hover:underline-offset-3 focus-visible:focus-ring-fill"
+                        className="tap-area flex shrink-0 items-center gap-1 rounded-button-sm px-3 pt-1 pb-1.5 text-16 leading-none tracking-2 text-text hover:bg-surface-muted hover:underline hover:underline-offset-3 focus-visible:focus-ring-fill"
                     >
                         <Icon icon={X} size="lg" className="mt-0.5 text-text-strong" />
                         {closeLabel}

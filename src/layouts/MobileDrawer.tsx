@@ -56,7 +56,7 @@ export function MobileDrawer({ open, onClose, id, children, appName, logo, width
                 aria-modal="true"
                 aria-label={label}
                 className={cn(
-                    "relative flex h-full flex-col bg-surface text-text shadow-2",
+                    "relative flex h-full flex-col bg-surface text-text shadow-drawer",
                     width === "full" ? "w-full" : "w-drawer max-w-full border-r border-border",
                 )}
             >

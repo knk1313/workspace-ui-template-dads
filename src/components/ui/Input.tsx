@@ -8,7 +8,7 @@ import { useFormField, type FieldSize } from "./FormField";
 // プレースホルダー・disabled・readonly・maxlength は原則使わない（DADS の規定）。
 
 export const INPUT_CLASS =
-    "box-border max-w-full rounded-8 border border-border-strong bg-surface px-4 py-3 text-16 leading-none tracking-2 text-text-strong hover:border-border-emphasis focus-visible:focus-ring aria-invalid:border-error aria-invalid:hover:border-error-hover disabled:border-border-disabled disabled:bg-disabled-surface disabled:text-text-disabled disabled:hover:border-border-disabled read-only:border-dashed";
+    "box-border max-w-full rounded-input border border-border-strong bg-surface px-4 py-3 text-16 leading-none tracking-2 text-text-strong hover:border-border-emphasis focus-visible:focus-ring aria-invalid:border-error aria-invalid:hover:border-error-hover disabled:border-border-disabled disabled:bg-disabled-surface disabled:text-text-disabled disabled:hover:border-border-disabled read-only:border-dashed";
 
 export const CONTROL_HEIGHT: Record<FieldSize, string> = {
     sm: "h-control-sm",

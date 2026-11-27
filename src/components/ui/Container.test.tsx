@@ -4,9 +4,9 @@ import { expectNoA11yViolations } from "@/test/axe";
 import { Container } from "./Container";
 
 describe("Container", () => {
-    it("既定はlg幅（80rem）で左右に余白を持つ", () => {
+    it("既定はlg幅（max-w-wide）で左右に画面の余白を持つ", () => {
         render(<Container data-testid="c">本文</Container>);
-        expect(screen.getByTestId("c")).toHaveClass("mx-auto", "w-full", "max-w-320", "px-4", "md:px-6");
+        expect(screen.getByTestId("c")).toHaveClass("mx-auto", "w-full", "max-w-wide", "px-page-x", "md:px-page-x-wide");
     });
 
     it("size / flush / asを切り替えられる", () => {
@@ -15,8 +15,8 @@ describe("Container", () => {
                 本文
             </Container>,
         );
-        expect(screen.getByTestId("c")).toHaveClass("max-w-208");
-        expect(screen.getByTestId("c")).not.toHaveClass("px-4");
+        expect(screen.getByTestId("c")).toHaveClass("max-w-content");
+        expect(screen.getByTestId("c")).not.toHaveClass("px-page-x");
         rerender(
             <Container data-testid="c" size="full" as="section" aria-label="領域">
                 本文

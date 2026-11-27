@@ -6,6 +6,8 @@
 //   - 色コード: #rgb / #rrggbb / #rrggbbaa、rgb( / rgba( / hsl( / hsla( / oklch(
 //   - 任意値クラス: [#...]、[rgb(...)]、[13px] / [1.5rem] / [85vw] など単位付きの数値
 //   - Tailwind 既定の文字サイズ（text-xs / text-sm / text-base / text-lg / text-xl ...）
+//   - 角丸・影の段の直書き（rounded-8 / shadow-1 など）。部品は local.css の役割のトークン（rounded-button / shadow-dialog など）を使う
+//   - メディアクエリの幅の直書き（"(min-width: 48rem)" など）。src/tokens/breakpoints.ts の minWidth() を使う
 // `npm run lint` から呼ばれる。違反があれば 1 で終了する。
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
@@ -36,6 +38,18 @@ const RULES = [
     {
         name: "Tailwind 既定の文字サイズ（DADS のサイズ text-14 / text-16 ... か text-std-* を使う）",
         pattern: /(?:^|[\s"'`:!])text-(?:xs|sm|base|lg|[2-9]?xl)\b/g,
+    },
+    {
+        name: "角丸の段の直書き（local.css の rounded-button / rounded-card などを使う）",
+        pattern: /(?:^|[\s"'`:!])rounded(?:-[setblr]{1,2})?-(?:4|6|8|12|16|24|32)\b/g,
+    },
+    {
+        name: "影の段の直書き（local.css の shadow-popup / shadow-dialog などを使う）",
+        pattern: /(?:^|[\s"'`:!])shadow-[1-8]\b/g,
+    },
+    {
+        name: "メディアクエリの幅の直書き（src/tokens/breakpoints.ts の minWidth() を使う）",
+        pattern: /\((?:min|max)-width:\s*\d/g,
     },
 ];
 
@@ -75,4 +89,4 @@ if (violations.length > 0) {
     for (const v of violations) console.error(`  ${v.file}:${v.line}  ${v.rule}  "${v.text}"`);
     process.exit(1);
 }
-console.log("デザイントークン検査: OK（色コード・任意値クラスの直書きなし）");
+console.log("デザイントークン検査: OK（色コード・任意値クラス・角丸と影の段・メディアクエリの幅の直書きなし）");

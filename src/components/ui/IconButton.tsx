@@ -25,7 +25,7 @@ export type IconButtonProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, "chi
 };
 
 const BASE =
-    "inline-flex shrink-0 items-center justify-center rounded-8 transition-colors focus-visible:focus-ring-fill disabled:border-border-disabled disabled:bg-transparent disabled:text-text-disabled";
+    "inline-flex shrink-0 items-center justify-center rounded-button transition-colors focus-visible:focus-ring-fill disabled:border-border-disabled disabled:bg-transparent disabled:text-text-disabled";
 
 const SIZE: Record<IconButtonSize, string> = {
     md: "size-target",

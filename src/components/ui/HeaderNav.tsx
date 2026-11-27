@@ -36,7 +36,7 @@ export function HeaderNav({ items, label = "メインナビゲーション", cla
                                 cn(
                                     "relative flex min-h-16 items-center gap-1 px-5 py-4 text-16 leading-130 font-bold tracking-0 no-underline transition-colors",
                                     "after:absolute after:inset-x-0 after:bottom-0",
-                                    "focus-visible:focus-ring-fill focus-visible:rounded-4",
+                                    "focus-visible:focus-ring-fill focus-visible:rounded-inline",
                                     isActive
                                         ? "bg-surface text-primary-hover after:h-1 after:bg-primary hover:text-primary hover:underline hover:decoration-1 hover:underline-offset-3"
                                         : "text-text-strong hover:bg-surface-muted hover:after:h-0.5 hover:after:bg-border-emphasis",

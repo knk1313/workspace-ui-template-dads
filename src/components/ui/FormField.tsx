@@ -98,7 +98,7 @@ export function FormField({
                 <span className={cn("ml-1 text-16 font-normal", required ? "text-error" : "text-text")}>{requirementLabel}</span>
             )}
             {status && (
-                <span className="ml-1 inline-block rounded-8 bg-text-subtle p-2 text-16 font-normal leading-none tracking-2 text-text-inverse">{status}</span>
+                <span className="ml-1 inline-block rounded-chip bg-text-subtle p-2 text-16 font-normal leading-none tracking-2 text-text-inverse">{status}</span>
             )}
         </>
     );

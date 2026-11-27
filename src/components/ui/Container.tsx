@@ -2,11 +2,10 @@ import type { ElementType, HTMLAttributes, ReactNode } from "react";
 import { cn } from "@/lib/cn";
 
 // コンテンツ幅の上限と左右の余白。
-//   md: 52rem（832px。DADS 作例のコンテンツ幅）… 読み物・フォーム
-//   lg: 80rem（1280px）… 一覧・ダッシュボード
+//   md: 読み物・フォーム（local.css の --container-content。既定は 52rem = 832px、DADS 作例のコンテンツ幅）
+//   lg: 一覧・ダッシュボード（--container-wide。既定は 80rem = 1280px）
 //   full: 上限なし
-// 左右の余白は DADS の余白ルールに合わせ、モバイル 16px / md 以上 24px。
-// 幅は Tailwind の spacing スケール（4px 刻み）で表す: max-w-208 = 52rem、max-w-320 = 80rem。
+// 左右の余白は local.css の画面の余白（--spacing-page-x / --spacing-page-x-wide）。
 
 export type ContainerSize = "md" | "lg" | "full";
 
@@ -20,14 +19,14 @@ export type ContainerProps = HTMLAttributes<HTMLElement> & {
 };
 
 const SIZE: Record<ContainerSize, string> = {
-    md: "max-w-208",
-    lg: "max-w-320",
+    md: "max-w-content",
+    lg: "max-w-wide",
     full: "max-w-none",
 };
 
 export function Container({ children, size = "lg", as: Component = "div", flush = false, className, ...props }: ContainerProps) {
     return (
-        <Component className={cn("mx-auto w-full", SIZE[size], !flush && "px-4 md:px-6", className)} {...props}>
+        <Component className={cn("mx-auto w-full", SIZE[size], !flush && "px-page-x md:px-page-x-wide", className)} {...props}>
             {children}
         </Component>
     );

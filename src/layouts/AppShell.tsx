@@ -119,7 +119,7 @@ export function AppShell({
                     </div>
                 )}
                 <Main id={embedded ? undefined : "main"} tabIndex={embedded ? undefined : -1} className={cn("min-w-0 flex-1", embedded && "overflow-y-auto")}>
-                    <Container size={containerSize} flush className="px-4 py-6 md:px-8">
+                    <Container size={containerSize} flush className="px-page-x py-page-y md:px-page-x-wide">
                         {children ?? <Outlet />}
                     </Container>
                 </Main>

@@ -30,7 +30,7 @@ export type SelectProps = Omit<SelectHTMLAttributes<HTMLSelectElement>, "size"> 
 };
 
 export const SELECT_CLASS =
-    "peer box-border max-w-full appearance-none rounded-8 border border-border-strong bg-surface pl-4 pr-10 text-16 leading-none tracking-2 text-text-strong hover:border-border-emphasis focus-visible:focus-ring aria-invalid:border-error aria-invalid:hover:border-error-hover disabled:border-border-disabled disabled:bg-disabled-surface disabled:text-text-disabled disabled:hover:border-border-disabled";
+    "peer box-border max-w-full appearance-none rounded-input border border-border-strong bg-surface pl-4 pr-10 text-16 leading-none tracking-2 text-text-strong hover:border-border-emphasis focus-visible:focus-ring aria-invalid:border-error aria-invalid:hover:border-error-hover disabled:border-border-disabled disabled:bg-disabled-surface disabled:text-text-disabled disabled:hover:border-border-disabled";
 
 export function Select({ size, options, placeholder, block = false, invalid, className, id, required, children, ...props }: SelectProps) {
     const field = useFormField();

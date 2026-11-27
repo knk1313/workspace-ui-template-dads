@@ -87,7 +87,7 @@ export function NotificationBanner({
                 "flex flex-col gap-4 bg-surface pt-2 pr-4 pb-6 text-16 leading-170 tracking-2 text-text md:gap-6 md:pt-6 md:pr-6 md:pb-8",
                 color.frame,
                 // standard は 3px 枠 + 角丸 12px。color-chip は 2px 枠 + 左 8px の帯（帯の分だけ左の余白を減らす）。
-                style === "standard" ? "rounded-12 border-3 pl-4 md:pl-6" : cn("border-2 border-l-8 pl-4 md:pl-8", color.chip),
+                style === "standard" ? "rounded-banner border-3 pl-4 md:pl-6" : cn("border-2 border-l-8 pl-4 md:pl-8", color.chip),
                 className,
             )}
         >
@@ -103,7 +103,7 @@ export function NotificationBanner({
                     <button
                         type="button"
                         onClick={onClose}
-                        className="-mt-1 -mr-2 flex min-h-11 min-w-11 shrink-0 items-center justify-center gap-1 rounded-8 text-16 leading-none text-text-strong hover:bg-surface-muted hover:underline hover:underline-offset-3 focus-visible:focus-ring-fill md:-mr-3 md:min-h-0 md:min-w-0 md:px-3 md:pt-1 md:pb-1.5"
+                        className="-mt-1 -mr-2 flex min-h-11 min-w-11 shrink-0 items-center justify-center gap-1 rounded-button text-16 leading-none text-text-strong hover:bg-surface-muted hover:underline hover:underline-offset-3 focus-visible:focus-ring-fill md:-mr-3 md:min-h-0 md:min-w-0 md:px-3 md:pt-1 md:pb-1.5"
                     >
                         <Icon icon={X} size="lg" className="md:mt-0.5" />
                         {/* モバイルはアイコンのみ表示し、テキストはスクリーンリーダーにだけ渡す。 */}

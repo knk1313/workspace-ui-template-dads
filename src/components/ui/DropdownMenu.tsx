@@ -218,7 +218,7 @@ export function DropdownMenu({ label, items, style = "text", size = "md", icon, 
                 onKeyDown={onTriggerKeyDown}
                 className={cn(
                     "inline-flex items-center justify-center text-16 leading-120 tracking-2 text-text-strong focus-visible:focus-ring-fill",
-                    iconOnly ? "size-target rounded-8" : cn("rounded-8 py-1 hover:underline hover:underline-offset-3", TRIGGER_SIZE[size]),
+                    iconOnly ? "size-target rounded-button" : cn("rounded-button py-1 hover:underline hover:underline-offset-3", TRIGGER_SIZE[size]),
                     TRIGGER_STYLE[style],
                     triggerClassName,
                 )}
@@ -241,7 +241,7 @@ export function DropdownMenu({ label, items, style = "text", size = "md", icon, 
                     aria-label={label}
                     onKeyDown={onMenuKeyDown}
                     style={position}
-                    className="fixed z-30 max-h-popup-max w-max overflow-y-auto rounded-8 border border-border bg-surface py-4 text-16 leading-130 tracking-0 text-text shadow-1"
+                    className="fixed z-30 max-h-popup-max w-max overflow-y-auto rounded-popup border border-border bg-surface py-4 text-16 leading-130 tracking-0 text-text shadow-popup"
                 >
                     {items.map((entry, i) =>
                         isItem(entry) ? (

@@ -21,12 +21,12 @@ export function Skeleton({ variant = "text", lines = 1, className }: SkeletonPro
         return (
             <div aria-hidden="true" className={cn("flex flex-col gap-2", className)}>
                 {Array.from({ length: lines }, (_, i) => (
-                    <div key={i} data-skeleton="" className={cn(BASE, "h-4 rounded-4", lines > 1 && i === lines - 1 ? "w-2/3" : "w-full")} />
+                    <div key={i} data-skeleton="" className={cn(BASE, "h-4 rounded-inline", lines > 1 && i === lines - 1 ? "w-2/3" : "w-full")} />
                 ))}
             </div>
         );
     }
-    return <div aria-hidden="true" data-skeleton="" className={cn(BASE, variant === "circle" ? "rounded-full" : "rounded-8", className)} />;
+    return <div aria-hidden="true" data-skeleton="" className={cn(BASE, variant === "circle" ? "rounded-full" : "rounded-card", className)} />;
 }
 
 export type SkeletonTableProps = {
@@ -41,13 +41,13 @@ export function SkeletonTable({ rows = 5, columns = 4, className }: SkeletonTabl
         <div aria-hidden="true" className={cn("flex flex-col", className)}>
             <div className="flex gap-4 border-b-2 border-border-emphasis bg-surface-strong px-4 py-3">
                 {Array.from({ length: columns }, (_, c) => (
-                    <div key={c} className={cn(BASE, "h-4 flex-1 rounded-4")} />
+                    <div key={c} className={cn(BASE, "h-4 flex-1 rounded-inline")} />
                 ))}
             </div>
             {Array.from({ length: rows }, (_, r) => (
                 <div key={r} className="flex gap-4 border-b border-border px-4 py-5">
                     {Array.from({ length: columns }, (_, c) => (
-                        <div key={c} className={cn(BASE, "h-4 flex-1 rounded-4", c === 0 && "max-w-40")} />
+                        <div key={c} className={cn(BASE, "h-4 flex-1 rounded-inline", c === 0 && "max-w-40")} />
                     ))}
                 </div>
             ))}

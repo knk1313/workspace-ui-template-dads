@@ -1,0 +1,107 @@
+/*
+ * ローカルデザインシステムの入口。
+ * DADS を導入先に合わせて調整するときは、原則としてこのファイルの値だけを書き換える。
+ * 項目は DADS の「基本デザインの編集」（https://design.digital.go.jp/dads/guidance/local-design-system/）の 7 項目に合わせている。
+ *   1. カラー  2. タイポグラフィ  3. 余白  4. 角の形状  5. ドロップシャドウとエレベーション  6. リンクテキスト  7. レイアウト
+ * 既定の値は DADS（デジタル庁ウェブサイトベース）のまま。変えてよい範囲と守る要件は docs/tokens.md の「ローカルデザインシステムとして調整する」を参照。
+ * 値を変えたら `npm run check`（コントラストと要件の検査。contrast.test.ts、local.test.ts）と `npm run test:visual:update` を実行する。
+ *
+ * 変えてはいけないもの（このファイルには置いていない）:
+ *   - フォーカスの色（theme.css の --color-focus / --color-focus-ring。DADS は変更を禁止している）
+ *   - 意味色と意味の結びつき（エラー = 赤、成功 = 緑。明度は変えてよいが色相は変えない）
+ *   - タップ領域 44px（theme.css の --spacing-target）
+ */
+@theme {
+  /* ───── 1. カラー: キーカラー ─────
+     プライマリー（塗りボタン、選択、強調面）はこの 13 段から作る（theme.css、theme-dark.css）。
+     DADS のプリセットに替えるときは、blue を green / cyan / purple などの色相名に置き換える。
+     ブランドカラーで上書きするときは、同じ色相で明るい順に 13 段の色コードを書く（例: --color-key-900: #0b5c3b;）。
+     要件: key-900 は白と地（canvas）に対して 4.5:1、key-300 はダークの地に対して 4.5:1。contrast.test.ts が検査する。 */
+  --color-key-50: var(--color-blue-50);
+  --color-key-100: var(--color-blue-100);
+  --color-key-200: var(--color-blue-200);
+  --color-key-300: var(--color-blue-300);
+  --color-key-400: var(--color-blue-400);
+  --color-key-500: var(--color-blue-500);
+  --color-key-600: var(--color-blue-600);
+  --color-key-700: var(--color-blue-700);
+  --color-key-800: var(--color-blue-800);
+  --color-key-900: var(--color-blue-900);
+  --color-key-1000: var(--color-blue-1000);
+  --color-key-1100: var(--color-blue-1100);
+  --color-key-1200: var(--color-blue-1200);
+
+  /* ───── 6. リンクテキスト: リンクの色 ─────
+     DADS の既定は青（未訪問）と紫系（訪問済み）。青以外にしてもよいが、下線は外さない（Link.tsx）。
+     ダークモードの値は theme-dark.css の「リンク」で、合わせて変える。
+     要件: 面と地に対して 4.5:1。contrast.test.ts が検査する。 */
+  --color-link: var(--color-blue-1000);
+  --color-link-hover: var(--color-blue-900);
+  /* DADS は orange-800。地（canvas）で 4.33:1 のため 1 段濃い orange-900 を使う */
+  --color-link-active: var(--color-orange-900);
+  --color-link-visited: var(--color-magenta-900);
+
+  /* ───── 2. タイポグラフィ: 書体 ─────
+     文字の大きさと行の高さの既定値は下の :root（--body-*）。テキストスタイルは typography.css。 */
+  --font-sans: "Noto Sans JP Variable", "Noto Sans JP", -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+  --font-mono: "Noto Sans Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* ───── 3. 余白: 基準の単位と、役割ごとの倍率 ─────
+     --spacing は Tailwind の余白の 1 段（p-1、gap-1 など）。DADS の基準 8px は 2 段（p-2）にあたる。
+     部品の中の余白は 2 / 4 / 6 / 8 / 12 / 16 段（8px の 1 / 2 / 3 / 4 / 6 / 8 倍）を基本にする。
+     --spacing は操作部品の高さにも効くため、変えない。画面の余白は下の役割のトークンで変える。 */
+  --spacing: 0.25rem;
+  --spacing-page-x: 1rem; /* 画面の左右の余白（モバイル）。px-page-x */
+  --spacing-page-x-wide: 2rem; /* 画面の左右の余白（md 以上）。md:px-page-x-wide */
+  --spacing-page-y: 1.5rem; /* 画面の上下の余白。py-page-y */
+
+  /* ───── 4. 角の形状: 部品ごとの角丸 ─────
+     値は primitives.css の --radius-4〜32 から選ぶ。円（ラジオボタン、スイッチなど）は rounded-full のまま。 */
+  --radius-button: var(--radius-8); /* ボタン lg / md、アイコンボタン、メニューのボタン */
+  --radius-button-sm: var(--radius-6); /* ボタン sm、閉じるボタン */
+  --radius-button-xs: var(--radius-4); /* ボタン xs */
+  --radius-input: var(--radius-8); /* 入力欄、セレクト、テキストエリア */
+  --radius-checkbox: var(--radius-4);
+  --radius-card: var(--radius-8); /* カード、パネル、ドロップ領域など面の部品 */
+  --radius-popup: var(--radius-8); /* メニュー、リストボックス、カレンダー、ポップオーバー */
+  --radius-dialog: var(--radius-8); /* モーダルダイアログ、コマンドパレット、トースト */
+  --radius-banner: var(--radius-12); /* ノティフィケーションバナー（standard） */
+  --radius-chip: var(--radius-8); /* チップラベル、入力欄の「必須」 */
+  --radius-tooltip: var(--radius-4); /* ツールチップ、グラフのツールチップ */
+  --radius-nav-item: var(--radius-8); /* サイドナビゲーションの項目 */
+  --radius-avatar: var(--radius-8); /* アバター（四角） */
+  --radius-inline: var(--radius-4); /* リンクなど文字に付くフォーカスの角、スケルトンの行 */
+
+  /* ───── 5. ドロップシャドウとエレベーション: 役割ごとの高さレベル ─────
+     値は primitives.css の --shadow-1〜8（DADS の Style 1〜8）から選ぶ。何も付けない要素は高さレベル 0。
+     管理画面は高低差を狭くする（docs/decisions.md D-07）。カードは影を付けず、枠線で区切る。
+     要件: ダイアログは下の要素（hover で浮く要素）より 2 段以上、hover で浮く要素は 1 段以上。local.test.ts が検査する。
+     影ではコントラストを確保できないため、影を付ける部品にも 3:1 の枠線を付ける。 */
+  --shadow-card-hover: var(--shadow-1); /* リンクになっているカードの hover */
+  --shadow-popup: var(--shadow-1); /* メニュー、リストボックス、ポップオーバー、グラフのツールチップ */
+  --shadow-drawer: var(--shadow-2); /* ドロワー（暗幕の上に置く） */
+  --shadow-dialog: var(--shadow-3); /* モーダルダイアログ、コマンドパレット */
+  --shadow-toast: var(--shadow-3);
+
+  /* ───── 7. レイアウト: ブレークポイントと段組みの幅 ─────
+     ここに書いた段だけが sm: md: などとして使える。JS から使う値は breakpoints.ts に同じ値を書く（local.test.ts が一致を検査する）。
+     モバイルとデスクトップの切り替えは md、サイドバーの常時表示は lg（docs/decisions.md D-05）。
+     画面はリキッドレイアウト（幅いっぱいに伸び、上限だけ決める）にする。 */
+  --breakpoint-*: initial;
+  --breakpoint-sm: 40rem;
+  --breakpoint-md: 48rem;
+  --breakpoint-lg: 64rem;
+  --breakpoint-xl: 80rem;
+  --breakpoint-2xl: 96rem;
+  --container-content: 52rem; /* 読み物・フォームの幅の上限（DADS 作例のコンテンツ幅 832px）。max-w-content */
+  --container-wide: 80rem; /* 一覧・ダッシュボードの幅の上限。max-w-wide */
+}
+
+/* ───── 2. タイポグラフィ: 本文の既定値 ─────
+   画面全体の既定の文字（DADS Std-16N-170 相当）。index.css の html が使う。
+   要件: 文字の大きさは 1rem（16px）以上、行の高さは 1.5 以上。local.test.ts が検査する。 */
+:root {
+  --body-font-size: 1rem;
+  --body-line-height: 1.7;
+  --body-letter-spacing: 0.02em;
+}

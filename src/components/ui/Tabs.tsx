@@ -175,7 +175,7 @@ export function Tab({ value, children, icon, className, ...props }: TabProps) {
             onClick={() => select(value)}
             className={cn(
                 "flex min-h-11 shrink-0 items-center gap-1 px-4 py-3 text-16 leading-120 tracking-0 text-text transition-colors",
-                "focus-visible:focus-ring focus-visible:rounded-4",
+                "focus-visible:focus-ring focus-visible:rounded-inline",
                 selected ? "border-b-4 border-primary font-bold text-primary" : "border-b-4 border-transparent hover:bg-surface-muted hover:underline hover:underline-offset-3",
                 className,
             )}
@@ -199,7 +199,7 @@ export function TabPanel({ value, children, className, ...props }: TabPanelProps
             aria-labelledby={tabId(baseId, value)}
             tabIndex={0}
             hidden={!selected}
-            className={cn("min-w-0 pt-4 text-16 leading-170 tracking-2 text-text focus-visible:focus-ring focus-visible:rounded-4", className)}
+            className={cn("min-w-0 pt-4 text-16 leading-170 tracking-2 text-text focus-visible:focus-ring focus-visible:rounded-inline", className)}
             {...props}
         >
             {children}

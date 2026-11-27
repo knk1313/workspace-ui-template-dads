@@ -36,7 +36,7 @@ describe("Tooltip", () => {
         const { user } = setup();
         await user.hover(button());
         await waitFor(() => expect(tooltip()).not.toHaveClass("sr-only"));
-        expect(tooltip().firstElementChild).toHaveClass("bg-text-strong", "text-text-inverse", "rounded-4", "text-14");
+        expect(tooltip().firstElementChild).toHaveClass("bg-text-strong", "text-text-inverse", "rounded-tooltip", "text-14");
         await user.unhover(button());
         expect(tooltip()).toHaveClass("sr-only");
     });

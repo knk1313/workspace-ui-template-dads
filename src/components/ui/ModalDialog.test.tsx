@@ -55,7 +55,7 @@ describe("ModalDialog", () => {
         await openDialog();
         const dialog = screen.getByRole("dialog", { name: "確認" });
         expect(dialog).toHaveAttribute("aria-modal", "true");
-        expect(dialog).toHaveClass("rounded-8", "border-border-emphasis", "bg-surface", "shadow-3", "md:min-w-dialog");
+        expect(dialog).toHaveClass("rounded-dialog", "border-border-emphasis", "bg-surface", "shadow-dialog", "md:min-w-dialog");
         const heading = screen.getByRole("heading", { level: 2, name: "確認" });
         expect(heading).toHaveFocus();
         expect(heading).toHaveAttribute("tabindex", "-1");

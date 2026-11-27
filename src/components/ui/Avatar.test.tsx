@@ -35,7 +35,7 @@ describe("Avatar", () => {
 
     it("size / shapeに応じたクラス", () => {
         const { rerender } = render(<Avatar name="A" size="sm" shape="square" />);
-        expect(screen.getByRole("img")).toHaveClass("size-8", "rounded-8", "text-14");
+        expect(screen.getByRole("img")).toHaveClass("size-8", "rounded-avatar", "text-14");
         rerender(<Avatar name="A" size="lg" />);
         expect(screen.getByRole("img")).toHaveClass("size-12", "rounded-full", "text-18");
     });

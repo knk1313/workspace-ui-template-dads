@@ -93,7 +93,7 @@ export function SearchBox({
                             type="button"
                             aria-label="入力内容を消去"
                             onClick={clear}
-                            className="absolute inset-y-0 right-0 flex w-11 items-center justify-center rounded-8 text-text hover:bg-surface-muted focus-visible:focus-ring"
+                            className="absolute inset-y-0 right-0 flex w-11 items-center justify-center rounded-input text-text hover:bg-surface-muted focus-visible:focus-ring"
                         >
                             <Icon icon={X} size="md" />
                         </button>

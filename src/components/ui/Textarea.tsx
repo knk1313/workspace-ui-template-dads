@@ -29,7 +29,7 @@ const RESIZE: Record<TextareaResize, string> = {
 };
 
 export const TEXTAREA_CLASS =
-    "block box-border max-w-full rounded-8 border border-border-strong bg-surface p-4 text-16 leading-170 tracking-2 text-text-strong hover:border-border-emphasis focus-visible:focus-ring aria-invalid:border-error aria-invalid:hover:border-error-hover disabled:resize-none disabled:border-border-disabled disabled:bg-disabled-surface disabled:text-text-disabled disabled:hover:border-border-disabled read-only:border-dashed";
+    "block box-border max-w-full rounded-input border border-border-strong bg-surface p-4 text-16 leading-170 tracking-2 text-text-strong hover:border-border-emphasis focus-visible:focus-ring aria-invalid:border-error aria-invalid:hover:border-error-hover disabled:resize-none disabled:border-border-disabled disabled:bg-disabled-surface disabled:text-text-disabled disabled:hover:border-border-disabled read-only:border-dashed";
 
 /** 文字数はサロゲートペア（絵文字など）を 1 文字として数える。 */
 function countChars(text: string): number {

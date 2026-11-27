@@ -19,7 +19,7 @@ export function ChartTooltip({ active, payload, label, unit, formatValue, format
     if (!active || !payload || payload.length === 0) return null;
     const heading = formatLabel ? formatLabel(label) : label === undefined || label === null ? null : String(label);
     return (
-        <div className="rounded-4 border border-border bg-surface p-2 text-14 text-text shadow-1">
+        <div className="rounded-tooltip border border-border bg-surface p-2 text-14 text-text shadow-popup">
             {heading !== null && heading !== "" && <p className="mb-1 font-bold">{heading}</p>}
             <ul className="flex flex-col gap-0.5">
                 {payload.map((entry, i) => {

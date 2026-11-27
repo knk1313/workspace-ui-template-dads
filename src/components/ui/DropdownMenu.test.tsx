@@ -45,7 +45,7 @@ describe("DropdownMenu", () => {
         const menu = screen.getByRole("menu", { name: "操作" });
         expect(trigger()).toHaveAttribute("aria-expanded", "true");
         expect(trigger()).toHaveAttribute("aria-controls", menu.id);
-        expect(menu).toHaveClass("rounded-8", "border-border", "shadow-1", "py-4", "max-h-popup-max");
+        expect(menu).toHaveClass("rounded-popup", "border-border", "shadow-popup", "py-4", "max-h-popup-max");
         expect(menuItems()).toHaveLength(4);
         expect(menuItems()[0]).toHaveFocus();
         expect(screen.getByRole("separator")).toBeInTheDocument();

@@ -2,22 +2,28 @@
 @import "@fontsource-variable/noto-sans-jp";
 @import "./tokens/primitives.css";
 @import "./tokens/theme.css";
+@import "./tokens/local.css"; /* ローカルデザインシステムの入口（キーカラー、角丸、影、ブレークポイントなど） */
 @import "./tokens/theme-dark.css";
 @import "./tokens/typography.css";
 
 /* dark: で、ダークモードのときだけ付ける色を書く（DADS がプリミティブで色を決めているチップラベルなど）。 */
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
-/* 既定のテキスト設定（DADS Std-16N-170 相当）。前景色と背景色を必ずセットで指定する。 */
+/* 既定のテキスト設定（値は local.css の --body-*。既定は DADS Std-16N-170 相当）。前景色と背景色を必ずセットで指定する。 */
 @layer base {
   html {
     background-color: var(--color-canvas);
     color: var(--color-text);
     font-family: var(--font-sans);
-    font-size: 100%;
-    line-height: 1.7;
-    letter-spacing: 0.02em;
+    font-size: 100%; /* rem の基準。利用者のブラウザの文字の大きさの設定に従う */
     -webkit-text-size-adjust: 100%;
+  }
+
+  /* 本文の大きさは rem の基準（html）を変えずに、body で決める */
+  body {
+    font-size: var(--body-font-size);
+    line-height: var(--body-line-height);
+    letter-spacing: var(--body-letter-spacing);
   }
 
   /* 固定ヘッダーの高さ + 余白の分だけ、スクロールで要素を寄せる位置を下げる。

@@ -17,7 +17,7 @@ describe("GridList", () => {
         expect(list).toHaveClass("grid", "grid-cols-1", "sm:grid-cols-2", "lg:grid-cols-3");
         const items = screen.getAllByRole("listitem");
         expect(items).toHaveLength(2);
-        expect(items[0]).toHaveClass("rounded-8", "border", "border-border", "bg-surface", "p-4");
+        expect(items[0]).toHaveClass("rounded-card", "border", "border-border", "bg-surface", "p-4");
         expect(screen.getByText("交付申請")).toBeInTheDocument();
         expect(screen.getByText("証明書")).toBeInTheDocument();
     });

@@ -40,7 +40,7 @@ export type SideNavProps = Omit<HTMLAttributes<HTMLElement>, "children"> & {
 };
 
 const ITEM_BASE =
-    "relative flex min-h-11 w-full items-center gap-2 rounded-8 py-2 text-16 leading-130 tracking-0 no-underline transition-colors focus-visible:focus-ring-fill";
+    "relative flex min-h-11 w-full items-center gap-2 rounded-nav-item py-2 text-16 leading-130 tracking-0 no-underline transition-colors focus-visible:focus-ring-fill";
 const ITEM_IDLE = "text-text hover:bg-surface-muted hover:text-text-strong hover:underline hover:decoration-1 hover:underline-offset-3";
 const ITEM_ACTIVE = "bg-primary-surface font-bold text-primary before:absolute before:inset-y-1 before:left-0 before:w-1 before:rounded-full before:bg-primary";
 

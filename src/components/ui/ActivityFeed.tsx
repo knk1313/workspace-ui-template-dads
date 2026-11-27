@@ -58,7 +58,7 @@ export function ActivityFeed({ items, className, ...props }: ActivityFeedProps) 
                                 <span className="font-bold">{item.actor}</span>が{item.target && <>{item.target}を</>}
                                 {item.action}
                             </p>
-                            {item.description && <div className="rounded-8 bg-surface-muted px-4 py-3 text-text">{item.description}</div>}
+                            {item.description && <div className="rounded-card bg-surface-muted px-4 py-3 text-text">{item.description}</div>}
                             <p className="m-0 text-14 leading-150 text-text-muted">
                                 <time dateTime={item.time}>{item.timeLabel ?? formatDateTime(item.time)}</time>
                             </p>

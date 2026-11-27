@@ -13,7 +13,7 @@ describe("Card", () => {
             </Card>,
         );
         const card = screen.getByTestId("card");
-        expect(card).toHaveClass("rounded-8", "border", "border-border-on-canvas", "bg-surface");
+        expect(card).toHaveClass("rounded-card", "border", "border-border-on-canvas", "bg-surface");
         expect(card.className).not.toMatch(/shadow/);
     });
 

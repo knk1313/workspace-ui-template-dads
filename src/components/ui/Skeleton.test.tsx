@@ -16,7 +16,7 @@ describe("Skeleton", () => {
 
     it("rect / circleは1つの要素で、幅・高さはclassNameで指定する", () => {
         const { container, rerender } = render(<Skeleton variant="rect" className="h-40 w-full" />);
-        expect(container.firstElementChild).toHaveClass("rounded-8", "h-40", "w-full", "animate-pulse");
+        expect(container.firstElementChild).toHaveClass("rounded-card", "h-40", "w-full", "animate-pulse");
         expect(container.firstElementChild).toHaveAttribute("aria-hidden", "true");
         rerender(<Skeleton variant="circle" className="size-12" />);
         expect(container.firstElementChild).toHaveClass("rounded-full", "size-12");

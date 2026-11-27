@@ -7,7 +7,7 @@ describe("Panel", () => {
     it("titleなしはdiv、あり はsection + 見出しで描画する", () => {
         const { rerender } = render(<Panel data-testid="p">補足</Panel>);
         expect(screen.getByTestId("p").tagName).toBe("DIV");
-        expect(screen.getByTestId("p")).toHaveClass("bg-surface-muted", "rounded-8");
+        expect(screen.getByTestId("p")).toHaveClass("bg-surface-muted", "rounded-card");
         rerender(
             <Panel title="絞り込み" titleAs="h2">
                 内容

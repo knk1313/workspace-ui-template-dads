@@ -57,7 +57,7 @@ export function Card({ children, as: Component = "div", padding = "md", interact
         <CardContext.Provider value={{ padding, interactive, headingId, setHasHeading }}>
             <Component
                 className={cn(
-                    "flex min-w-0 flex-col rounded-8 border border-border-on-canvas bg-surface text-text break-words",
+                    "flex min-w-0 flex-col rounded-card border border-border-on-canvas bg-surface text-text break-words",
                     interactive && "relative transition-colors hover:bg-surface-hover",
                     className,
                 )}
