@@ -140,16 +140,21 @@ export function TabList({ children, className, ...props }: TabListProps) {
         if (activation === "automatic") select(target.dataset.value ?? "");
     }
 
+    // タブが多いときは横にスクロールさせる。スクロールの領域は、はみ出したものを切り取るため、
+    // フォーカスの枠（タブの外側に 6px）が切れないよう、外側の領域に 8px の余白を取り、負のマージンで打ち消す。
+    // そのため、TabList の左右には 8px 以上の余白（ページの余白など）が要る。下線は内側の tablist に付ける。
     return (
-        <div
-            ref={ref}
-            role="tablist"
-            aria-label={label}
-            onKeyDown={onKeyDown}
-            className={cn("flex items-stretch overflow-x-auto border-b border-border", className)}
-            {...props}
-        >
-            {children}
+        <div className="-m-2 overflow-x-auto p-2">
+            <div
+                ref={ref}
+                role="tablist"
+                aria-label={label}
+                onKeyDown={onKeyDown}
+                className={cn("flex w-max min-w-full items-stretch border-b border-border", className)}
+                {...props}
+            >
+                {children}
+            </div>
         </div>
     );
 }

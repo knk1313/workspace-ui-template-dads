@@ -94,3 +94,44 @@ export async function findObscuredFocus(page: Page, steps: number, key: "Tab" | 
     }
     return obscured;
 }
+
+/**
+ * Tab でフォーカスを移しながら、フォーカスの枠（outline と outline-offset の分、要素の外側にはみ出す）が、
+ * スクロールの領域（overflow が visible 以外の祖先）で切り取られていないかを調べる。
+ * 要素そのものは領域の中にあるのに、枠だけが領域の端で切れている場合を返す（スクロールで隠れている要素は対象外）。
+ */
+export async function findClippedFocusRings(page: Page, steps: number): Promise<string[]> {
+    const clipped = new Set<string>();
+    for (let i = 0; i < steps; i++) {
+        await page.keyboard.press("Tab");
+        const result = await page.evaluate(() => {
+            const el = document.activeElement as HTMLElement | null;
+            if (!el || el === document.body) return null;
+            const cs = getComputedStyle(el);
+            const ext = cs.outlineStyle === "none" ? 0 : (parseFloat(cs.outlineWidth) || 0) + (parseFloat(cs.outlineOffset) || 0);
+            if (ext <= 0) return null;
+            const r = el.getBoundingClientRect();
+            for (let a = el.parentElement; a && a !== document.body; a = a.parentElement) {
+                const s = getComputedStyle(a);
+                if (s.overflowX === "visible" && s.overflowY === "visible") continue;
+                const ar = a.getBoundingClientRect();
+                const box = {
+                    l: ar.left + parseFloat(s.borderLeftWidth),
+                    r: ar.right - parseFloat(s.borderRightWidth),
+                    t: ar.top + parseFloat(s.borderTopWidth),
+                    b: ar.bottom - parseFloat(s.borderBottomWidth),
+                };
+                const sides = [
+                    r.left - ext < box.l - 0.5 && r.left >= box.l - 0.5 ? "左" : "",
+                    r.right + ext > box.r + 0.5 && r.right <= box.r + 0.5 ? "右" : "",
+                    r.top - ext < box.t - 0.5 && r.top >= box.t - 0.5 ? "上" : "",
+                    r.bottom + ext > box.b + 0.5 && r.bottom <= box.b + 0.5 ? "下" : "",
+                ].join("");
+                if (sides) return `${el.tagName.toLowerCase()}「${(el.getAttribute("aria-label") ?? el.textContent ?? "").trim().slice(0, 20)}」の${sides}`;
+            }
+            return null;
+        });
+        if (result) clipped.add(result);
+    }
+    return [...clipped];
+}

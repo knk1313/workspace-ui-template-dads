@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 import { isMobile, waitForLoaded } from "./helpers";
 import { PAGES } from "./routes";
-import { findMisalignments, findObscuredFocus } from "./layout";
+import { findClippedFocusRings, findMisalignments, findObscuredFocus } from "./layout";
 
 // 見た目の崩れを数値で検出する（スクリーンショットの比較では見落としやすい 1〜3px のずれ、固定ヘッダーとの重なり）。
 
@@ -30,6 +30,15 @@ for (const path of PATHS) {
             window.scrollTo(0, document.documentElement.scrollHeight);
         });
         expect(await findObscuredFocus(page, 40, "Shift+Tab"), "Shift+Tab").toEqual([]);
+    });
+}
+
+for (const path of PATHS) {
+    test(`${path}: フォーカスの枠が、横スクロールの領域などで切れない`, async ({ page }) => {
+        await page.goto(path);
+        await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+        await waitForLoaded(page);
+        expect(await findClippedFocusRings(page, 40)).toEqual([]);
     });
 }
 
