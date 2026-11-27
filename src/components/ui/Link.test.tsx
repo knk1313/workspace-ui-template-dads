@@ -13,7 +13,20 @@ describe("Link", () => {
         );
         const link = screen.getByRole("link", { name: "申請一覧" });
         expect(link).toHaveAttribute("href", "/applications");
+        expect(link).toHaveClass("underline", "text-link", "visited:text-link-visited");
+    });
+
+    it("visited={false} のときは、訪問済みでも色を変えない", () => {
+        render(
+            <MemoryRouter>
+                <Link to="/applications" visited={false}>
+                    申請一覧
+                </Link>
+            </MemoryRouter>,
+        );
+        const link = screen.getByRole("link", { name: "申請一覧" });
         expect(link).toHaveClass("underline", "text-link");
+        expect(link).not.toHaveClass("visited:text-link-visited");
     });
 });
 

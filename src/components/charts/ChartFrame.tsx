@@ -1,4 +1,4 @@
-import { useId, useState, type ReactNode } from "react";
+import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { cn } from "@/lib/cn";
 import { Button } from "@/components/ui/Button";
 import { SeriesSymbol, type SeriesSymbolProps } from "./ChartPatterns";
@@ -125,6 +125,28 @@ export type ChartFrameProps = {
     className?: string;
 };
 
+/**
+ * Recharts が重なり順のために作る <g class="recharts-zIndex-layer_*"> を、Tab の順から外す。
+ * この g は React のポータルの入れ物になり、React がフォーカスのイベントを登録する。Chromium は、フォーカスのイベントを持つ
+ * SVG の要素を Tab で止まれる要素として扱うため、グラフ 1 つにつき何も読み上げない止まり先が 4〜5 個できてしまう。
+ * g は描画の後から足されるため、変化を見張って tabindex="-1" を付ける。
+ */
+function useUnfocusableChartLayers() {
+    const ref = useRef<HTMLDivElement>(null);
+    useEffect(() => {
+        const root = ref.current;
+        if (!root) return;
+        const apply = () => {
+            for (const g of root.querySelectorAll<SVGGElement>('g[class^="recharts-zIndex-layer"]:not([tabindex])')) g.setAttribute("tabindex", "-1");
+        };
+        apply();
+        const observer = new MutationObserver(apply);
+        observer.observe(root, { childList: true, subtree: true });
+        return () => observer.disconnect();
+    }, []);
+    return ref;
+}
+
 export function ChartFrame({
     title,
     as: Heading = "h3",
@@ -144,6 +166,7 @@ export function ChartFrame({
     const tableId = useId();
     const [tableOpen, setTableOpen] = useState(defaultTableOpen);
     const hasMeta = Boolean(source || note || updatedAt);
+    const plotRef = useUnfocusableChartLayers();
     return (
         <figure className={cn("flex min-w-0 flex-col gap-2", className)}>
             <figcaption className="flex flex-col gap-1">
@@ -158,7 +181,9 @@ export function ChartFrame({
             </figcaption>
             <ChartLegend items={legend} />
             {/* 軸ラベルなど SVG 内の文字は 14px（補足扱い）。 */}
-            <div className={cn("w-full text-14", HEIGHT[height])}>{children}</div>
+            <div ref={plotRef} className={cn("w-full text-14", HEIGHT[height])}>
+                {children}
+            </div>
             {hasMeta && (
                 <dl className="flex flex-wrap gap-x-4 gap-y-0.5 text-14 text-text-muted">
                     {source && (

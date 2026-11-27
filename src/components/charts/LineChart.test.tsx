@@ -1,4 +1,4 @@
-import { render, screen, within } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
 import { expectNoA11yViolations } from "@/test/axe";
@@ -23,6 +23,12 @@ describe("LineChart", () => {
         expect(img).toHaveAttribute("aria-label", expect.stringContaining("申請件数の月次推移"));
         expect(img).toHaveAttribute("aria-label", expect.stringContaining("申請の推移、最新値1,180件（6月）"));
         expect(screen.getByRole("heading", { level: 3, name: /申請件数の月次推移/ })).toHaveTextContent("単位：件");
+    });
+
+    it("Recharts の重なり順のg（フォーカスのイベントを持つ）を、Tabの順から外す", async () => {
+        const { container } = render(<LineChart title="推移" data={data} xKey="month" series={series} size={size} />);
+        await waitFor(() => expect(container.querySelectorAll('g[class^="recharts-zIndex-layer"]').length).toBeGreaterThan(0));
+        for (const g of container.querySelectorAll('g[class^="recharts-zIndex-layer"]')) expect(g).toHaveAttribute("tabindex", "-1");
     });
 
     it("summaryを渡すとaria-labelに使う", () => {

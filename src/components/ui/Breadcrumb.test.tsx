@@ -29,6 +29,11 @@ describe("Breadcrumb", () => {
         expect(current.tagName).toBe("SPAN");
     });
 
+    it("上の階層のリンクは、訪問済みでも色を変えない（ほぼ必ず訪問済みになるため）", () => {
+        renderCrumb(<Breadcrumb items={items} />);
+        for (const link of screen.getAllByRole("link")) expect(link).not.toHaveClass("visited:text-link-visited");
+    });
+
     it("区切りのシェブロンは装飾で、先頭には付かない", () => {
         renderCrumb(<Breadcrumb items={items} />);
         const svgs = screen.getByRole("navigation").querySelectorAll("svg");

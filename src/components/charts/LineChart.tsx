@@ -67,6 +67,8 @@ export function LineChart({ data, xKey, series, yAxisLabel, xAxisLabel, referenc
             <CartesianGrid vertical={false} stroke={CHART_COLORS.grid} />
             <XAxis
                 dataKey={xKey}
+                // 両端の目盛りを、縦軸の目盛り（0 など）とグラフの右端から離す（重なりと見切れを防ぐ）
+                padding={{ left: 24, right: 24 }}
                 stroke={CHART_COLORS.axis}
                 tick={{ fill: CHART_COLORS.axis }}
                 tickLine={false}

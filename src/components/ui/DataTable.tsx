@@ -292,7 +292,9 @@ export function DataTable<T>({
                 selectable={selectable}
                 stickyHeader={stickyHeader}
                 caption={caption}
-                wrapperClassName={cn(flush && "-mx-6", wrapperClassName)}
+                // flush のとき、表はカードの左右の余白を打ち消して端まで広げる。操作の帯が無いときは上の余白も打ち消し、
+                // 見出しの行をカードの上端に付ける（空白の帯を残さない）。上の角はカードの角丸に合わせて切り取る。
+                wrapperClassName={cn(flush && "-mx-6", flush && !(selectable && selectedIds.length > 0) && "-mt-6 rounded-t-card", wrapperClassName)}
                 className="min-w-table-min"
             >
                 <TableHead>

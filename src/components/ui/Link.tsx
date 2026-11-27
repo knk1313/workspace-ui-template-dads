@@ -7,14 +7,22 @@ import { Icon } from "./Icon";
 // DADS リンクテキスト（Foundations: リンクテキスト / HTML 版 link.css）。
 // 下線 1px（hover 3px）+ リンクカラー。色だけで区別しない。訪問済みはマゼンタ。
 // 新規タブで開くリンクは末尾にアイコンを置き、代替テキスト「新しいタブで開きます」を付ける。
-export const LINK_CLASS =
-    "text-link underline decoration-1 underline-offset-3 hover:text-link-hover hover:underline-thick active:text-link-active active:decoration-1 visited:text-link-visited focus-visible:focus-ring-fill focus-visible:rounded-inline";
+// 訪問済みの色は、パンくずリストのように「ほぼ必ず訪問済みになるナビゲーション」では意味を持たないため、
+// visited={false} で外せる（docs/decisions.md D-37）。
+const LINK_BASE_CLASS =
+    "text-link underline decoration-1 underline-offset-3 hover:text-link-hover hover:underline-thick active:text-link-active active:decoration-1 focus-visible:focus-ring-fill focus-visible:rounded-inline";
+export const LINK_CLASS = cn(LINK_BASE_CLASS, "visited:text-link-visited");
 
-export type LinkProps = Omit<RouterLinkProps, "className"> & { className?: string; ref?: Ref<HTMLAnchorElement> };
+export type LinkProps = Omit<RouterLinkProps, "className"> & {
+    className?: string;
+    ref?: Ref<HTMLAnchorElement>;
+    /** 訪問済みの色にする（既定）。false にすると、訪問済みでもリンクの色のまま。 */
+    visited?: boolean;
+};
 
 /** アプリ内のページへのリンク（react-router）。 */
-export function Link({ className, ...props }: LinkProps) {
-    return <RouterLink className={cn(LINK_CLASS, className)} {...props} />;
+export function Link({ className, visited = true, ...props }: LinkProps) {
+    return <RouterLink className={cn(visited ? LINK_CLASS : LINK_BASE_CLASS, className)} {...props} />;
 }
 
 export type ExternalAnchorProps = Omit<AnchorHTMLAttributes<HTMLAnchorElement>, "className" | "target" | "rel"> & {

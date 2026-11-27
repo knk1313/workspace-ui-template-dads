@@ -5,7 +5,7 @@ import { Link } from "./Link";
 
 // DADS パンくずナビゲーション（https://design.digital.go.jp/dads/components/breadcrumb/ / HTML 版 breadcrumb.css）。
 //   - <nav aria-label="パンくずリスト"> + <ol>。項目は inline で、幅を超えたら折り返す。
-//   - リンクはリンクテキストと同じ装飾。区切りは 12px のシェブロン（装飾）。最後の項目は現在ページ（aria-current="page"）のテキスト。
+//   - リンクはリンクテキストと同じ装飾。ただし、上の階層はほぼ必ず訪問済みのため、訪問済みの色にはしない（docs/decisions.md D-37）。区切りは 12px のシェブロン（装飾）。最後の項目は現在ページ（aria-current="page"）のテキスト。
 //   - collapseOnMobile: md 未満では先頭と末尾だけ表示し、中間を「…」ボタンにまとめる（押すと全部表示する）。
 
 export type BreadcrumbItem = {
@@ -59,7 +59,7 @@ export function Breadcrumb({ items, collapseOnMobile = false, label = "パンく
                             {current ? (
                                 <span aria-current={isLast ? "page" : undefined}>{item.label}</span>
                             ) : (
-                                <Link to={item.href!} state={item.state} className="rounded-inline">
+                                <Link to={item.href!} state={item.state} visited={false} className="rounded-inline">
                                     {item.label}
                                 </Link>
                             )}
