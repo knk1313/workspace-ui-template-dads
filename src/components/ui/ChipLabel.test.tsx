@@ -74,7 +74,7 @@ describe("ChipLabel", () => {
         rerender(<StatusChip status="warning">要確認</StatusChip>);
         expect(chip()).toHaveAttribute("data-color", "yellow");
         rerender(<StatusChip status="info">新着</StatusChip>);
-        expect(chip()).toHaveAttribute("data-color", "blue");
+        expect(chip()).toHaveAttribute("data-color", "key");
         rerender(
             <StatusChip status="neutral" style="outlined">
                 下書き

@@ -7,7 +7,7 @@ import { Link } from "./Link";
 // 指標（KPI）カード。DADS にはないため、ダッシュボードデザインの実践ガイドブック 4.1「指標」と
 // docs/decisions.md D-12（増減の色）に従う。
 //   - 指標は単体では判断しにくいので、前期比（delta）や注記（note: 出典・時点）を併記する。
-//   - 増減は色だけに頼らず、矢印アイコンと符号（+ / -）を併記する（増加 trend-up = Blue 800、減少 trend-down = Red 900）。
+//   - 増減は色だけに頼らず、矢印アイコンと符号（+ / -）を併記する（増加 trend-up、減少 trend-down。色は theme.css）。
 //   - 左上に置く全体の指標は highlight（キーカラーの面）で最も目を引くようにする。
 // section + aria-labelledby で、スクリーンリーダーが「ラベル → 値」の順に読める構造にする。
 

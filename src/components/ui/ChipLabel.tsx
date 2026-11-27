@@ -12,7 +12,8 @@ import { Icon } from "./Icon";
 // 色だけで意味を伝えず、必ずテキストで状態を書く。色数は絞る。
 
 export type ChipLabelStyle = "text" | "outlined" | "filled-1" | "filled-2";
-export type ChipLabelColor = "gray" | "blue" | "light-blue" | "cyan" | "green" | "lime" | "yellow" | "orange" | "red" | "magenta" | "purple";
+/** key はキーカラー（local.css の --color-key-*）。導入先のキーカラーに追従する。 */
+export type ChipLabelColor = "gray" | "key" | "blue" | "light-blue" | "cyan" | "green" | "lime" | "yellow" | "orange" | "red" | "magenta" | "purple";
 
 type ColorClasses = {
     /** 非テキスト色（枠線、filled-2 の背景、filled-1 のアイコン）。 */
@@ -29,6 +30,7 @@ type ColorClasses = {
 
 const COLORS: Record<ChipLabelColor, ColorClasses> = {
     gray: { border: "border-solid-gray-700 dark:border-solid-gray-420", fill: "bg-solid-gray-700 dark:bg-solid-gray-300", iconFill: "text-solid-gray-700 dark:text-solid-gray-300", bg: "bg-solid-gray-50 dark:bg-solid-gray-800", text: "text-solid-gray-800 dark:text-solid-gray-200", textDark: "text-solid-gray-800 dark:text-solid-gray-100" },
+    key: { border: "border-key-900 dark:border-key-400", fill: "bg-key-900 dark:bg-key-300", iconFill: "text-key-900 dark:text-key-300", bg: "bg-key-50 dark:bg-key-1200", text: "text-key-900 dark:text-key-300", textDark: "text-key-1000 dark:text-key-200" },
     blue: { border: "border-blue-700 dark:border-blue-400", fill: "bg-blue-700 dark:bg-blue-300", iconFill: "text-blue-700 dark:text-blue-300", bg: "bg-blue-50 dark:bg-blue-1200", text: "text-blue-700 dark:text-blue-300", textDark: "text-blue-800 dark:text-blue-200" },
     "light-blue": { border: "border-light-blue-800 dark:border-light-blue-400", fill: "bg-light-blue-800 dark:bg-light-blue-300", iconFill: "text-light-blue-800 dark:text-light-blue-300", bg: "bg-light-blue-50 dark:bg-light-blue-1200", text: "text-light-blue-800 dark:text-light-blue-300", textDark: "text-light-blue-900 dark:text-light-blue-200" },
     cyan: { border: "border-cyan-900 dark:border-cyan-400", fill: "bg-cyan-900 dark:bg-cyan-300", iconFill: "text-cyan-900 dark:text-cyan-300", bg: "bg-cyan-50 dark:bg-cyan-1200", text: "text-cyan-900 dark:text-cyan-300", textDark: "text-cyan-1000 dark:text-cyan-200" },
@@ -72,7 +74,7 @@ export function ChipLabel({ children, style = "outlined", color = "gray", icon, 
     );
 }
 
-// 意味（状態）を伝えるチップ。success → green、error → red、warning → yellow、info → blue、neutral → gray。
+// 意味（状態）を伝えるチップ。success → green、error → red、warning → yellow、info → key（キーカラー）、neutral → gray。
 // 色の割り当てを一か所にまとめ、画面ごとに色が揺れないようにする。
 export type ChipStatus = "success" | "error" | "warning" | "info" | "neutral";
 
@@ -80,7 +82,7 @@ export const STATUS_COLOR: Record<ChipStatus, ChipLabelColor> = {
     success: "green",
     error: "red",
     warning: "yellow",
-    info: "blue",
+    info: "key",
     neutral: "gray",
 };
 

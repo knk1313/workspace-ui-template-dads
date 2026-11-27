@@ -41,7 +41,7 @@
 | フォーカス | `focus` / `focus-ring` / `focus-fill` | black / yellow-300 / yellow-300（変更禁止） |
 | 意味色 | `success` / `success-surface` / `success-hover`、`error` / `error-hover` / `error-active` / `error-surface` / `error-outline-hover`、`warning` / `warning-hover` / `warning-chip` / `warning-surface`、`info` / `info-surface`、`neutral` / `neutral-surface` | green-800 / green-50 / green-1000、red-900 / red-1000 / red-1200 / red-50 / red-200、yellow-1000 / yellow-1100 / yellow-400 / yellow-50、key-900 / key-50、gray-536 / gray-50 |
 | 無効 | `disabled` / `disabled-surface` / `on-disabled` | gray-300 / gray-50 / gray-50 |
-| データ可視化 | `chart-1`〜`chart-5`、`chart-seq-1`〜`chart-seq-5`、`chart-positive` / `chart-negative`、`trend-up` / `trend-down`、`chart-grid` / `chart-axis` / `chart-reference` / `chart-neutral` | blue-900 / yellow-800 / blue-600 / gray-600 / blue-1200、blue-1200 / 900 / 600 / 400 / 200、blue-600 / red-600、blue-800 / red-900、gray-200 / 600 / 800 / 400 |
+| データ可視化 | `chart-1`〜`chart-5`、`chart-seq-1`〜`chart-seq-5`、`chart-positive` / `chart-negative`、`trend-up` / `trend-down`、`chart-grid` / `chart-axis` / `chart-reference` / `chart-neutral` | key-900 / yellow-800 / key-700 / gray-600 / key-1200、key-1200 / 900 / 700 / 400 / 200、key-700 / red-600、key-900 / red-900、gray-200 / 600 / 800 / 400 |
 
 `text-subtle`・`error`・`warning`・`link-active` は、地（canvas）の上でも 4.5:1 を満たすよう DADS より 1 段濃くしている（`docs/decisions.md` D-17）。
 
@@ -52,7 +52,7 @@
 `<html data-theme="dark">` のとき、`theme-dark.css` が色のセマンティック別名を上書きする。値は DADS のプリミティブから選んだ独自の配色で、DADS の規定ではない（`docs/decisions.md` D-31）。
 
 - 部品では、セマンティック別名（`bg-surface`、`text-text-muted` など）を使えば、ダークモードにも自動で対応する
-- プリミティブを直接使う部品（チップラベル）は、`dark:bg-blue-1200` のように `dark:` を付けてダークモードの色を書く
+- プリミティブを直接使う部品（チップラベル）は、`dark:bg-blue-1200` のように `dark:` を付けてダークモードの色を書く。キーカラーに追従させたいチップは`color="key"`（`key-*`）を使う
 - ダークモードの値も、ライトと同じ組み合わせで `contrast.test.ts` が検査する。チップラベルの色相ごとの組み合わせも検査する
 - フォーカスは、黒い線が暗い地で見えないため、黄色の 4px の線と黒の 2px の帯に入れ替える。リンクやテキストボタンの黄色の塗り（`focus-fill`）は、明るい文字が読めなくなるため、ダークモードでは塗らない
 

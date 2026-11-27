@@ -193,7 +193,7 @@ describe("デザイントークンの基準値", () => {
 
 // チップラベルのダークモードの色（ChipLabel.tsx の dark:）。DADS に規定がないため、独自に選んだ段がコントラストを満たすかを確かめる。
 describe("チップラベルのダークモードの色", () => {
-    const HUES = ["blue", "light-blue", "cyan", "green", "lime", "yellow", "orange", "red", "magenta", "purple"].map((h) => [h, h] as const);
+    const HUES = ["key", "blue", "light-blue", "cyan", "green", "lime", "yellow", "orange", "red", "magenta", "purple"].map((h) => [h, h] as const);
     const ALL = [...HUES, ["gray", "solid-gray"] as const];
     const step = (hue: string, light: string, gray: string) => (hue === "solid-gray" ? gray : light);
     const c = (name: string) => resolveIn(DARK, `--color-${name}`);
@@ -210,5 +210,21 @@ describe("チップラベルのダークモードの色", () => {
     });
     it.each(ALL)("%s：filled-2 の黒い文字は塗りに対して 4.5:1 以上", (_, hue) => {
         expect(contrast(c("text-inverse"), c(`${hue}-300`))).toBeGreaterThanOrEqual(4.5);
+    });
+});
+
+// キーカラーのチップラベル（ChipLabel の color="key"、StatusChip の info）のライトの色。
+// キーカラーは local.css で差し替えるため、どの色相にしても要件を満たすかをここで確かめる。
+describe("キーカラーのチップラベル（ライト）", () => {
+    const c = (name: string) => resolveIn(LIGHT, `--color-${name}`);
+    it("文字（text・outlined）は面と薄い面に対して 4.5:1 以上", () => {
+        expect(contrast(c("key-900"), c("surface"))).toBeGreaterThanOrEqual(4.5);
+        expect(contrast(c("key-1000"), c("key-50"))).toBeGreaterThanOrEqual(4.5);
+    });
+    it("枠線は面に対して 3:1 以上", () => {
+        expect(contrast(c("key-900"), c("surface"))).toBeGreaterThanOrEqual(3);
+    });
+    it("filled-2 の白い文字は塗りに対して 4.5:1 以上", () => {
+        expect(contrast(c("text-inverse"), c("key-900"))).toBeGreaterThanOrEqual(4.5);
     });
 });

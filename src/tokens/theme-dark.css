@@ -87,19 +87,19 @@
   --color-on-disabled: var(--color-solid-gray-420);
 
   /* --- データ可視化（濃淡の段階は、暗い地とのコントラストが高い明るい色から並べる） --- */
-  --color-chart-1: var(--color-blue-300);
+  --color-chart-1: var(--color-key-300);
   --color-chart-2: var(--color-yellow-400);
-  --color-chart-3: var(--color-blue-500);
+  --color-chart-3: var(--color-key-500);
   --color-chart-4: var(--color-solid-gray-420);
-  --color-chart-5: var(--color-blue-100);
-  --color-chart-seq-1: var(--color-blue-100);
-  --color-chart-seq-2: var(--color-blue-300);
-  --color-chart-seq-3: var(--color-blue-500);
-  --color-chart-seq-4: var(--color-blue-700); /* 3:1 未満。値ラベルを併記する */
-  --color-chart-seq-5: var(--color-blue-900); /* 3:1 未満。値ラベルを併記する */
-  --color-chart-positive: var(--color-blue-400);
+  --color-chart-5: var(--color-key-100);
+  --color-chart-seq-1: var(--color-key-100);
+  --color-chart-seq-2: var(--color-key-300);
+  --color-chart-seq-3: var(--color-key-500);
+  --color-chart-seq-4: var(--color-key-700); /* 3:1 未満。値ラベルを併記する */
+  --color-chart-seq-5: var(--color-key-900); /* 3:1 未満。値ラベルを併記する */
+  --color-chart-positive: var(--color-key-400);
   --color-chart-negative: var(--color-red-400);
-  --color-trend-up: var(--color-blue-300);
+  --color-trend-up: var(--color-key-300);
   --color-trend-down: var(--color-red-300);
   --color-chart-grid: var(--color-solid-gray-800);
   --color-chart-axis: var(--color-solid-gray-420);

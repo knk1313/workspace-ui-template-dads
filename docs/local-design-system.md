@@ -49,7 +49,7 @@ DADSの既定（デジタル庁ウェブサイトベース）から、「信頼�
 
 ### 色が変わった部品
 
-キーカラーから作る色（`primary`、`surface-hover`、`surface-selected`、`surface-highlight`、`info`）を使う部品は、青からcyanに変わった。
+キーカラーから作る色（`primary`、`surface-hover`、`surface-selected`、`surface-highlight`、`info`、グラフの色、増減の色）を使う部品は、青からcyanに変わった。
 
 | 使っている色 | 部品 |
 | --- | --- |
@@ -57,8 +57,11 @@ DADSの既定（デジタル庁ウェブサイトベース）から、「信頼�
 | `surface-hover`、`surface-selected`（行のhoverと選択） | Table、DataTable、Card、StackedList |
 | `surface-highlight`（強調の面） | StatCard（強調） |
 | `info`（情報の色） | NotificationBanner（info）、Toast（info） |
+| `chart-*`（グラフの系列、単一色相、増加） | LineChart、BarChart、AreaChart、DonutChart。ガイドブックのパレット（D-12）の構成のまま、青の段をキーカラーの段にした |
+| `trend-up`（増加の文字） | StatCard |
+| `key`のチップ（`ChipLabel`の`color="key"`） | StatusChip（info）。見本では申請の状態「受付済み」 |
 
-リンク（Link、Breadcrumbなど）の青と紫、グラフの色（ダッシュボードのガイドブックのパレット、D-12）、状態のチップの色は変えていない。
+リンク（Link、Breadcrumbなど）の青と紫は、DADSの既定のままにしている。グラフの第2系列（黄）、第4系列（グレー）、減少の赤、情報以外の状態のチップ（成功の緑、警告の黄、エラーの赤）も変えていない。色を指定して使うチップ（`ChipLabel`の`color="blue"`など）は、指定した色相のまま。
 
 ### 角丸が変わった部品
 
