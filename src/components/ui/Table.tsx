@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useRef, useState, type HTMLAttributes, type ReactNode, type RefObject, type TdHTMLAttributes, type ThHTMLAttributes } from "react";
+import { createContext, useContext, useEffect, useRef, useState, type FocusEvent, type HTMLAttributes, type ReactNode, type RefObject, type TdHTMLAttributes, type ThHTMLAttributes } from "react";
 import { cn } from "@/lib/cn";
 
 // DADS テーブル（https://design.digital.go.jp/dads/components/table/、HTML 版 table.css）の静的な表の部品群。
@@ -56,6 +56,27 @@ export type TableProps = Omit<HTMLAttributes<HTMLTableElement>, "children"> & {
     wrapperClassName?: string;
 };
 
+/** フォーカスの枠は要素の外側に 6px はみ出す。この幅に余裕を足した分が、スクロールの領域の中で見えるようにする。 */
+const FOCUS_RING_SPACE = 8;
+
+/**
+ * 横スクロールの領域の中の要素にフォーカスが移ったとき、フォーカスの枠まで見えるように横にスクロールする。
+ * ブラウザーは要素の本体が見えていればスクロールしないため、端にある要素では外側の枠だけが切れてしまう。
+ */
+function revealFocusRing(e: FocusEvent<HTMLDivElement>) {
+    const region = e.currentTarget;
+    const target = e.target as Element;
+    if (target === region) return;
+    // ブラウザーのスクロールが終わってから測る
+    requestAnimationFrame(() => {
+        const box = region.getBoundingClientRect();
+        const r = target.getBoundingClientRect();
+        if (r.width + FOCUS_RING_SPACE * 2 > box.width) return;
+        if (r.right + FOCUS_RING_SPACE > box.right) region.scrollLeft += r.right + FOCUS_RING_SPACE - box.right;
+        else if (r.left - FOCUS_RING_SPACE < box.left) region.scrollLeft -= box.left - (r.left - FOCUS_RING_SPACE);
+    });
+}
+
 export function Table({
     children,
     size = "default",
@@ -80,6 +101,7 @@ export function Table({
             <div
                 ref={wrapperRef}
                 className={cn("relative overflow-x-auto max-md:scroll-shadow-x", wrapperClassName)}
+                onFocus={revealFocusRing}
                 {...(scrollable ? { tabIndex: 0, role: "region", "aria-label": "表（横にスクロールできます）" } : {})}
             >
                 <table

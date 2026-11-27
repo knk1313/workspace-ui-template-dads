@@ -42,6 +42,35 @@ for (const path of PATHS) {
     });
 }
 
+test("表の横スクロールの端にある要素へTabで移っても、フォーカスの枠が切れない", async ({ page }) => {
+    // 文字の幅によって、要素が見えている範囲のちょうど端に来ることがある。その位置をわざと作って確かめる。
+    await page.setViewportSize({ width: 375, height: 800 });
+    await page.goto("/applications");
+    await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+    await waitForLoaded(page);
+    const count = await page.locator("thead button").count();
+    for (let i = 1; i < count; i++) {
+        await page.evaluate((i) => {
+            const buttons = document.querySelectorAll<HTMLButtonElement>("thead button");
+            const region = buttons[i].closest<HTMLElement>(".overflow-x-auto")!;
+            region.scrollLeft = 0;
+            // 次のボタンの右端が、見えている範囲の 2px 内側に来るようにスクロールしておく
+            region.scrollLeft = buttons[i].getBoundingClientRect().right - region.getBoundingClientRect().right + 2;
+            buttons[i - 1].focus({ preventScroll: true });
+        }, i);
+        await page.keyboard.press("Tab");
+        await expect
+            .poll(() =>
+                page.evaluate(() => {
+                    const el = document.activeElement!;
+                    const region = el.closest(".overflow-x-auto")!;
+                    return region.getBoundingClientRect().right - el.getBoundingClientRect().right;
+                }),
+            )
+            .toBeGreaterThanOrEqual(6);
+    }
+});
+
 test("サイドバーを開閉する途中で、ラベルが折り返されない", async ({ page }) => {
     test.skip(isMobile(page), "サイドバーが出るPC幅だけ");
     await page.goto("/settings");
