@@ -13,36 +13,7 @@
 | `contrast.test.ts` | トークンの組み合わせごとのコントラスト検査（`npm test`） |
 | `local.test.ts` | `local.css`の値がDADSの要件を満たすかの検査（`npm test`） |
 
-## ローカルデザインシステムとして調整する
-
-DADSは、導入先に合わせて基本デザインを編集し、「ローカルデザインシステム」を作ることを想定している（[ローカルデザインシステムの作成](https://design.digital.go.jp/dads/guidance/local-design-system/)）。このテンプレートでは、編集する7項目の値を`src/tokens/local.css`に集めた。今の値は、DADSの既定から「信頼感・落ち着き」に寄せて調整したもの（`docs/decisions.md` D-36）。導入先に合わせて書き換える起点にする。
-
-| 項目 | `local.css`のトークン | 守る要件 | 検査 |
-| --- | --- | --- | --- |
-| カラー | `--color-key-50`〜`1200`（キーカラーの13段） | テキストは4.5:1以上、枠線などは3:1以上。意味色の色相（エラーは赤、成功は緑）とフォーカスの色は変えない | `contrast.test.ts`、`local.test.ts` |
-| タイポグラフィ | `--font-sans`、`--font-mono`、`--leading-body`、`--body-font-size`、`--body-letter-spacing` | 本文は16px以上、行の高さは1.5以上。14px未満は使わない | `local.test.ts` |
-| 余白 | `--spacing`（1段 = 4px）、`--spacing-page-x`、`--spacing-page-x-wide`、`--spacing-page-y` | 値に規則性を持たせる（8pxの倍数）。タップ領域は44px以上 | `local.test.ts` |
-| 角の形状 | `--radius-button`、`--radius-input`、`--radius-card`など部品ごとの14種 | `primitives.css`の`--radius-4`〜`32`から選ぶ | `local.test.ts`、`npm run lint` |
-| ドロップシャドウとエレベーション | `--shadow-popup`、`--shadow-drawer`、`--shadow-dialog`など役割ごとの5種 | ダイアログはhoverで浮く要素より2段以上高くする。影を付けても3:1の枠線を付ける | `local.test.ts` |
-| リンクテキスト | `--color-link`、`--color-link-hover`、`--color-link-active`、`--color-link-visited` | 4.5:1以上。青以外にしてもよいが、下線は外さない | `contrast.test.ts` |
-| レイアウト | `--breakpoint-*`、`--container-content`、`--container-wide` | リキッドレイアウトにする。見た目の配置と読み上げの順をそろえる | `local.test.ts`（`breakpoints.ts`との一致） |
-
-### 手順
-
-1. ブランドやコミュニケーションの方針を先に決める。DADSは、方針、スタイル、UIコンポーネントの順に調整することを勧めている
-2. `src/tokens/local.css`の値を書き換える
-   - キーカラーをDADSのプリセットに替えるときは、`--color-key-*`の`blue`を`green`などの色相名に置き換える。ブランドカラーにするときは、同じ色相の13段を明るい順に色コードで書く
-   - リンクの色を変えるときは、ダークモードの値（`theme-dark.css`の「リンク」）も変える
-   - ブレークポイントを変えるときは、`src/tokens/breakpoints.ts`も同じ値にする
-3. `npm run check`を実行する。要件を外れた組み合わせは、テストの名前（例：`テキスト on-highlight / 背景 surface-highlight`）で示される。外れた組み合わせは、`theme.css`か`theme-dark.css`でその別名が指す段を変えて直す
-4. `npm run test:visual:update`で見た目の基準画像を撮り直し、差分を目で確かめる
-
-`local.css`に置いていない値は、DADSの要件のために固定している。
-
-- フォーカスの色（`--color-focus`、`--color-focus-ring`）は、DADSが変更を禁止している
-- タップ領域（`--spacing-target`）は44pxより小さくしない
-- 余白の1段（`--spacing`）は、操作部品の高さにも効くため変えない。画面の余白は`--spacing-page-*`で変える
-- 部品のコード（`src/components/ui/`）のWAI-ARIAの指定と、強制カラーモードへの対応は外さない
+導入先に合わせて値を変える手順と、守る要件は[local-design-system.md](local-design-system.md)にある。
 
 ## 色（プリミティブ）
 

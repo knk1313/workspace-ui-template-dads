@@ -3,7 +3,8 @@
  * DADS を導入先に合わせて調整するときは、原則としてこのファイルの値だけを書き換える。
  * 項目は DADS の「基本デザインの編集」（https://design.digital.go.jp/dads/guidance/local-design-system/）の 7 項目に合わせている。
  *   1. カラー  2. タイポグラフィ  3. 余白  4. 角の形状  5. ドロップシャドウとエレベーション  6. リンクテキスト  7. レイアウト
- * 既定の値は DADS（デジタル庁ウェブサイトベース）のまま。変えてよい範囲と守る要件は docs/tokens.md の「ローカルデザインシステムとして調整する」を参照。
+ * 今の値は DADS の既定から「信頼感・落ち着き」に寄せて刷新したもの（docs/decisions.md D-36）。
+ * 変えてよい範囲、守る要件、刷新で変えた部品は docs/local-design-system.md を参照。
  * 値を変えたら `npm run check`（コントラストと要件の検査。contrast.test.ts、local.test.ts）と `npm run test:visual:update` を実行する。
  *
  * 変えてはいけないもの（このファイルには置いていない）:

@@ -16,8 +16,8 @@
 
 ## DADSへの準拠
 
-- **デザイントークン**：色、フォント、文字の大きさ、行の高さ、角丸、影には、公式の`@digital-go-jp/design-tokens` 2.0.1の値を使っています。Tailwindの既定の色と文字の大きさは使えなくしてあり、トークン以外の色や寸法は書けません。
-- **ローカルデザインシステム**：キーカラー、リンクの色、書体、余白、部品ごとの角丸と影、ブレークポイントは、`src/tokens/local.css`の1つのファイルで変えられます。変えた値がDADSの要件（コントラスト、文字の大きさ、タップ領域など）を満たすかは、テストで確かめます。手順は[docs/tokens.md](docs/tokens.md)にあります。
+- **デザイントークン**：色、文字の大きさ、行の高さ、角丸、影には、公式の`@digital-go-jp/design-tokens` 2.0.1の値を使っています。Tailwindの既定の色と文字の大きさは使えなくしてあり、トークン以外の色や寸法は書けません。
+- **ローカルデザインシステム**：キーカラー、リンクの色、書体、余白、部品ごとの角丸と影、ブレークポイントは、`src/tokens/local.css`の1つのファイルで変えられます。変えた値がDADSの要件（コントラスト、文字の大きさ、タップ領域など）を満たすかは、テストで確かめます。今の値はDADSの既定から「信頼感・落ち着き」に寄せて刷新したもので、どの部品をどう変えたかは[docs/local-design-system.md](docs/local-design-system.md)にあります。
 - **文字**：フォントは配信せず、OSの標準の書体を使います（DADSはNoto Sans JPを指定しています。理由は[docs/decisions.md](docs/decisions.md)のD-02）。本文は16px、行の高さは1.5を基準にし、14pxは補足だけに使います。14px未満は使いません。
 - **フォーカスの表示**：DADSの形で、黒い4pxの枠に黄色い2pxの帯を重ねています。
 - **ダークモード**：設定画面で、OSの設定に合わせるか、ライトかダークかを選べます。DADSにはダークモードの規定がないため、配色はDADSのトークンから独自に選んでいます。理由は、[docs/decisions.md](docs/decisions.md)のD-31に書いています。
@@ -48,80 +48,15 @@ npm install
 npm run dev               # http://localhost:5173
 ```
 
-## 画面（見本）
-
-見本の画面と、主に使っている部品は次のとおりです。
-
-| URL | 画面 | 主な部品 |
-| --- | --- | --- |
-| `/` | ダッシュボード | StatCard、LineChart、BarChart、DonutChart、DataTable、ActivityFeed |
-| `/applications` | 一覧（検索、絞り込み、一括操作） | SearchBox、Select、ChipTag、DataTable、Pagination、DropdownMenu、ModalDialog、Drawer |
-| `/applications/:id` | 詳細 | PageHeader、Tabs、DescriptionList、StackedList、Timeline、NotificationBanner |
-| `/applications/new`、`/applications/:id/edit` | 作成と編集のフォーム（入力、確認、完了） | StepNavigation、FormField、Input、RadioGroup、DatePicker、Combobox、FileUpload、Switch、ActionPanel |
-| `/settings` | 設定（設定画面の型のフォーム） | Tabs、FormSection、Switch、RadioGroup、Select |
-| `/login` | ログイン | Card、Input、Checkbox、NotificationBanner |
-| `*`、`/error/500` | 404、500 | ErrorPage |
-
-ログイン、404、500の画面はナビゲーションに出ないため、設定の画面の末尾に、各画面へのリンクを置いています。画面のレイアウトは、設定の「表示」で「サイドバー型」と「上部ナビゲーション型」を切り替えられます。
-
-## データと状態
-
-画面は、`src/api/`の関数だけを通してデータを読み書きします。今はダミーのAPIです。データは画面を移っても残り、再読み込みすると初期値に戻ります。
-
-- **読み込み**：`useQuery`（`src/api/query.ts`）で、読み込み中とエラーと再読み込みを、全画面で同じ形にしています。一度読み込んだ結果は、画面に戻ったときにすぐ表示し、裏で読み込み直します。読み込みのキーと関数の組（`applicationQueries`など）は`src/api/`の各ファイルで決め、画面はそれを`useQuery`に渡すだけにしています。
-- **読み込めなかったとき**：エラーのバナーと「再読み込み」のボタン（`LoadError`）を出します。
-- **保存と送信**：`useMutation`で処理中の表示を出し、二重に送らないようにします。失敗しても、入力した内容は消しません。
-- **削除**：確認ダイアログを出さずにすぐ削除し、トーストの「元に戻す」で取り消せるようにしています。確認ダイアログを出すのは、取り消せない操作（アカウントの削除など）だけです。
-- **入力途中の離脱**：保存していない変更があるまま画面を離れようとすると、確認を出します。仕組みは`useUnsavedChangesWarning`にあります。
-- **失敗と遅延の見本**：設定の「表示」にある「動作の確認」で、通信を失敗させたり遅くしたりできます。エラーの表示と読み込み中の表示を確かめるときに使います。
-
-実際のAPIに置き換えるときは、`src/api/applications.ts`、`src/api/dashboard.ts`、`src/api/settings.ts`の各関数の中身を`fetch`などに差し替えます。戻り値の型（`src/api/applicationTypes.ts`、`src/api/dashboard.ts`、`src/api/types.ts`）を保てば、画面は変えなくて済みます。ログインと利用者の情報は`src/api/auth.ts`にまとめています。ログインしていないとログイン画面へ移ります（`src/layouts/AppLayout.tsx`。404と500の画面は除きます）。見本では、`fail@example.jp`のほかは、どのメールアドレスとパスワードでもログインできます。画面は`src/mocks/`を直接読みません（ESLintで止めます）。
-
-## 部品
-
-部品はすべて`src/components/`にあります。使い方は、各ファイルの冒頭のコメント、Propsの型、同じ場所にある`*.test.tsx`を見てください。ほかの部品の中で使う小さな部品（`FormField`、`Icon`、`RadioGroup`、`Spinner`、グラフの模様とツールチップ）は、専用のテストを置かず、それを使う部品のテストで確かめています。組み合わせ方は、見本の画面が参考になります。分類ごとの部品は次のとおりです。
-
-| 分類 | 部品（`src/components/ui/`） |
-| --- | --- |
-| 要素 | Button、ButtonLink、ButtonAnchor、IconButton、ButtonGroup、Link、Anchor、Icon、Spinner |
-| レイアウト | Container、Card（CardHeader、CardBody、CardFooter）、Panel、Divider、Heading、PageHeader |
-| アプリケーションのシェル（`src/layouts/`） | AppShell（サイドバー型、折りたたみ可、モバイルではドロワー）、TopNavLayout（上部ナビゲーション型） |
-| ナビゲーション | SideNav、HeaderNav、Breadcrumb、Tabs、Pagination、StepNavigation、CommandPalette |
-| フォーム | FormField（ラベル、要否、サポートテキスト、エラー）、Input、Textarea、Select、Combobox、Checkbox、Radio、RadioGroup、Switch、DatePicker、FileUpload、SearchBox、FormLayout、FormSection、ActionPanel |
-| データの表示 | Table、TableCellLine、DataTable（並べ替え、行の選択、一括操作、ページ送り、空の状態、読み込み中、横スクロール）、DescriptionList、StatCard、StackedList、GridList、ActivityFeed、Timeline、ChipLabel、StatusChip、ChipTag、Avatar、AvatarGroup |
-| グラフ（`src/components/charts/`） | LineChart、BarChart（縦、横、積み上げ）、AreaChart（積み上げ、100%）、DonutChart、ChartFrame（凡例、単位、出典、注記、数値の表への切り替え） |
-| フィードバック | NotificationBanner、Toast（useToast、「元に戻す」などの操作を付けられる）、LoadError、ModalDialog、ConfirmDialog（useConfirm）、Drawer、DropdownMenu、Popover、Tooltip、EmptyState、Skeleton、ErrorPage |
-
-散布図は、ダッシュボードのガイドブックが勧めるグラフに含まれないため、用意していません。
-
 ## 検査
 
-検査のコマンドは次のとおりです。
-
 ```bash
-npm run typecheck          # 型の検査
-npm run lint               # ESLint、デザイントークンの検査、PlaywrightのDockerイメージの版の検査
-npm run test               # 単体テスト（部品と全画面。axeとトークンのコントラストを含む）
-npm run test:e2e:install   # 初回だけ：PlaywrightのChromiumを入れる
-npm run test:e2e           # E2E（エンドツーエンドのテスト。desktopとmobileの2つの幅）
+npm run check              # 型、lint、単体テストをまとめて実行
+npm run test:e2e           # E2E（初回は npm run test:e2e:install）
 npm run test:visual        # 見た目の回帰テスト（Dockerが要る）
-npm run test:visual:update # 見た目の回帰テストの基準画像を撮り直す
-npm run build              # 本番用のビルド（dist/）
-npm run check              # typecheck、lint、testをまとめて実行
 ```
 
-E2Eでは、表示と操作のほかに、次のことを確かめています。
-
-- **axe**：全画面と開いた状態（ダイアログ、メニュー、フォームのエラー）に違反がないか。全画面はダークモードでも検査する
-- **整列**：アイコンやチェックボックスが、隣の文字の1行目と上下中央でそろっているか（1px以上のずれを見つける）
-- **フォーカス**：Tabで移ったフォーカスが、固定のヘッダーの下に隠れないか
-- **拡大と文字の間隔**：400%の拡大（幅320px）で横にはみ出さないか、文字の間隔を広げたときに文字が切れないか
-- **強制カラーモード**：Windowsのハイコントラストなどで、スイッチとチェックボックスとタブの状態が見分けられるか
-- **キーボード**：マウスを使わず、キーボードだけで申請を完了できるか
-
-見た目の回帰テストでは、主な画面と開いた状態を撮り、基準画像と比べます。フォントの描画をそろえるため、手元とCI（継続的インテグレーション）の両方で、Playwrightが提供するLinux用のイメージの中で撮ります（`scripts/visual.sh`）。画面を意図して変えたときは、`npm run test:visual:update`で基準画像を撮り直し、差分を見てからコミットしてください。
-
-スクリーンリーダーでの読み上げは自動では確かめられないため、[docs/accessibility.md](docs/accessibility.md)の手順で人が確かめます。
+ほかのコマンドと、E2Eや見た目の回帰テストで確かめることは、[docs/testing.md](docs/testing.md)にあります。
 
 ## ディレクトリの構成
 
@@ -130,8 +65,8 @@ src/
 ├── app.config.ts          # アプリ名、ロゴ、ナビゲーション、日付の表示の既定値
 ├── routes.tsx             # 画面のルーティング
 ├── App.tsx / main.tsx     # Providerとルーター
-├── index.css              # Tailwindとフォントとトークンの読み込み、基本のスタイル、強制カラーモードのスタイル
-├── tokens/                # デザイントークンと、コントラストの検査
+├── index.css              # Tailwindとトークンの読み込み、基本のスタイル、強制カラーモードのスタイル
+├── tokens/                # デザイントークン（local.cssが導入先に合わせて変える入口）と、要件の検査
 ├── api/                   # ダミーのAPI、読み込みの仕組み（query.ts）、APIの型
 ├── components/
 │   ├── ui/                # UIの部品（1部品＝1ファイルとテスト）
@@ -149,8 +84,8 @@ scripts/                   # 検査のスクリプトと、見本の画面を消
 1. **アプリ名とロゴを変える**：`src/app.config.ts`の`name`、`description`、`logo`を書き換えます。ファビコンは`public/favicon.svg`です。
 2. **見本の画面を消す**：変更をすべてコミットしてから、`npm run remove-samples`を実行します。
 3. **画面を足す**：`src/pages/`に画面を作り、`src/routes.tsx`にルートを足します。ナビゲーションに出すときは、`src/app.config.ts`の`navigation`にも足します。E2Eで検査できるよう、`e2e/routes.ts`にも足します。
-4. **データをつなぐ**：`src/api/`の関数の中身を、実際のAPIの呼び出しに差し替えます。
-5. **色や形を変える**：`src/tokens/local.css`の値を書き換えます。キーカラーを緑にするときは、`--color-key-*`の`blue`を`green`に置き換えます。プライマリー、行のホバーと選択、ダッシュボードの強調の面、情報の色が、ライトとダークの両方でまとめて変わります。情報の色を青のまま残したいときは、`theme.css`の`info`と`info-surface`を`blue-*`に書き換えます。部品ごとの角丸、影、画面の余白、リンクの色、ブレークポイントも同じファイルにあります。変えたら`npm run check`で要件の検査が通るかを確かめ、`npm run test:visual:update`で基準画像を撮り直します。`green-500`のように明るすぎる色は、文字のコントラストが足りないため、検査で止まります。緑は成功を表す色にも使っているため、見分けが付くかも確かめてください。手順と守る要件は、[docs/tokens.md](docs/tokens.md)の「ローカルデザインシステムとして調整する」にあります。
+4. **データをつなぐ**：`src/api/`の関数の中身を、実際のAPIの呼び出しに差し替えます。詳しくは[docs/data.md](docs/data.md)にあります。
+5. **色や形を変える**：`src/tokens/local.css`の値を書き換え、`npm run check`で要件の検査が通るかを確かめます。キーカラー、書体、行の高さ、余白、部品ごとの角丸と影、リンクの色、ブレークポイントがこのファイルにあります。手順と守る要件は[docs/local-design-system.md](docs/local-design-system.md)にあります。
 
 見本の画面を消すと、ダッシュボード、申請の画面、申請のAPIとデータ、見本の画面の検査が消えます。ホーム、設定、ログイン、404、500の画面は残ります。消したあとは、次のコマンドで動くことを確かめ、見た目の回帰テストの基準画像を撮り直します。
 
@@ -160,22 +95,20 @@ npm run test:e2e
 npm run test:visual:update
 ```
 
-## 依存パッケージの更新
-
-Dependabot（`.github/dependabot.yml`）が、npmのパッケージを毎週、GitHub Actionsを毎月確かめます。Playwrightを上げるときは、`.github/workflows/ci.yml`のイメージの版も同じ版にし、基準画像を撮り直します。版がずれていると、`npm run lint`で止まります。
-
 ## デプロイ
 
 `npm run build`で、`dist/`に静的なファイルを出力します。サイトの直下ではない場所で配信するときは、`BASE_PATH=/パス/ npm run build`のように、配信するパスを渡します（デモは`.github/workflows/pages.yml`でこの形で公開しています）。ブラウザーの履歴を使うルーター（`createBrowserRouter`）なので、ホスティングの側で、存在しないパスにも`index.html`を返す設定が要ります。
 
-## 設計資料
-
-設計にかかわる文書は次のとおりです。
+## 文書
 
 | 文書 | 内容 |
 | --- | --- |
-| [docs/decisions.md](docs/decisions.md) | DADSの資料に書かれていない点や、DADSと変えた点の判断の理由 |
+| [docs/screens-and-components.md](docs/screens-and-components.md) | 見本の画面と、部品の一覧 |
+| [docs/data.md](docs/data.md) | データの読み書きの仕組みと、実際のAPIに置き換える方法 |
+| [docs/testing.md](docs/testing.md) | 検査のコマンドと、それぞれが確かめること。依存パッケージの更新 |
+| [docs/local-design-system.md](docs/local-design-system.md) | 導入先に合わせて値を変える手順と要件、DADSの既定から刷新した内容 |
 | [docs/tokens.md](docs/tokens.md) | デザイントークンの一覧（色、文字、寸法） |
+| [docs/decisions.md](docs/decisions.md) | DADSの資料に書かれていない点や、DADSと変えた点の判断の理由 |
 | [docs/chart-guide.md](docs/chart-guide.md) | グラフの選び方（ダッシュボードデザインの実践ガイドブックの要約） |
 | [docs/ui-text.md](docs/ui-text.md) | 画面の文言の一覧と、表記の方針 |
 | [docs/accessibility.md](docs/accessibility.md) | スクリーンリーダーで読み上げを確かめる手順 |
@@ -183,6 +116,7 @@ Dependabot（`.github/dependabot.yml`）が、npmのパッケージを毎週、G
 ## 参考資料
 
 - [デジタル庁デザインシステム](https://www.digital.go.jp/policies/servicedesign/designsystem)（[β版のサイト](https://design.digital.go.jp/dads/)）
+- [デジタル庁デザインシステムをどう使うか：導入先に合わせた「ローカルデザインシステム」を作る](https://digital-agency-news.digital.go.jp/articles/2026-11-26)（デジタル庁ニュース、2026年11月26日）
 - [ダッシュボードデザインの実践ガイドブック](https://www.digital.go.jp/resources/dashboard-guidebook)
 - [@digital-go-jp/design-tokens](https://github.com/digital-go-jp/design-tokens)（MIT License）
 
