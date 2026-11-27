@@ -59,7 +59,7 @@ describe("Table", () => {
             </Table>,
         );
         expect(screen.getByRole("cell")).toHaveClass("py-5", "px-4");
-        expect(screen.getByRole("table")).toHaveClass("leading-170");
+        expect(screen.getByRole("table")).toHaveClass("leading-body");
         rerender(
             <Table size="dense">
                 <TableBody>

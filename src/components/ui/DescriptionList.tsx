@@ -28,7 +28,7 @@ export function DescriptionList({ items, children, columns = 1, divided = false,
         <DividedContext.Provider value={divided}>
             <dl
                 className={cn(
-                    "m-0 grid break-words text-16 leading-170 tracking-2 text-text",
+                    "m-0 grid break-words text-16 leading-body tracking-2 text-text",
                     divided ? "gap-y-0" : "gap-y-4",
                     columns === 2 && "md:grid-cols-2 md:gap-x-8",
                     className,

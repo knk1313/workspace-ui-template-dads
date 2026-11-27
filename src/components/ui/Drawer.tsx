@@ -71,7 +71,7 @@ export function Drawer({
                 aria-label={title ? undefined : ariaLabel}
                 data-placement={placement}
                 className={cn(
-                    "flex h-full w-drawer max-w-full flex-col bg-surface text-16 leading-170 tracking-2 text-text shadow-drawer",
+                    "flex h-full w-drawer max-w-full flex-col bg-surface text-16 leading-body tracking-2 text-text shadow-drawer",
                     size === "lg" && "md:w-lg",
                     className,
                 )}

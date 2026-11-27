@@ -67,7 +67,7 @@ describe("ローカルデザインシステム: タイポグラフィ", () => {
     });
 
     it("本文の行の高さは文字の大きさの 1.5 倍以上", () => {
-        expect(Number(resolve("--body-line-height"))).toBeGreaterThanOrEqual(1.5);
+        expect(Number(resolve("--leading-body"))).toBeGreaterThanOrEqual(1.5);
     });
 
     it("文字サイズのトークンとテキストスタイルに 14px 未満がない", () => {

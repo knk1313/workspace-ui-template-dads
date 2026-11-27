@@ -72,7 +72,7 @@ export function SearchBox({
 
     return (
         <form role="search" onSubmit={handleSubmit} className={cn("flex flex-col gap-2", className)}>
-            <label htmlFor={inputId} className={cn("text-16 font-bold leading-170 tracking-2 text-text", !showLabel && "sr-only")}>
+            <label htmlFor={inputId} className={cn("text-16 font-bold leading-body tracking-2 text-text", !showLabel && "sr-only")}>
                 {label}
             </label>
             <div className="flex items-center gap-4">

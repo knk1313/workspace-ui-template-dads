@@ -40,7 +40,7 @@ export function formatDateTime(iso: string): string {
 
 export function ActivityFeed({ items, className, ...props }: ActivityFeedProps) {
     return (
-        <ol className={cn("m-0 list-none p-0 text-16 leading-170 tracking-2 text-text", className)} {...props}>
+        <ol className={cn("m-0 list-none p-0 text-16 leading-body tracking-2 text-text", className)} {...props}>
             {items.map((item, index) => {
                 const last = index === items.length - 1;
                 return (

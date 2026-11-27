@@ -41,7 +41,7 @@ export function StepNavigation({ steps, current, orientation = "horizontal", lab
     const total = steps.length;
 
     return (
-        <nav aria-label={label} className={cn("min-w-0 text-16 leading-170 tracking-2 text-text", horizontal && "overflow-x-auto py-1", className)} {...props}>
+        <nav aria-label={label} className={cn("min-w-0 text-16 leading-body tracking-2 text-text", horizontal && "overflow-x-auto py-1", className)} {...props}>
             <ol className={cn("m-0 flex list-none p-0", horizontal ? "flex-row" : "flex-col")}>
                 {steps.map((step, i) => {
                     const state: StepState = i < current ? "done" : i === current ? "current" : "upcoming";

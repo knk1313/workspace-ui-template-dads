@@ -15,7 +15,7 @@ export type StackedListProps = HTMLAttributes<HTMLUListElement> & {
 
 export function StackedList({ className, children, ...props }: StackedListProps) {
     return (
-        <ul className={cn("m-0 list-none divide-y divide-border p-0 text-16 leading-170 tracking-2 text-text", className)} {...props}>
+        <ul className={cn("m-0 list-none divide-y divide-border p-0 text-16 leading-body tracking-2 text-text", className)} {...props}>
             {children}
         </ul>
     );

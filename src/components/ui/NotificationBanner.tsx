@@ -84,7 +84,7 @@ export function NotificationBanner({
             data-type={type}
             data-style={style}
             className={cn(
-                "flex flex-col gap-4 bg-surface pt-2 pr-4 pb-6 text-16 leading-170 tracking-2 text-text md:gap-6 md:pt-6 md:pr-6 md:pb-8",
+                "flex flex-col gap-4 bg-surface pt-2 pr-4 pb-6 text-16 leading-body tracking-2 text-text md:gap-6 md:pt-6 md:pr-6 md:pb-8",
                 color.frame,
                 // standard は 3px 枠 + 角丸 12px。color-chip は 2px 枠 + 左 8px の帯（帯の分だけ左の余白を減らす）。
                 style === "standard" ? "rounded-banner border-3 pl-4 md:pl-6" : cn("border-2 border-l-8 pl-4 md:pl-8", color.chip),
@@ -93,10 +93,10 @@ export function NotificationBanner({
         >
             <div className="flex items-start gap-4 md:gap-6">
                 {/* 見出しと同じ文字設定で 1 行分の高さの枠を作り、その中央にアイコンを置く（見出しが折り返しても 1 行目にそろう） */}
-                <span className="mt-0.75 flex h-lh w-6 shrink-0 items-center justify-center text-17 leading-170 md:mt-0.5 md:w-9 md:text-20 md:leading-150">
+                <span className="mt-0.75 flex h-lh w-6 shrink-0 items-center justify-center text-17 leading-body md:mt-0.5 md:w-9 md:text-20 md:leading-150">
                     <TypeIcon aria-hidden="true" focusable="false" className={cn("size-7 shrink-0 md:size-11", color.icon)} />
                 </span>
-                <Heading ref={headingRef} tabIndex={-1} id={id ? `${id}-title` : undefined} className="m-0 min-w-0 focus-visible:focus-ring-fill flex-1 pt-0.75 text-17 font-bold leading-170 text-text-strong md:pt-0.5 md:text-20 md:leading-150">
+                <Heading ref={headingRef} tabIndex={-1} id={id ? `${id}-title` : undefined} className="m-0 min-w-0 focus-visible:focus-ring-fill flex-1 pt-0.75 text-17 font-bold leading-body text-text-strong md:pt-0.5 md:text-20 md:leading-150">
                     {title}
                 </Heading>
                 {onClose && (

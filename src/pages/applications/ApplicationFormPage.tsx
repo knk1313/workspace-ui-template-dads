@@ -342,7 +342,7 @@ function ApplicationForm({ mode, application }: { mode: "create" | "edit"; appli
                 <div className="flex flex-col gap-8">
                     <div className="flex flex-col gap-2">
                         <StepHeading>入力内容の確認</StepHeading>
-                        <p className="m-0 text-16 leading-170 tracking-2 text-text">
+                        <p className="m-0 text-16 leading-body tracking-2 text-text">
                             内容に誤りがなければ「{isEdit ? "更新する" : "申請する"}」を押してください。直す場合は「修正する」で入力の画面に戻ります。
                         </p>
                     </div>

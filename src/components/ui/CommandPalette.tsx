@@ -215,7 +215,7 @@ export function CommandPalette({ open, onClose, items, label = "ページやコ�
                                         }}
                                         onClick={() => run(item)}
                                         className={cn(
-                                            "flex min-h-11 cursor-pointer items-start gap-2 px-4 py-2 text-16 leading-170",
+                                            "flex min-h-11 cursor-pointer items-start gap-2 px-4 py-2 text-16 leading-body",
                                             selected ? "bg-primary-surface font-bold text-primary" : "text-text hover:bg-surface-muted",
                                         )}
                                     >

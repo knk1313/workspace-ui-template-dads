@@ -180,7 +180,7 @@ function ToastView({ item, dismiss }: { item: ToastItem; dismiss: (id: number) =
         <div
             ref={rootRef}
             data-type={item.type}
-            className={cn("pointer-events-auto flex items-start gap-2 rounded-dialog border-2 bg-surface p-4 pr-2 text-16 leading-170 tracking-2 text-text shadow-toast", color.frame)}
+            className={cn("pointer-events-auto flex items-start gap-2 rounded-dialog border-2 bg-surface p-4 pr-2 text-16 leading-body tracking-2 text-text shadow-toast", color.frame)}
             onMouseEnter={() => setPaused(true)}
             onMouseLeave={() => setPaused(false)}
             onFocus={() => setPaused(true)}

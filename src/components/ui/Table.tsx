@@ -86,7 +86,7 @@ export function Table({
                     className={cn(
                         // sticky ヘッダーで罫線が消えないよう border-separate にし、罫線は各セルの下線で描く
                         "m-0 border-separate border-spacing-0 text-left text-16 tracking-2 text-text",
-                        size === "dense" ? "leading-130" : "leading-170",
+                        size === "dense" ? "leading-130" : "leading-body",
                         fullWidth && "w-full",
                         className,
                     )}

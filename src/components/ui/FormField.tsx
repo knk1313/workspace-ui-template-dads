@@ -110,7 +110,7 @@ export function FormField({
         <FormFieldContext.Provider value={{ id, labelId, describedBy, invalid, required, size, group }}>
             <Wrapper
                 className={cn(
-                    "m-0 grid min-w-0 border-0 p-0 text-16 leading-170 tracking-2 text-text break-words",
+                    "m-0 grid min-w-0 border-0 p-0 text-16 leading-body tracking-2 text-text break-words",
                     ROW_GAP[size],
                     direction === "horizontal" && "md:grid-cols-[1fr_2fr] md:gap-x-6",
                     className,

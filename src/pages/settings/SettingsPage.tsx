@@ -265,7 +265,7 @@ function AccountDeletion() {
                         description="アカウントと、このアカウントで作成した下書きを削除します。削除したアカウントは元に戻せません。"
                     >
                         <div className="flex flex-col gap-4">
-                            <p className="m-0 text-std-16N-170 text-text">
+                            <p className="m-0 text-body text-text">
                                 処理中の申請がある場合は、担当者を変更してから削除してください。
                             </p>
                             <div>
@@ -468,7 +468,7 @@ function DisplayTab() {
                                 />
                             </FormField>
                             <Panel padding="sm" aria-live="polite">
-                                <p className="m-0 text-std-16N-170 text-text">
+                                <p className="m-0 text-body text-text">
                                     表示の例は<span className="nums font-bold text-text-strong">{formatDateTime(SAMPLE_DATETIME, { locale, timeZone })}</span>です
                                 </p>
                             </Panel>
@@ -491,7 +491,7 @@ function ScreenExamples() {
         <Card as="section">
             <CardHeader title="画面例" description="ナビゲーションに出ない、テンプレートに含まれる画面です" />
             <CardBody>
-                <ul className="m-0 flex list-disc flex-col gap-2 pl-6 text-std-16N-170">
+                <ul className="m-0 flex list-disc flex-col gap-2 pl-6 text-body">
                     <li>
                         <Link to="/login">ログイン画面</Link>
                     </li>

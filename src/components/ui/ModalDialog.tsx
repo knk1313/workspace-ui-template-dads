@@ -105,7 +105,7 @@ export function ModalDialog({
                 aria-labelledby={titleId}
                 aria-describedby={children ? bodyId : undefined}
                 className={cn(
-                    "flex max-h-full w-full max-w-full flex-col gap-3 rounded-dialog border border-border-emphasis bg-surface text-16 leading-170 tracking-2 text-text shadow-dialog break-words md:gap-4",
+                    "flex max-h-full w-full max-w-full flex-col gap-3 rounded-dialog border border-border-emphasis bg-surface text-16 leading-body tracking-2 text-text shadow-dialog break-words md:gap-4",
                     SIZE[size],
                     className,
                 )}

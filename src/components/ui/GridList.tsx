@@ -23,7 +23,7 @@ export type GridListProps = HTMLAttributes<HTMLUListElement> & {
 
 export function GridList({ columns = 3, className, children, ...props }: GridListProps) {
     return (
-        <ul role="list" className={cn("m-0 grid list-none gap-4 p-0 text-16 leading-170 tracking-2 text-text", COLUMNS[columns], className)} {...props}>
+        <ul role="list" className={cn("m-0 grid list-none gap-4 p-0 text-16 leading-body tracking-2 text-text", COLUMNS[columns], className)} {...props}>
             {children}
         </ul>
     );

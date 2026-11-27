@@ -62,10 +62,10 @@ export function HeaderActions({ userName }: HeaderActionsProps) {
             </Tooltip>
             <Popover title="お知らせ" placement="bottom-end" trigger={<IconButton icon={Bell} label="お知らせ" />}>
                 <div className="w-72 max-w-full sm:w-80">
-                    {notifications.error && <p className="m-0 p-4 text-std-16N-170 text-text">お知らせを読み込めませんでした。時間をおいて開き直してください。</p>}
-                    {notifications.isLoading && <p className="m-0 p-4 text-std-16N-170 text-text-muted">読み込んでいます</p>}
+                    {notifications.error && <p className="m-0 p-4 text-body text-text">お知らせを読み込めませんでした。時間をおいて開き直してください。</p>}
+                    {notifications.isLoading && <p className="m-0 p-4 text-body text-text-muted">読み込んでいます</p>}
                     {!notifications.error && !notifications.isLoading && notifications.items.length === 0 && (
-                        <p className="m-0 p-4 text-std-16N-170 text-text-muted">新しいお知らせはありません</p>
+                        <p className="m-0 p-4 text-body text-text-muted">新しいお知らせはありません</p>
                     )}
                     <StackedList>
                         {notifications.items.map((n) => (

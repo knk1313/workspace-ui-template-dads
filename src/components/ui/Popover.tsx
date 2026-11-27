@@ -107,11 +107,11 @@ export function Popover({ trigger, title, children, placement = "bottom-start", 
                     tabIndex={-1}
                     onKeyDown={onKeyDown}
                     className={cn(
-                        "absolute top-full z-30 mt-1 w-max max-w-xs rounded-popup border border-border bg-surface p-4 text-16 leading-170 tracking-2 text-text shadow-popup md:max-w-sm",
+                        "absolute top-full z-30 mt-1 w-max max-w-xs rounded-popup border border-border bg-surface p-4 text-16 leading-body tracking-2 text-text shadow-popup md:max-w-sm",
                         placement === "bottom-end" ? "right-0" : "left-0",
                     )}
                 >
-                    <h2 id={titleId} className="m-0 mb-2 text-std-17B-170 text-text-strong">
+                    <h2 id={titleId} className="m-0 mb-2 text-17 font-bold leading-body tracking-2 text-text-strong">
                         {title}
                     </h2>
                     {children}

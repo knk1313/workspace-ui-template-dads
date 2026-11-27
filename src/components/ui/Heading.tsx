@@ -41,7 +41,7 @@ const SIZE: Record<HeadingSize, string> = {
     24: "text-std-24B-150",
     20: "text-std-20B-150",
     18: "text-std-18B-160",
-    16: "text-std-16B-170",
+    16: "text-body-bold",
 };
 
 // 肩見出しのサイズ（heading.css の --_shoulder-size）。
@@ -51,11 +51,11 @@ const SHOULDER: Record<HeadingSize, string> = {
     45: "text-22 leading-150 tracking-2",
     36: "text-20 leading-150 tracking-2",
     32: "text-18 leading-160 tracking-2",
-    28: "text-16 leading-170 tracking-2",
-    24: "text-16 leading-170 tracking-2",
-    20: "text-16 leading-170 tracking-2",
-    18: "text-16 leading-170 tracking-2",
-    16: "text-16 leading-170 tracking-2",
+    28: "text-16 leading-body tracking-2",
+    24: "text-16 leading-body tracking-2",
+    20: "text-16 leading-body tracking-2",
+    18: "text-16 leading-body tracking-2",
+    16: "text-16 leading-body tracking-2",
 };
 
 // チップの幅は文字サイズの 1/3（heading.css: calc(1em / 3)）。spacing スケールで近似する。
@@ -127,7 +127,7 @@ export function Heading({ children, level, size, shoulder, subtitle, chip = fals
             <Tag className="m-0" {...props}>
                 {content}
             </Tag>
-            {subtitle && <p className="m-0 text-std-16N-170 text-text-muted">{subtitle}</p>}
+            {subtitle && <p className="m-0 text-body text-text-muted">{subtitle}</p>}
         </hgroup>
     );
 }

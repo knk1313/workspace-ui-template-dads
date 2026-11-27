@@ -15,7 +15,7 @@
   --color-surface-strong: var(--color-solid-gray-800);
   --color-surface-hover: var(--color-key-1200);
   --color-surface-selected: var(--color-key-1100);
-  --color-surface-highlight: var(--color-key-700);
+  --color-surface-highlight: var(--color-key-900); /* 白い文字で 4.5:1、黒い地に対して 3:1 */
   --color-on-highlight: var(--color-white);
   --color-scrim: var(--color-opacity-gray-800);
   --color-scrim-light: var(--color-opacity-gray-500);
@@ -76,8 +76,8 @@
   --color-warning-hover: var(--color-yellow-300);
   --color-warning-chip: var(--color-yellow-400);
   --color-warning-surface: var(--color-yellow-1200);
-  --color-info: var(--color-blue-300);
-  --color-info-surface: var(--color-blue-1200);
+  --color-info: var(--color-key-300);
+  --color-info-surface: var(--color-key-1200);
   --color-neutral: var(--color-solid-gray-420);
   --color-neutral-surface: var(--color-solid-gray-800);
 

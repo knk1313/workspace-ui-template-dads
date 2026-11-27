@@ -148,7 +148,7 @@ export function ChartFrame({
         <figure className={cn("flex min-w-0 flex-col gap-2", className)}>
             <figcaption className="flex flex-col gap-1">
                 <div className="flex flex-wrap items-start justify-between gap-2">
-                    <Heading className="text-std-16B-170">
+                    <Heading className="text-body-bold">
                         {title}
                         {unit && <span className="ml-2 font-normal text-text-muted">（単位：{unit}）</span>}
                     </Heading>

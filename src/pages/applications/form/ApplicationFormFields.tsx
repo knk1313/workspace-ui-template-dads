@@ -168,7 +168,7 @@ export function ApplicationFormFields({ values, errors, onChange, minDate, keptA
                         onChange={(v) => onChange("priority", v)}
                         aria-describedby={priorityHelpId}
                     />
-                    <p id={priorityHelpId} className="m-0 text-16 leading-170 tracking-2 text-text-muted">
+                    <p id={priorityHelpId} className="m-0 text-16 leading-body tracking-2 text-text-muted">
                         期限が迫っている申請は、オンにすると審査の順番を早めます
                     </p>
                 </div>
@@ -191,7 +191,7 @@ export function ApplicationFormFields({ values, errors, onChange, minDate, keptA
                         aria-describedby={keptAttachments.length > 0 ? keptHelpId : undefined}
                     />
                     {keptAttachments.length > 0 && (
-                        <div id={keptHelpId} className="mt-4 flex flex-col gap-1 text-16 leading-170 tracking-2 text-text">
+                        <div id={keptHelpId} className="mt-4 flex flex-col gap-1 text-16 leading-body tracking-2 text-text">
                             <p className="m-0">このほかに、ここでは変更できない形式の添付ファイルがあります。更新しても残ります。</p>
                             <ul className="m-0 flex flex-col gap-1 pl-6">
                                 {keptAttachments.map((f, i) => (

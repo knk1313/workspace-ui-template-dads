@@ -199,7 +199,7 @@ export function TabPanel({ value, children, className, ...props }: TabPanelProps
             aria-labelledby={tabId(baseId, value)}
             tabIndex={0}
             hidden={!selected}
-            className={cn("min-w-0 pt-4 text-16 leading-170 tracking-2 text-text focus-visible:focus-ring focus-visible:rounded-inline", className)}
+            className={cn("min-w-0 pt-4 text-16 leading-body tracking-2 text-text focus-visible:focus-ring focus-visible:rounded-inline", className)}
             {...props}
         >
             {children}

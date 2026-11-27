@@ -33,7 +33,7 @@ export function Breadcrumb({ items, collapseOnMobile = false, label = "パンく
     const lastIndex = items.length - 1;
 
     return (
-        <nav aria-label={label} className={cn("text-16 leading-170 tracking-2 text-text", className)} {...props}>
+        <nav aria-label={label} className={cn("text-16 leading-body tracking-2 text-text", className)} {...props}>
             <ol className="m-0 list-none p-0">
                 {items.map((item, i) => {
                     const isLast = i === lastIndex;

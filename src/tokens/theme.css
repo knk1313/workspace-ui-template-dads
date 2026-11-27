@@ -41,8 +41,9 @@
   --color-control-active: var(--color-solid-gray-600);
 
   /* --- プライマリー（キーカラー） --- */
-  --color-primary: var(--color-key-900);
-  --color-primary-hover: var(--color-key-1000);
+  /* DADS の既定（blue）は key-900。cyan の 900 は黄色のフォーカスの塗りの上で 4.09:1 のため、1 段濃い 1000 を使う */
+  --color-primary: var(--color-key-1000);
+  --color-primary-hover: var(--color-key-1100);
   --color-primary-active: var(--color-key-1200);
   --color-primary-strong: var(--color-key-1100); /* チェック済みの hover */
   --color-primary-surface: var(--color-key-50); /* テキストボタンの hover、情報の薄い面 */

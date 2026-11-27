@@ -26,7 +26,7 @@ export function Panel({ children, title, titleAs: Heading = "h3", padding = "md"
             {...props}
         >
             {title && (
-                <Heading id={headingId} className="m-0 text-std-16B-170 text-text-strong">
+                <Heading id={headingId} className="m-0 text-body-bold text-text-strong">
                     {title}
                 </Heading>
             )}

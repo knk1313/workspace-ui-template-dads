@@ -8,7 +8,10 @@
 
 ### 変更
 
-- **トークン**：部品の角丸と影を、役割のトークン（`rounded-button`、`rounded-card`、`shadow-popup`、`shadow-dialog`など）に置き換えました。部品に`rounded-8`や`shadow-1`のようなDADSの段を直接書くと、`npm run lint`で止まります。既定の値は同じで、見た目は変わりません。
+- **見た目の刷新**：「信頼感・落ち着き」に寄せて、基本デザインの値を変えました。キーカラーをcyanにし、本文の行の高さを1.5に詰め、角丸を控えめ（操作する部品は4px、面の部品は6px）にしました。余白、影、レイアウト、リンクの色は変えていません。理由は`docs/decisions.md`のD-36にあります。
+- **フォント**：Noto Sans JPの配信をやめ、OSの標準の書体を使うようにしました。`@fontsource-variable/noto-sans-jp`を依存から外しました。
+- **行の高さ**：部品の本文は`text-body`、`text-body-bold`、`leading-body`を使い、行の高さを`local.css`の`--leading-body`の1か所で決めるようにしました。部品に`leading-170`や`text-std-16N-170`を直接書くと、`npm run lint`で止まります。
+- **トークン**：部品の角丸と影を、役割のトークン（`rounded-button`、`rounded-card`、`shadow-popup`、`shadow-dialog`など）に置き換えました。部品に`rounded-8`や`shadow-1`のようなDADSの段を直接書くと、`npm run lint`で止まります。
 - **ブレークポイント**：JSで画面の幅を見るときは、`src/tokens/breakpoints.ts`の`minWidth()`を使うようにしました。メディアクエリの幅を直接書くと、`npm run lint`で止まります。
 - **ダークモード**：プライマリーと選択の色が`blue-*`を直接指していたため、キーカラーを替えてもダークモードに効きませんでした。`key-*`を指すように直しました。
 

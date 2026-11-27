@@ -17,7 +17,7 @@ export type EmptyStateProps = {
 
 export function EmptyState({ icon: LeadIcon, title, as: Heading = "h2", description, action, className }: EmptyStateProps) {
     return (
-        <div className={cn("flex flex-col items-center justify-center gap-2 px-6 py-16 text-center text-16 leading-170 tracking-2 text-text", className)}>
+        <div className={cn("flex flex-col items-center justify-center gap-2 px-6 py-16 text-center text-16 leading-body tracking-2 text-text", className)}>
             {LeadIcon && <LeadIcon aria-hidden="true" focusable="false" className="mb-2 size-icon-xl text-text-subtle" />}
             <Heading className="m-0 text-std-20B-150 text-text-strong">{title}</Heading>
             {description && <p className="m-0 max-w-prose text-text-muted">{description}</p>}

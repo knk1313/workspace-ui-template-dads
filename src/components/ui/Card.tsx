@@ -87,7 +87,7 @@ export type CardHeaderProps = Omit<HTMLAttributes<HTMLDivElement>, "title"> & {
 const HEADING_SIZE: Record<NonNullable<CardHeaderProps["as"]>, string> = {
     h2: "text-std-20B-150",
     h3: "text-std-18B-160",
-    h4: "text-std-16B-170",
+    h4: "text-body-bold",
 };
 
 export function CardHeader({ title, as: Heading = "h2", description, actions, href, label, className, ...props }: CardHeaderProps) {

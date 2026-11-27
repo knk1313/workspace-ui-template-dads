@@ -50,7 +50,7 @@ export function FormSection({ title, description, children, layout = "stack", he
                 <Heading id={headingId} className="m-0 text-std-20B-150 text-text-strong">
                     {title}
                 </Heading>
-                {description && <p className="m-0 text-16 leading-170 tracking-2 text-text-muted">{description}</p>}
+                {description && <p className="m-0 text-16 leading-body tracking-2 text-text-muted">{description}</p>}
             </div>
             <div className={cn("flex min-w-0 flex-col gap-6", settings && "md:col-span-2")}>{children}</div>
         </section>

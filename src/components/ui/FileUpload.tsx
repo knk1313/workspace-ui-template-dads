@@ -115,12 +115,12 @@ export function FileUpload({ files, onChange, accept, multiple = false, dropArea
             <label htmlFor={inputId} className={cn(buttonClassName({ variant: "outline", size: "md" }), "cursor-pointer peer-focus-visible:focus-ring", isInvalid && "border-error")}>
                 {buttonLabel}
             </label>
-            {dropArea && <p className="m-0 min-w-48 flex-1 text-16 leading-170 tracking-2 text-text">または、このエリア内にドラッグ＆ドロップ</p>}
+            {dropArea && <p className="m-0 min-w-48 flex-1 text-16 leading-body tracking-2 text-text">または、このエリア内にドラッグ＆ドロップ</p>}
         </div>
     );
 
     return (
-        <div className={cn("flex flex-col gap-4 text-16 leading-170 tracking-2 text-text break-words", className)}>
+        <div className={cn("flex flex-col gap-4 text-16 leading-body tracking-2 text-text break-words", className)}>
             {dropArea ? (
                 <div
                     onDragOver={(e) => {

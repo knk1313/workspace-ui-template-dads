@@ -15,12 +15,12 @@
 
 ## ローカルデザインシステムとして調整する
 
-DADSは、導入先に合わせて基本デザインを編集し、「ローカルデザインシステム」を作ることを想定している（[ローカルデザインシステムの作成](https://design.digital.go.jp/dads/guidance/local-design-system/)）。このテンプレートでは、編集する7項目の値を`src/tokens/local.css`に集めた。既定の値はDADS（デジタル庁ウェブサイトベース）のままで、導入先に合わせて書き換える起点にする。
+DADSは、導入先に合わせて基本デザインを編集し、「ローカルデザインシステム」を作ることを想定している（[ローカルデザインシステムの作成](https://design.digital.go.jp/dads/guidance/local-design-system/)）。このテンプレートでは、編集する7項目の値を`src/tokens/local.css`に集めた。今の値は、DADSの既定から「信頼感・落ち着き」に寄せて調整したもの（`docs/decisions.md` D-36）。導入先に合わせて書き換える起点にする。
 
 | 項目 | `local.css`のトークン | 守る要件 | 検査 |
 | --- | --- | --- | --- |
 | カラー | `--color-key-50`〜`1200`（キーカラーの13段） | テキストは4.5:1以上、枠線などは3:1以上。意味色の色相（エラーは赤、成功は緑）とフォーカスの色は変えない | `contrast.test.ts`、`local.test.ts` |
-| タイポグラフィ | `--font-sans`、`--font-mono`、`--body-font-size`、`--body-line-height`、`--body-letter-spacing` | 本文は16px以上、行の高さは1.5以上。14px未満は使わない | `local.test.ts` |
+| タイポグラフィ | `--font-sans`、`--font-mono`、`--leading-body`、`--body-font-size`、`--body-letter-spacing` | 本文は16px以上、行の高さは1.5以上。14px未満は使わない | `local.test.ts` |
 | 余白 | `--spacing`（1段 = 4px）、`--spacing-page-x`、`--spacing-page-x-wide`、`--spacing-page-y` | 値に規則性を持たせる（8pxの倍数）。タップ領域は44px以上 | `local.test.ts` |
 | 角の形状 | `--radius-button`、`--radius-input`、`--radius-card`など部品ごとの14種 | `primitives.css`の`--radius-4`〜`32`から選ぶ | `local.test.ts`、`npm run lint` |
 | ドロップシャドウとエレベーション | `--shadow-popup`、`--shadow-drawer`、`--shadow-dialog`など役割ごとの5種 | ダイアログはhoverで浮く要素より2段以上高くする。影を付けても3:1の枠線を付ける | `local.test.ts` |
@@ -51,7 +51,7 @@ DADSは、導入先に合わせて基本デザインを編集し、「ローカ�
 | 色相 | 階調 |
 | --- | --- |
 | `blue` `light-blue` `cyan` `green` `lime` `yellow` `orange` `red` `magenta` `purple` | 50 / 100 / 200 / 300 / 400 / 500 / 600 / 700 / 800 / 900 / 1000 / 1100 / 1200 |
-| `key`（= blue の別名、キーカラー） | 同上 |
+| `key`（キーカラー。`local.css`で色相を選ぶ。今は cyan） | 同上 |
 | `solid-gray` | 50 / 100 / 200 / 300 / 400 / 420 / 500 / 536 / 600 / 700 / 800 / 900 |
 | `opacity-gray`（黒の透過） | 50 〜 900 |
 | `white` `black` | - |
@@ -65,7 +65,7 @@ DADSは、導入先に合わせて基本デザインを編集し、「ローカ�
 | 文字 | `text` / `text-strong` / `text-secondary` / `text-muted` / `text-subtle` / `text-disabled` / `text-on-primary` / `text-inverse` | gray-800 / gray-900 / gray-700 / gray-600 / gray-600 / gray-420 / white / white |
 | 線 | `border` / `border-on-canvas` / `border-strong` / `border-emphasis` / `border-table` / `border-disabled` | gray-420 / gray-536 / gray-600 / black / gray-500 / gray-300 |
 | 操作部品 | `control-hover` / `control-active`（ラジオボタンの円、スイッチのリング） | gray-420 / gray-600 |
-| プライマリー | `primary` / `primary-hover` / `primary-active` / `primary-strong` / `primary-surface` / `primary-surface-hover` / `primary-outline-hover` / `primary-outline-active` | key-900 / 1000 / 1200 / 1100 / 50 / 100 / 200 / 300 |
+| プライマリー | `primary` / `primary-hover` / `primary-active` / `primary-strong` / `primary-surface` / `primary-surface-hover` / `primary-outline-hover` / `primary-outline-active` | key-1000 / 1100 / 1200 / 1100 / 50 / 100 / 200 / 300 |
 | リンク | `link` / `link-hover` / `link-active` / `link-visited` | blue-1000 / blue-900 / orange-900 / magenta-900 |
 | フォーカス | `focus` / `focus-ring` / `focus-fill` | black / yellow-300 / yellow-300（変更禁止） |
 | 意味色 | `success` / `success-surface` / `success-hover`、`error` / `error-hover` / `error-active` / `error-surface` / `error-outline-hover`、`warning` / `warning-hover` / `warning-chip` / `warning-surface`、`info` / `info-surface`、`neutral` / `neutral-surface` | green-800 / green-50 / green-1000、red-900 / red-1000 / red-1200 / red-50 / red-200、yellow-1000 / yellow-1100 / yellow-400 / yellow-50、key-900 / key-50、gray-536 / gray-50 |
@@ -87,14 +87,15 @@ DADSは、導入先に合わせて基本デザインを編集し、「ローカ�
 
 ## タイポグラフィ
 
-- フォント: `font-sans`（Noto Sans JP Variable → システムフォント）、`font-mono`（Noto Sans Mono）。値は`local.css`
-- 本文の既定値: `local.css`の`--body-font-size`（1rem）、`--body-line-height`（1.7）、`--body-letter-spacing`（0.02em）を`body`に当てる
+- フォント: `font-sans`（OSの標準の書体。`system-ui`、ヒラギノ角ゴシック、Yu Gothic UI、メイリオなど）、`font-mono`（OSの標準の等幅の書体）。値は`local.css`。フォントは配信しない（`docs/decisions.md` D-02）
+- 本文の既定値: `local.css`の`--body-font-size`（1rem）、`--leading-body`（1.5）、`--body-letter-spacing`（0.02em）を`body`に当てる
+- 部品の本文: `text-body`（16px、標準の太さ、行の高さ`--leading-body`）、`text-body-bold`（太字）、`leading-body`を使う。DADSの`text-std-16N-170`や`leading-170`を部品に直接書くと、`npm run lint`で検出される
 - 文字サイズ: `text-14` `text-16` `text-17` `text-18` `text-20` `text-22` `text-24` `text-26` `text-28` `text-32` `text-36` `text-45` `text-48` `text-57` `text-64`（Tailwind の `text-sm` 等は無効）
 - 行高: `leading-100` `leading-120` `leading-130` `leading-140` `leading-150` `leading-160` `leading-170` `leading-175`
 - 文字間隔: `tracking-0` `tracking-1`（0.01em） `tracking-2`（0.02em）
 - テキストスタイル: `text-dsp-{64|57|48}{B|N}-140`、`text-std-{45|36}{B|N}-140`、`text-std-{32|28|26|24|22|20}{B|N}-150`、`text-std-18{B|N}-160`、`text-std-{17|16}{B|N}-170`、`text-std-16{B|N}-175`、`text-dns-{17|16|14}{B|N}-{130|120}`、`text-oln-{17|16|14}{B|N}-100`、`text-mono-{17|16|14}{B|N}-150`
 
-使い分け: 本文 `text-std-16N-170`、見出し `text-std-{20〜32}B-150`、表の中など密度を優先する場所 `text-dns-16N-130`（最小 `text-dns-14N-130`）、ボタン等 1 行 UI `text-oln-16B-100`。
+使い分け: 本文 `text-body`、見出し `text-std-{20〜32}B-150`、表の中など密度を優先する場所 `text-dns-16N-130`（最小 `text-dns-14N-130`）、ボタン等 1 行 UI `text-oln-16B-100`。
 
 ## 角丸・影・線
 
@@ -102,19 +103,19 @@ DADSは、導入先に合わせて基本デザインを編集し、「ローカ�
 
 | 役割 | 角丸 | 既定 |
 | --- | --- | --- |
-| ボタンのlgとmd、アイコンボタン、メニューのボタン | `rounded-button` | 8 |
-| ボタンのsm、閉じるボタン | `rounded-button-sm` | 6 |
+| ボタンのlgとmd、アイコンボタン、メニューのボタン | `rounded-button` | 4 |
+| ボタンのsm、閉じるボタン | `rounded-button-sm` | 4 |
 | ボタンのxs | `rounded-button-xs` | 4 |
-| 入力欄、セレクト、テキストエリア | `rounded-input` | 8 |
+| 入力欄、セレクト、テキストエリア | `rounded-input` | 4 |
 | チェックボックス | `rounded-checkbox` | 4 |
-| カード、パネル、ドロップ領域 | `rounded-card` | 8 |
-| メニュー、リストボックス、カレンダー、ポップオーバー | `rounded-popup` | 8 |
-| モーダルダイアログ、コマンドパレット、トースト | `rounded-dialog` | 8 |
-| ノティフィケーションバナー | `rounded-banner` | 12 |
-| チップラベル、入力欄の「必須」 | `rounded-chip` | 8 |
+| カード、パネル、ドロップ領域 | `rounded-card` | 6 |
+| メニュー、リストボックス、カレンダー、ポップオーバー | `rounded-popup` | 6 |
+| モーダルダイアログ、コマンドパレット、トースト | `rounded-dialog` | 6 |
+| ノティフィケーションバナー | `rounded-banner` | 8 |
+| チップラベル、入力欄の「必須」 | `rounded-chip` | 4 |
 | ツールチップ | `rounded-tooltip` | 4 |
-| サイドナビゲーションの項目 | `rounded-nav-item` | 8 |
-| アバター（四角） | `rounded-avatar` | 8 |
+| サイドナビゲーションの項目 | `rounded-nav-item` | 4 |
+| アバター（四角） | `rounded-avatar` | 4 |
 | リンクのフォーカス、スケルトンの行 | `rounded-inline` | 4 |
 | 円（ラジオボタン、スイッチなど） | `rounded-full` | - |
 

@@ -18,7 +18,7 @@
 
 - **デザイントークン**：色、フォント、文字の大きさ、行の高さ、角丸、影には、公式の`@digital-go-jp/design-tokens` 2.0.1の値を使っています。Tailwindの既定の色と文字の大きさは使えなくしてあり、トークン以外の色や寸法は書けません。
 - **ローカルデザインシステム**：キーカラー、リンクの色、書体、余白、部品ごとの角丸と影、ブレークポイントは、`src/tokens/local.css`の1つのファイルで変えられます。変えた値がDADSの要件（コントラスト、文字の大きさ、タップ領域など）を満たすかは、テストで確かめます。手順は[docs/tokens.md](docs/tokens.md)にあります。
-- **文字**：Noto Sans JPを自前で配信します。本文は16pxを基準にし、14pxは補足だけに使います。14px未満は使いません。
+- **文字**：フォントは配信せず、OSの標準の書体を使います（DADSはNoto Sans JPを指定しています。理由は[docs/decisions.md](docs/decisions.md)のD-02）。本文は16px、行の高さは1.5を基準にし、14pxは補足だけに使います。14px未満は使いません。
 - **フォーカスの表示**：DADSの形で、黒い4pxの枠に黄色い2pxの帯を重ねています。
 - **ダークモード**：設定画面で、OSの設定に合わせるか、ライトかダークかを選べます。DADSにはダークモードの規定がないため、配色はDADSのトークンから独自に選んでいます。理由は、[docs/decisions.md](docs/decisions.md)のD-31に書いています。
 - **コントラスト**：文字は4.5:1以上、部品の形とグラフは3:1以上です。トークンの組み合わせごとにテストで確かめ、実際のブラウザーでもaxeで検査しています。
@@ -35,7 +35,6 @@
 | ビルド | Vite 8、TypeScript 6 |
 | 画面 | React 19、react-router 8（データルーター）、Tailwind CSS v4、lucide-react（アイコン） |
 | グラフ | Recharts 3（`src/components/charts/`のラッパーからだけ使う） |
-| フォント | `@fontsource-variable/noto-sans-jp` |
 | テスト | Vitest、Testing Library、axe-core、Playwright、`@axe-core/playwright` |
 | 検査 | ESLint 10、`scripts/check-design-tokens.mjs`（色コードと任意の値の直書きを見つける）、`scripts/check-playwright-image.mjs` |
 
@@ -196,4 +195,3 @@ Dependabot（`.github/dependabot.yml`）が、npmのパッケージを毎週、G
 | --- | --- |
 | React、React DOM、React Router、Recharts | MIT License |
 | Lucide | ISC License |
-| Noto Sans JP | SIL Open Font License 1.1 |

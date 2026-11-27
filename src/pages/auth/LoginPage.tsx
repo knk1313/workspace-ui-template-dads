@@ -94,7 +94,7 @@ export default function LoginPage() {
                                 ログイン
                             </h1>
                             {/* 見本用。自分のアプリにするときは消す */}
-                            <p className="m-0 text-std-16N-170 text-text-muted">見本のため、どのメールアドレスとパスワードでもログインできます</p>
+                            <p className="m-0 text-body text-text-muted">見本のため、どのメールアドレスとパスワードでもログインできます</p>
                         </div>
 
                         {authFailed && (
@@ -142,7 +142,7 @@ export default function LoginPage() {
                         </form>
 
                         {/* パスワード再設定の画面はテンプレートに含めていない（開くと 404）。実際の URL に差し替える。 */}
-                        <p className="m-0 text-center text-std-16N-170">
+                        <p className="m-0 text-center text-body">
                             <Link to="/password-reset">パスワードを忘れた場合</Link>
                         </p>
                     </CardBody>
@@ -150,7 +150,7 @@ export default function LoginPage() {
             </main>
             {/* 利用規約・お問い合わせもテンプレートでは 404 になる。実際の URL に差し替える。 */}
             <footer className="px-4 pb-8">
-                <ul className="m-0 flex list-none flex-wrap items-center justify-center gap-x-6 gap-y-2 p-0 text-std-16N-170">
+                <ul className="m-0 flex list-none flex-wrap items-center justify-center gap-x-6 gap-y-2 p-0 text-body">
                     <li>
                         <Link to="/terms">利用規約</Link>
                     </li>

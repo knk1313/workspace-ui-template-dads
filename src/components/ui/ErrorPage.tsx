@@ -18,7 +18,7 @@ export type ErrorPageProps = {
 export function ErrorPage({ status, title, description, actions, className }: ErrorPageProps) {
     const titleId = useId();
     return (
-        <section aria-labelledby={titleId} className={cn("flex flex-col items-center gap-4 px-4 py-16 text-center text-16 leading-170 tracking-2 text-text", className)}>
+        <section aria-labelledby={titleId} className={cn("flex flex-col items-center gap-4 px-4 py-16 text-center text-16 leading-body tracking-2 text-text", className)}>
             {status !== undefined && <p className="nums m-0 text-dsp-48B-140 text-text-subtle">{status}</p>}
             <h1 id={titleId} className="m-0 text-std-28B-150 text-text-strong">
                 {title}
